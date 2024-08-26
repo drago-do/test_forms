@@ -1,30 +1,28 @@
 import mongoose from "mongoose";
 
-// Definir el esquema de Sección
-const seccionSchema = new mongoose.Schema({
-  // Define los campos de tu esquema de sección aquí
-  // Por ejemplo:
-  nombre: { type: String, required: true },
-  descripcion: { type: String }
-});
-
-// Definir el esquema de Prueba
-const pruebaSchema = new mongoose.Schema({
-  titulo: { type: String, required: true },
-  descripcion: { type: String },
-  tipo: { type: String, required: true },
-  escalas: {
-    nivel: { type: Number, required: true },
-    escala: [{ type: String }]
-  },
-  secciones: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Seccion' }], // Referencia al modelo de Sección
-  creado_por: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User", // Ajusta esto si el modelo de usuarios tiene otro nombre
+// Definir el esquema de Pregunta
+const preguntaSchema = new mongoose.Schema({
+  texto: { type: String, required: true },
+  opciones: {
+    type: String,
+    enum: ['opcion_multiple', 'verdadero_falso', 'escala'], // Define los tipos de opciones
     required: true
   },
-  fecha_creacion: { type: Date, default: Date.now }
+  respuestas_correctas: {
+    type: [String], // Array de índices de opciones correctas
+    validate: [array => array.length > 0, 'Debe haber al menos una respuesta correcta']
+  },
+  valor_maximo_individual: {
+    type: Number,
+    min: 0,
+    required: function() {
+      return this.opciones === 'opcion_multiple' || this.opciones === 'verdadero_falso'; // Solo necesario para opciones múltiples o verdadero/falso
+    }
+  }
 });
 
-// Exportar el modelo
-export default mongoose.model("Prueba", pruebaSchema);
+// Crear el modelo Pregunta
+const Pregunta = mongoose.model("Pregunta", preguntaSchema);
+
+export default Pregunta;
+
