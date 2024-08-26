@@ -1,16 +1,16 @@
 "use client";
 import Image from "next/image";
 import Container from "@mui/material/Container";
-import MenuAppBar from "@/components/general/MenuAppBar";
+import ContainerPruebasCarrousel from "@/components/home/ContainerPruebasCarrousel";
 
 export default function Home() {
   return (
     <Container maxWidth="lg">
-      <MenuAppBar />
-      <Image src="/images/logo.png" alt="logo" width="100" height="100" />
-
-      <h1>Hello Next.js</h1>
-      <h2>Welcome to Next.js</h2>
+      <main className="flex flex-col w-full items-center">
+        <div className="w-16 h-16 rounded-full  bg-black dark:bg-white  my-3" />
+        <ContainerPruebasCarrousel title={"Autoconocimiento"} />
+        <ContainerPruebasCarrousel title={"vocacional"} />
+      </main>
     </Container>
   );
 }

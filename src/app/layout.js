@@ -14,6 +14,7 @@ import { esES } from "@mui/material/locale";
 import { StyledEngineProvider } from "@mui/material/styles";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster, toast } from "sonner";
+import MenuAppBar from "@/components/general/MenuAppBar";
 
 const materialSymbols = localFont({
   variable: "--font-family-symbols", // Variable name (to reference after in CSS/styles)
@@ -28,7 +29,7 @@ export const theme = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      main: "#BB9656",
+      main: "#7D2181",
       contrastText: "#fff",
     },
     secondary: {
@@ -61,6 +62,7 @@ export default function RootLayout({ children }) {
       document.removeEventListener("contextmenu", handleContextMenu);
     };
   }, []);
+
   return (
     <html lang="es" className={`${materialSymbols.variable}`}>
       <Toaster richColors position="bottom-left" closeButton />
@@ -68,6 +70,7 @@ export default function RootLayout({ children }) {
         <ThemeProvider theme={theme}>
           {/* <Suspense fallback={<Loading />}> */}
           <body>
+            <MenuAppBar />
             {children}
             <SpeedInsights />
           </body>
