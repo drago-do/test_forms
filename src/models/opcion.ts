@@ -10,7 +10,7 @@ const opcionSchema = new mongoose.Schema({
   }
 });
 
-// Crear el modelo Opcion
+// Crear el modelo Opcio
 const Opcion = mongoose.model("Opcion", opcionSchema);
 
 export default Opcion;
