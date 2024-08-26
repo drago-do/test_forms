@@ -47,7 +47,7 @@ const User = mongoose.model('User', userSchema);
 // Configura la conexión a MongoDB
 const mongoUri = process.env.MONGO_URI || 'mongodb+srv://drago:8WXxShCb0GPacP9M@cluster0.xf796kr.mongodb.net/?retryWrites=true&w=majority';
 
-mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(mongoUri)
   .then(() => console.log('Conectado a MongoDB'))
   .catch(err => console.error('Error al conectar a MongoDB', err));
 
