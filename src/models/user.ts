@@ -27,17 +27,14 @@ const userSchema = new mongoose.Schema({
     match: /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/,
   },
   password: { type: String, required: true }, // Cambiado a String para contraseñas
-  role: { type: String, required: true }, // Campo para rol
+  role: { type: String, required: true, default: 'User' }, // Campo para rol
   creationDate: { type: Date, default: Date.now },
-  fullName: { type: String, required: true }, // Campo para nombre completo
   phone: { type: String, required: true, maxlength: 10 }, // Campo para teléfono con max 10 caracteres
   currentSchool: { type: String },
   educationLevel: { type: String },
   generation: { type: String },
   grade: { type: String },
   group: { type: String },
-  permissions: [userPermissionsSchema],
-  image: { type: String }, // Asumiendo que `Image` es una URL o path en String
   updateDate: { type: Date, default: Date.now },
 });
 
