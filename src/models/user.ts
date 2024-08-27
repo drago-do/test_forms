@@ -1,40 +1,46 @@
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
+import mongoose, { Schema, Document, model, models } from 'mongoose';
 
-// Cargar variables de entorno desde el archivo .env
-dotenv.config();
+// Definir la interfaz del documento
+export interface IUser extends Document {
+  name: string;
+  lastName: string;
+  email: string;
+  password: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-// Define el esquema de usuario
-const userSchema = new mongoose.Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  email: {
-    type: String,
-    required: true,
-    index: true,
-    unique: true,
-    match: /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/,
+// Definir el esquema de Mongoose
+const UserSchema: Schema<IUser> = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
   },
-  password: { type: String, required: true }, // Cambiado a String para contraseñas
-  role: { type: String, required: true, default: 'User' }, // Campo para rol
-  creationDate: { type: Date, default: Date.now },
-  phone: { type: String, required: true, maxlength: 10 }, // Campo para teléfono con max 10 caracteres
-  currentSchool: { type: String },
-  educationLevel: { type: String },
-  generation: { type: String },
-  grade: { type: String },
-  group: { type: String },
-  updateDate: { type: Date, default: Date.now },
-});
+  {
+    timestamps: true, // Crea automáticamente los campos createdAt y updatedAt
+  }
+);
 
-// Exporta el modelo
-const User = mongoose.model('User', userSchema);
-
-// Configura la conexión a MongoDB usando una variable de entorno
-const mongoUri = process.env.MONGO_URI;
-
-mongoose.connect(mongoUri)
-  .then(() => console.log('Conectado a MongoDB'))
-  .catch(err => console.error('Error al conectar a MongoDB', err));
+// Verificar si el modelo ya está definido antes de compilarlo
+const User = models.User || model<IUser>('User', UserSchema);
 
 export default User;
