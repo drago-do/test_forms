@@ -14,7 +14,6 @@ import { esES } from "@mui/material/locale";
 import { StyledEngineProvider } from "@mui/material/styles";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster, toast } from "sonner";
-import MenuAppBar from "@/components/general/MenuAppBar";
 
 const materialSymbols = localFont({
   variable: "--font-family-symbols", // Variable name (to reference after in CSS/styles)
@@ -70,7 +69,6 @@ export default function RootLayout({ children }) {
         <ThemeProvider theme={theme}>
           {/* <Suspense fallback={<Loading />}> */}
           <body>
-            <MenuAppBar />
             {children}
             <SpeedInsights />
           </body>

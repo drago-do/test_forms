@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import Switch from "@mui/material/Switch";
@@ -12,12 +13,19 @@ import FormGroup from "@mui/material/FormGroup";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 
+import { useRouter } from "next/navigation";
+
 export default function MenuAppBar({ title = "Cuestionarios" }) {
+  const { push } = useRouter();
   const [auth, setAuth] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleChange = (event) => {
     setAuth(event.target.checked);
+  };
+
+  const handleLogIn = () => {
+    push("/iniciar-sesion");
   };
 
   const handleMenu = (event) => {
@@ -57,7 +65,10 @@ export default function MenuAppBar({ title = "Cuestionarios" }) {
             {title}
           </Typography>
           {auth && (
-            <div>
+            <div className="flex  items-center">
+              <section className="hidden md:flex md:flex-col">
+                <Typography variant="body1">nombre de usuario</Typography>
+              </section>
               <IconButton
                 size="large"
                 aria-label="account of current user"
@@ -83,10 +94,15 @@ export default function MenuAppBar({ title = "Cuestionarios" }) {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem onClick={handleClose}>Cerrar sesión</MenuItem>
+                <MenuItem onClick={handleClose}>Panel administrador</MenuItem>
               </Menu>
             </div>
+          )}
+          {!auth && (
+            <Button variant="contained" color="primary" onClick={handleLogIn}>
+              Iniciar sesión
+            </Button>
           )}
         </Toolbar>
       </AppBar>

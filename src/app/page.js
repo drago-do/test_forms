@@ -2,15 +2,26 @@
 import Image from "next/image";
 import Container from "@mui/material/Container";
 import ContainerPruebasCarrousel from "@/components/home/ContainerPruebasCarrousel";
+import Button from "@mui/material/Button";
+import MenuAppBar from "@/components/general/MenuAppBar";
+import IconApp from "@/components/general/IconApp";
 
 export default function Home() {
   return (
-    <Container maxWidth="lg">
-      <main className="flex flex-col w-full items-center">
-        <div className="w-16 h-16 rounded-full  bg-black dark:bg-white  my-3" />
-        <ContainerPruebasCarrousel title={"Autoconocimiento"} />
-        <ContainerPruebasCarrousel title={"vocacional"} />
-      </main>
-    </Container>
+    <>
+      <MenuAppBar />
+      <Container maxWidth="lg">
+        <main className="flex flex-col w-full items-center">
+          <IconApp />
+          <ContainerPruebasCarrousel title={"Autoconocimiento"} />
+          <ContainerPruebasCarrousel title={"vocacional"} />
+          <Container maxWidth="xs" className="flex justify-center">
+            <Button variant="contained" color="primary">
+              Introducir codigo
+            </Button>
+          </Container>
+        </main>
+      </Container>
+    </>
   );
 }

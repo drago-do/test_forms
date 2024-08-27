@@ -41,7 +41,10 @@ export default function Carrousel({ renderElements, vertical = false }) {
       mousewheel={true}
       keyboard={true}
       className="mySwiper"
-      style={{ "--swiper-pagination-color": "rgb(125, 33, 129)" }}
+      style={{
+        "--swiper-pagination-color": "rgb(125, 33, 129)",
+        "--swiper-pagination-bullet-inactive-color": "rgb(100, 22, 109)",
+      }}
       onTouchStart={handleUserInteraction} // Disable auto slide on user interaction
       onMouseEnter={handleUserInteraction} // Disable auto slide on mouse enter
     >

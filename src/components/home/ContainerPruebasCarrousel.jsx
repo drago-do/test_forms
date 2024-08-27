@@ -11,10 +11,8 @@ export default function ContainerPruebasCarrousel({ title }) {
 
   return (
     <Container maxWidth="lg" className="my-3">
-      <Paper elevation={3} className="p-4">
-        <Typography variant="h5">Pruebas de {title}</Typography>
-        <Carrousel renderElements={arrayToRender} />
-      </Paper>
+      <Typography variant="h5">Pruebas de {title}</Typography>
+      <Carrousel renderElements={arrayToRender} />
     </Container>
   );
 }
