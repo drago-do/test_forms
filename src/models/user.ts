@@ -7,6 +7,7 @@ dotenv.config();
 // Define el esquema de usuario
 const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
   email: {
     type: String,
     required: true,
@@ -31,11 +32,6 @@ const User = mongoose.model('User', userSchema);
 
 // Configura la conexión a MongoDB usando una variable de entorno
 const mongoUri = process.env.MONGO_URI;
-
-if (!mongoUri) {
-  console.error('Error: La variable de entorno MONGO_URI no está definida');
-  process.exit(1); // Salir del proceso si la URI no está definida
-}
 
 mongoose.connect(mongoUri)
   .then(() => console.log('Conectado a MongoDB'))
