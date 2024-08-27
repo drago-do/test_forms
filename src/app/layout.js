@@ -7,7 +7,7 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
 import { ThemeProvider } from "@mui/material/styles";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createTheme } from "@mui/material/styles";
 import localFont from "next/font/local";
 import { esES } from "@mui/material/locale";
@@ -28,11 +28,11 @@ export const theme = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      main: "#7D2181",
+      main: "#00ccff",
       contrastText: "#fff",
     },
     secondary: {
-      main: "#ffffff",
+      main: "#ffeebc",
       contrastText: "#000",
     },
     background: {
@@ -44,7 +44,37 @@ export const theme = createTheme({
   },
 });
 
+export const ligthTeme = createTheme({
+  palette: {
+    mode: "light",
+    primary: {
+      main: "#00ccff",
+      contrastText: "#fff",
+    },
+    secondary: {
+      main: "#ffeebc",
+      contrastText: "#fff",
+    },
+    background: {
+      default: "#000",
+    },
+    text: {
+      default: "#000",
+    },
+  },
+});
+
 export default function RootLayout({ children }) {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    // Aquí podrías usar algún mecanismo para detectar el tema preferido del usuario o del navegador
+    const prefersDarkMode = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+    setIsDarkMode(prefersDarkMode);
+  }, []);
+
   useEffect(() => {
     // define a custom handler function
     // for the contextmenu event
@@ -66,7 +96,7 @@ export default function RootLayout({ children }) {
     <html lang="es" className={`${materialSymbols.variable}`}>
       <Toaster richColors position="bottom-left" closeButton />
       <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={isDarkMode ? theme : ligthTeme}>
           {/* <Suspense fallback={<Loading />}> */}
           <body>
             {children}
