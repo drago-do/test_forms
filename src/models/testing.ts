@@ -17,6 +17,7 @@ const categoriaSchema = new Schema({
 export interface IPrueba extends Document {
   titulo: string;
   descripcion?: string;
+  instrucciones: string;
   tipo: 1 | 2 | 3;
   escalas: {
     nivel: number;
@@ -39,6 +40,10 @@ const pruebaSchema: Schema<IPrueba> = new Schema(
     descripcion: {
       type: String,
       description: 'Descripción de la prueba',
+    },
+    instrucciones: {
+      type: String,
+      description: 'Leyenda de las instrucciones',
     },
     tipo: {
       type: Number,
