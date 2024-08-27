@@ -1,27 +1,38 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Document, model, models } from 'mongoose';
 
-// Definir el esquema de Resultados
-const resultadosSchema = new mongoose.Schema({
-  id_prueba: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Prueba', // Nombre del modelo de Prueba
-    required: true
+//Results
+export interface IResultados extends Document {
+  id_prueba: mongoose.Schema.Types.ObjectId;
+  id_user: mongoose.Schema.Types.ObjectId;
+  respuestas: Map<string, number>;
+}
+
+//Definir el esquema de Mongoose
+const ResultadosSchema: Schema<IResultados> = new Schema(
+  {
+    id_prueba: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Prueba',
+      required: true
+    },
+    id_user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    respuestas: {
+      type: Map,
+      of: Number,
+      default: {}
+    }
   },
-  id_user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Nombre del modelo de User
-    required: true
-  },
-  respuestas: {
-    type: Map,
-    of: Number, // Mapa de respuestas con valores numéricos
-    default: {}
+  {
+    timestamps: true, 
+    versionKey: false 
   }
-}, {
-  timestamps: true // Agrega campos de fecha de creación y actualización
-});
+);
 
-// Crear el modelo Resultados
-const Resultados = mongoose.model("Resultados", resultadosSchema);
+// Verificar si el modelo ya está definido antes de compilarlo
+const Resultados = models.Resultados || model<IResultados>('Resultados', ResultadosSchema);
 
 export default Resultados;
