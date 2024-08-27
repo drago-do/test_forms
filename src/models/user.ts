@@ -4,21 +4,9 @@ import dotenv from 'dotenv';
 // Cargar variables de entorno desde el archivo .env
 dotenv.config();
 
-// Define el esquema de permisos de usuario
-const userPermissionsSchema = new mongoose.Schema({
-  role: { type: String, required: true },
-  entity: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    unique: true,
-    ref: 'Business',
-  },
-});
-
 // Define el esquema de usuario
 const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
   email: {
     type: String,
     required: true,
