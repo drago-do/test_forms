@@ -14,6 +14,7 @@ import { esES } from "@mui/material/locale";
 import { StyledEngineProvider } from "@mui/material/styles";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster, toast } from "sonner";
+import "material-symbols";
 
 const materialSymbols = localFont({
   variable: "--font-family-symbols", // Variable name (to reference after in CSS/styles)
@@ -28,7 +29,7 @@ export const theme = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      main: "#00ccff",
+      main: "#0584a3",
       contrastText: "#fff",
     },
     secondary: {
