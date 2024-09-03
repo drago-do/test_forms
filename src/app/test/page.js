@@ -20,7 +20,7 @@ import MaterialIcon from "@/components/general/MaterialIcon";
 import { useForm } from "react-hook-form";
 import { ExpandMore } from "@mui/icons-material";
 
-export default function Page() {
+export default function Page({valorMax = 5}) {
   const methods = useForm({ mode: "all" });
   //Deconstruccion de methods
   const {
@@ -40,6 +40,7 @@ export default function Page() {
   };
 
   const questionBase = {
+    id: 1,
     texto: "",
     opciones: Array.from({ length: valorMax }, (_, index) => index + 1),
     tipo: "escala",
@@ -55,6 +56,7 @@ export default function Page() {
   };
 
   const deleteSectionHandler = (idSection) => {
+    console.log(idSection);
     setSections((prevSections) =>
       prevSections.filter((section) => section.id !== idSection)
     );
@@ -68,7 +70,7 @@ export default function Page() {
     );
   };
 
-  const addQuestionHandler = (idSection, questionText) => {
+  const addQuestionHandler = (idSection) => {
     setSections((prevSections) =>
       prevSections.map((section) =>
         section.id === idSection
@@ -76,14 +78,16 @@ export default function Page() {
               ...section,
               questions: [
                 ...section.questions,
+
                 {
-                  questionBase,
+                  ...questionBase, id: section.questions.length + 1
                 },
               ],
             }
           : section
       )
     );
+    console.log(sections);
   };
 
   const deleteQuestionHandler = (idSection, questionIndex) => {
@@ -130,7 +134,7 @@ export default function Page() {
           {sections.map((section, index) => (
             <SectionOfTest
               key={index}
-              section={sections}
+              section={section}
               updateSectionHandler={updateSectionHandler}
               deleteSectionHandler={deleteSectionHandler}
               addQuestionHandler={addQuestionHandler}
@@ -140,12 +144,15 @@ export default function Page() {
           ))}
         </>
       ) : (
-        <div>Sin entradas</div>
+        <div className="flex flex-col flex-nowrap w-full my-6 items-center">
+          <Typography variant="h6" className="text-center">Ups, parece que aun no tienes ninguna sección.</Typography>
+          <MaterialIcon iconName="box" className="text-5xl"/>
+        </div>
       )}
       <Grid item xs={12} className="w-full flex justify-center my-5">
-        <Button variant="contained" color="primary">
+        <Button variant="contained" color="primary" onClick={addSectionHandler}>
           <MaterialIcon iconName="add_notes" className="mr-3" />
-          Agregar seccion
+          Agregar sección
         </Button>
       </Grid>
     </Container>
@@ -177,8 +184,9 @@ const SectionOfTest = ({
     trigger,
     formState: { errors },
   } = methods;
+
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="lg" className="my-5">
       <Paper elevation={3} className="p-3">
         <Grid container spacing={1} alignItems={"center"}>
           <Grid item xs={10}>
@@ -197,7 +205,7 @@ const SectionOfTest = ({
           </Grid>
           <Grid item xs={2} display={"flex"} justifyContent={"end"}>
             <IconButton
-              onClick={() => deleteSection(section.id)}
+              onClick={()=> deleteSectionHandler(section?.id)}
               aria-label="delete"
               color="error"
             >
@@ -215,8 +223,14 @@ const SectionOfTest = ({
             </AccordionSummary>
             <AccordionDetails>
               <Grid item xs={12}>
-                {section?.questions && section?.length > 0 ? (
-                  <>Hola</>
+                {section?.questions && section?.questions?.length > 0 ? (
+                  section?.questions.map((question, index) => (
+                    <QuestionType1
+                      key={index}
+                      question={question}
+                      updateQuestionHandler={updateQuestionHandler}
+                      deleteQuestionHandler={deleteQuestionHandler}
+                      sectionId={section?.id} />))
                 ) : (
                   <section className="w-full">
                     <Typography variant="h5" className="text-center">
@@ -234,12 +248,11 @@ const SectionOfTest = ({
                         Añade nuevas preguntas con el boton de abajo
                       </Typography>
                     </div>
-                    <QuestionType1 />
                   </section>
                 )}
               </Grid>
               <Grid item xs={12} className="w-full flex justify-center my-5">
-                <Button variant="contained" color="primary">
+                <Button variant="contained" color="primary" onClick={() => addQuestionHandler(section?.id)}>
                   <MaterialIcon iconName="add" className="mr-2" />
                   Agregar pregunta
                 </Button>
@@ -252,7 +265,7 @@ const SectionOfTest = ({
   );
 };
 
-const QuestionType1 = () => {
+const QuestionType1 = (question) => {
   const methods = useForm({ mode: "all" });
   //Deconstruccion de methods
   const {
@@ -263,14 +276,20 @@ const QuestionType1 = () => {
     trigger,
     formState: { errors },
   } = methods;
+
+    //   texto: "",
+    // opciones: Array.from({ length: valorMax }, (_, index) => index + 1),
+    // tipo: "escala",
+    // validacion: false,
   return (
     <Container maxWidth="lg" className="border rounded-md my-2">
       <section>
         <Typography variant="body1" className="text-end">
-          #12
+          #{question?.id|| 0}
         </Typography>
       </section>
       <TextField
+        value={question?.text}
         error={!!errors?.firstName}
         helperText={errors?.firstName?.message}
         {...register("firstName", {
