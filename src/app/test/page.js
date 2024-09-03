@@ -31,26 +31,117 @@ export default function Page() {
     formState: { errors },
   } = methods;
 
-  const section = {
+  const sectionBase = {
     id: 1,
     name: "Nombre por defecto",
     link: null,
     maxValue: 5,
     questions: [],
   };
+
+  const questionBase = {
+    texto: "",
+    opciones: Array.from({ length: valorMax }, (_, index) => index + 1),
+    tipo: "escala",
+    validacion: false,
+  };
   const [sections, setSections] = useState([]);
+
+  const addSectionHandler = () => {
+    setSections((prevSections) => [
+      ...prevSections,
+      { ...sectionBase, id: prevSections.length + 1 },
+    ]);
+  };
+
+  const deleteSectionHandler = (idSection) => {
+    setSections((prevSections) =>
+      prevSections.filter((section) => section.id !== idSection)
+    );
+  };
+
+  const updateSectionHandler = (idSection, sectionNewInfo) => {
+    setSections((prevSections) =>
+      prevSections.map((section) =>
+        section.id === idSection ? { ...section, ...sectionNewInfo } : section
+      )
+    );
+  };
+
+  const addQuestionHandler = (idSection, questionText) => {
+    setSections((prevSections) =>
+      prevSections.map((section) =>
+        section.id === idSection
+          ? {
+              ...section,
+              questions: [
+                ...section.questions,
+                {
+                  questionBase,
+                },
+              ],
+            }
+          : section
+      )
+    );
+  };
+
+  const deleteQuestionHandler = (idSection, questionIndex) => {
+    setSections((prevSections) =>
+      prevSections.map((section) =>
+        section.id === idSection
+          ? {
+              ...section,
+              questions: section.questions.filter(
+                (_, index) => index !== questionIndex
+              ),
+            }
+          : section
+      )
+    );
+  };
+
+  const updateQuestionHandler = (
+    idSection,
+    questionIndex,
+    newName,
+    isValid
+  ) => {
+    setSections((prevSections) =>
+      prevSections.map((section) =>
+        section.id === idSection
+          ? {
+              ...section,
+              questions: section.questions.map((question, index) =>
+                index === questionIndex
+                  ? { ...question, texto: newName, validacion: isValid }
+                  : question
+              ),
+            }
+          : section
+      )
+    );
+  };
+
   return (
     <Container maxWidth="md">
       {sections && sections.length > 0 ? (
         <>
           {sections.map((section, index) => (
-            <div key={index}>{section}</div>
+            <SectionOfTest
+              key={index}
+              section={sections}
+              updateSectionHandler={updateSectionHandler}
+              deleteSectionHandler={deleteSectionHandler}
+              addQuestionHandler={addQuestionHandler}
+              updateQuestionHandler={updateQuestionHandler}
+              deleteQuestionHandler={deleteQuestionHandler}
+            />
           ))}
         </>
       ) : (
         <div>Sin entradas</div>
       )}
-      <SectionOfTest section={section} />
       <Grid item xs={12} className="w-full flex justify-center my-5">
         <Button variant="contained" color="primary">
           <MaterialIcon iconName="add_notes" className="mr-3" />
@@ -72,12 +163,10 @@ export default function Page() {
 const SectionOfTest = ({
   section,
   addQuestionHandler,
-  changeQuestions,
-  deleteQuestion,
-  deleteSection,
-  changeName,
-  changeLink,
-  changeMax,
+  updateQuestionHandler,
+  deleteQuestionHandler,
+  deleteSectionHandler,
+  updateSectionHandler,
 }) => {
   const methods = useForm({ mode: "all" });
   //Deconstruccion de methods
