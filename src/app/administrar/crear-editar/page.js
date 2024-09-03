@@ -1,34 +1,30 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  Box,
+  Container,
+  Stepper,
+  Step,
+  StepLabel,
+  Button,
+  Collapse,
+  Typography,
+  Alert,
+  AlertTitle,
+  Grid,
+} from "@mui/material";
+import Image from "next/image";
+import UploadDocumentAnim from "./../../../components/general/LoaderPencil";
+import scrollTop from "./../../../utils/ScrollTop";
+import { useFormContext, Controller } from "react-hook-form";
+import FinalScreen from "./../../../components/admin/FinalScreen";
+import InformacionPersonal from "./../../../components/admin/MetadataTest";
 
 export default function page() {
   return <div>page</div>;
 }
 
-// "use client";
-// import React, { useEffect, useState } from "react";
-// import Link from "next/link";
-// import {
-//   Box,
-//   Container,
-//   Stepper,
-//   Step,
-//   StepLabel,
-//   Button,
-//   Collapse,
-//   Typography,
-//   Alert,
-//   AlertTitle,
-//   Grid,
-// } from "@mui/material";
-// import Image from "next/image";
-// import UploadDocumentAnim from "./../general/UploadDocumentAnim";
-// import scrollTop from "./../../lib/scrollTop";
-// import DownloadPDF from "./../general/DownloadPDF";
-// import PreviewDocument from "./../general/PreviewDocument";
-// import { useFormContext, Controller } from "react-hook-form";
-// import FinalScreen from "./FormStepComponents/FinalScreen";
-
-// import InformacionPersonal from "./../form/dev_PLANTILLA_FORMS/PersonalInfo";
 // import InformacionLaboral from "./../form/dev_PLANTILLA_FORMS/WorkingInfo.jsx";
 
 // export default function Page({
