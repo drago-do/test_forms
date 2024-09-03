@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import {
   Grid,
   Container,
@@ -17,22 +17,29 @@ import {
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import MaterialIcon from "@/components/general/MaterialIcon";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { ExpandMore } from "@mui/icons-material";
 
-export default function Page({valorMax = 5}) {
-  const methods = useForm({ mode: "all" });
-  //Deconstruccion de methods
-  const {
-    register,
-    watch,
-    handleSubmit,
-    trigger,
-    formState: { errors },
-  } = methods;
+export default function Page({ valorMax = 5 }) {
+  const methods = useForm({
+    defaultValues: {
+      sections: [],
+    },
+    mode: "all",
+  });
+
+  React.useEffect(() => {
+    console.log(methods.getValues());
+  }, [methods.watch()]);
+
+  const { control, handleSubmit, register, watch, trigger, formState: { errors } } = methods;
+  const { fields: sections, append, remove, update } = useFieldArray({
+    control,
+    name: "sections",
+  });
 
   const sectionBase = {
-    id: 1,
+    id: 0, // Start IDs from 0
     name: "Nombre por defecto",
     link: null,
     maxValue: 5,
@@ -40,109 +47,57 @@ export default function Page({valorMax = 5}) {
   };
 
   const questionBase = {
-    id: 1,
+    id: 0, // Start IDs from 0
     texto: "",
     opciones: Array.from({ length: valorMax }, (_, index) => index + 1),
     tipo: "escala",
     validacion: false,
   };
-  const [sections, setSections] = useState([]);
 
   const addSectionHandler = () => {
-    setSections((prevSections) => [
-      ...prevSections,
-      { ...sectionBase, id: prevSections.length + 1 },
-    ]);
+    const newSectionId = sections.length > 0 ? sections[sections.length - 1].id + 1 : 1; // Increment ID based on last section
+    append({ ...sectionBase, id: newSectionId });
   };
 
-  const deleteSectionHandler = (idSection) => {
-    console.log(idSection);
-    setSections((prevSections) =>
-      prevSections.filter((section) => section.id !== idSection)
-    );
+  const deleteSectionHandler = (index) => {
+    remove(index);
   };
 
-  const updateSectionHandler = (idSection, sectionNewInfo) => {
-    setSections((prevSections) =>
-      prevSections.map((section) =>
-        section.id === idSection ? { ...section, ...sectionNewInfo } : section
-      )
-    );
+  const addQuestionHandler = (index) => {
+    const updatedQuestions = [
+      ...sections[index].questions,
+      { ...questionBase, id: sections[index].questions.length > 0 ? sections[index].questions[sections[index].questions.length - 1].id + 1 : 1 }, // Increment ID based on last question
+    ];
+    update(index, { ...sections[index], questions: updatedQuestions });
   };
 
-  const addQuestionHandler = (idSection) => {
-    setSections((prevSections) =>
-      prevSections.map((section) =>
-        section.id === idSection
-          ? {
-              ...section,
-              questions: [
-                ...section.questions,
-
-                {
-                  ...questionBase, id: section.questions.length + 1
-                },
-              ],
-            }
-          : section
-      )
-    );
-    console.log(sections);
+  const deleteQuestionHandler = (sectionIndex, questionIndex) => {
+    const updatedQuestions = sections[sectionIndex].questions.filter((_, idx) => idx !== questionIndex);
+    update(sectionIndex, { ...sections[sectionIndex], questions: updatedQuestions });
   };
 
-  const deleteQuestionHandler = (idSection, questionIndex) => {
-    setSections((prevSections) =>
-      prevSections.map((section) =>
-        section.id === idSection
-          ? {
-              ...section,
-              questions: section.questions.filter(
-                (_, index) => index !== questionIndex
-              ),
-            }
-          : section
-      )
+  const updateQuestionHandler = (sectionIndex, questionIndex, newName, isValid) => {
+    const updatedQuestions = sections[sectionIndex].questions.map((question, idx) =>
+      idx === questionIndex ? { ...question, texto: newName, validacion: isValid } : question // Allow updating text and validation
     );
-  };
-
-  const updateQuestionHandler = (
-    idSection,
-    questionIndex,
-    newName,
-    isValid
-  ) => {
-    setSections((prevSections) =>
-      prevSections.map((section) =>
-        section.id === idSection
-          ? {
-              ...section,
-              questions: section.questions.map((question, index) =>
-                index === questionIndex
-                  ? { ...question, texto: newName, validacion: isValid }
-                  : question
-              ),
-            }
-          : section
-      )
-    );
+    update(sectionIndex, { ...sections[sectionIndex], questions: updatedQuestions });
   };
 
   return (
     <Container maxWidth="md">
       {sections && sections.length > 0 ? (
-        <>
-          {sections.map((section, index) => (
-            <SectionOfTest
-              key={index}
-              section={section}
-              updateSectionHandler={updateSectionHandler}
-              deleteSectionHandler={deleteSectionHandler}
-              addQuestionHandler={addQuestionHandler}
-              updateQuestionHandler={updateQuestionHandler}
-              deleteQuestionHandler={deleteQuestionHandler}
-            />
-          ))}
-        </>
+        sections.map((section, index) => (
+          <SectionOfTest
+            key={index}
+            section={section}
+            sectionIndex={index}
+            updateSectionHandler={update}
+            deleteSectionHandler={deleteSectionHandler}
+            addQuestionHandler={addQuestionHandler}
+            updateQuestionHandler={updateQuestionHandler}
+            deleteQuestionHandler={deleteQuestionHandler}
+          />
+        ))
       ) : (
         <div className="flex flex-col flex-nowrap w-full my-6 items-center">
           <Typography variant="h6" className="text-center">Ups, parece que aun no tienes ninguna sección.</Typography>
@@ -159,31 +114,15 @@ export default function Page({valorMax = 5}) {
   );
 }
 
-// esquemaDeSeccion : ({
-//   id: 0,
-//   name: "Nombre por defecto",
-//   link: null,
-//   maxValue: 5,
-//   questions: [],
-// });
-
 const SectionOfTest = ({
   section,
+  sectionIndex,
   addQuestionHandler,
   updateQuestionHandler,
   deleteQuestionHandler,
   deleteSectionHandler,
-  updateSectionHandler,
 }) => {
-  const methods = useForm({ mode: "all" });
-  //Deconstruccion de methods
-  const {
-    register,
-    watch,
-    handleSubmit,
-    trigger,
-    formState: { errors },
-  } = methods;
+  const { register, formState: { errors } } = useForm({ mode: "all" });
 
   return (
     <Container maxWidth="lg" className="my-5">
@@ -191,11 +130,15 @@ const SectionOfTest = ({
         <Grid container spacing={1} alignItems={"center"}>
           <Grid item xs={10}>
             <TextField
-              error={!!errors?.sections?.[section.id]?.name}
+              error={!!errors?.sections?.[sectionIndex]?.name}
               defaultValue={section.name}
-              helperText={errors?.sections?.[section.id]?.name?.message}
-              {...register(`sections.${section.id}.name`, {
+              helperText={errors?.sections?.[sectionIndex]?.name?.message}
+              {...register(`sections.${sectionIndex}.name`, {
                 required: "Campo requerido",
+              })}
+              {...register(`sections.${sectionIndex}.name`, {
+                required: "Campo requerido",
+                onChange: (e) => console.log("Section name changed:", e.target.value),
               })}
               label="Nombre de la sección"
               fullWidth
@@ -205,7 +148,7 @@ const SectionOfTest = ({
           </Grid>
           <Grid item xs={2} display={"flex"} justifyContent={"end"}>
             <IconButton
-              onClick={()=> deleteSectionHandler(section?.id)}
+              onClick={() => deleteSectionHandler(sectionIndex)}
               aria-label="delete"
               color="error"
             >
@@ -219,18 +162,21 @@ const SectionOfTest = ({
               aria-controls="-content"
               id="-header"
             >
-              <Typography>Preguntas de seccion</Typography>
+              <Typography>Preguntas de sección</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <Grid item xs={12}>
-                {section?.questions && section?.questions?.length > 0 ? (
-                  section?.questions.map((question, index) => (
+                {section?.questions && section?.questions.length > 0 ? (
+                  section.questions.map((question, questionIndex) => (
                     <QuestionType1
-                      key={index}
+                      key={questionIndex}
                       question={question}
+                      questionIndex={questionIndex}
+                      sectionIndex={sectionIndex}
                       updateQuestionHandler={updateQuestionHandler}
                       deleteQuestionHandler={deleteQuestionHandler}
-                      sectionId={section?.id} />))
+                    />
+                  ))
                 ) : (
                   <section className="w-full">
                     <Typography variant="h5" className="text-center">
@@ -245,14 +191,14 @@ const SectionOfTest = ({
                         variant="caption"
                         className="text-center w-full"
                       >
-                        Añade nuevas preguntas con el boton de abajo
+                        Añade nuevas preguntas con el botón de abajo
                       </Typography>
                     </div>
                   </section>
                 )}
               </Grid>
               <Grid item xs={12} className="w-full flex justify-center my-5">
-                <Button variant="contained" color="primary" onClick={() => addQuestionHandler(section?.id)}>
+                <Button variant="contained" color="primary" onClick={() => addQuestionHandler(sectionIndex)}>
                   <MaterialIcon iconName="add" className="mr-2" />
                   Agregar pregunta
                 </Button>
@@ -265,54 +211,46 @@ const SectionOfTest = ({
   );
 };
 
-const QuestionType1 = (question) => {
-  const methods = useForm({ mode: "all" });
-  //Deconstruccion de methods
-  const {
-    register,
-    getValues,
-    watch,
-    handleSubmit,
-    trigger,
-    formState: { errors },
-  } = methods;
+const QuestionType1 = ({ question, questionIndex, sectionIndex,deleteQuestionHandler }) => {
+  const { register, formState: { errors }, getValues } = useForm({ mode: "all" });
 
-    //   texto: "",
-    // opciones: Array.from({ length: valorMax }, (_, index) => index + 1),
-    // tipo: "escala",
-    // validacion: false,
   return (
     <Container maxWidth="lg" className="border rounded-md my-2">
       <section>
         <Typography variant="body1" className="text-end">
-          #{question?.id|| 0}
+          #{question?.id || 0}
         </Typography>
       </section>
       <TextField
-        value={question?.text}
-        error={!!errors?.firstName}
-        helperText={errors?.firstName?.message}
-        {...register("firstName", {
+        defaultValue={question?.texto} // Use defaultValue instead of value for controlled input
+        error={!!errors?.[`sections.${sectionIndex}.questions.${questionIndex}.texto`]}
+        helperText={errors?.[`sections.${sectionIndex}.questions.${questionIndex}.texto`]?.message}
+        {...register(`sections.${sectionIndex}.questions.${questionIndex}.texto`, {
           required: "Campo requerido",
         })}
-        label="Nombre (s)"
+        label="Texto de la pregunta"
         fullWidth
         required
         variant="standard"
       />
       <FormControlLabel
         label={"¿Pregunta de validación?"}
-        className="w-full my-5"
-        {...register("format.documento.generalesConcurso.proyectoActivo")}
         control={
           <Checkbox
-            checked={
-              getValues("format.documento.generalesConcurso.proyectoActivo") ||
-              false
-            }
+            defaultChecked={getValues(`sections.${sectionIndex}.questions.${questionIndex}.validacion`) || false} // Use defaultChecked instead of checked
+            {...register(`sections.${sectionIndex}.questions.${questionIndex}.validacion`)}
           />
         }
       />
+      <Grid item xs={12} display={"flex"} justifyContent={"end"}>
+        <IconButton
+          onClick={() => deleteQuestionHandler(sectionIndex, questionIndex)}
+          aria-label="delete"
+          color="error"
+        >
+          <DeleteIcon />
+        </IconButton>
+      </Grid>
     </Container>
   );
 };
