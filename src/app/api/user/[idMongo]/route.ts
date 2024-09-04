@@ -1,25 +1,29 @@
 import { NextResponse } from "next/server";
 import User from "../../../../models/user";
+import mongodb from "../../../../lib/mongodb"
+import { log } from "console";
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // 2. Obtener Usuarios (GET) - Leer
-export async function GET(request: Request,  { params }: { params: { idMongo: string } }) {
+export async function GET(request: Request, { params }: { params: { idMongo: string } }) {
   try {
-    const Usermodel = new User
-    const user = await Usermodel.findOne({ email: params.idMongo});
-    if (!user) {
+    await mongodb(); 
+    const usermodel = new User
+    const users = await usermodel.find(); 
+
+    if (users.length === 0) {
       return NextResponse.json({
         error: "Not Found",
         message: "User not found",
       });
     }
-    return NextResponse.json({
-      user
-    });
+
+    return NextResponse.json({ users });
   } catch (error: any) {
+    console.log(error);
     return NextResponse.json({
       error: "Internal Server Error",
       message: error.message,

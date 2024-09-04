@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import User from "../../../models/user";
+import mongodb from "../../../lib/mongodb"
 
 export async function POST(request: Request) {
   const userData = await request.json();
@@ -8,6 +9,7 @@ export async function POST(request: Request) {
   const newUser = new User(userData);
 
   try {
+    await mongodb()
     const newUserData = await newUser.save();
     console.log(newUserData);
     
