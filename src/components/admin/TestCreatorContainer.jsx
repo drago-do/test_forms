@@ -1,24 +1,10 @@
 "use client";
 import React from "react";
-import {
-  Grid,
-  Container,
-  Paper,
-  Typography,
-  Button,
-  TextField,
-  IconButton,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  FormControlLabel,
-  Checkbox,
-} from "@mui/material";
+import { Grid, Container, Typography, Button } from "@mui/material";
 
-import DeleteIcon from "@mui/icons-material/Delete";
 import MaterialIcon from "@/components/general/MaterialIcon";
 import { useForm, useFieldArray } from "react-hook-form";
-import { ExpandMore } from "@mui/icons-material";
+import SectionContainer from "./SectionContainer";
 
 export default function Page({ valorMax = 5 }) {
   const methods = useForm({
@@ -32,8 +18,20 @@ export default function Page({ valorMax = 5 }) {
     console.log(methods.getValues());
   }, [methods.watch()]);
 
-  const { control, handleSubmit, register, watch, trigger, formState: { errors } } = methods;
-  const { fields: sections, append, remove, update } = useFieldArray({
+  const {
+    control,
+    handleSubmit,
+    register,
+    watch,
+    trigger,
+    formState: { errors },
+  } = methods;
+  const {
+    fields: sections,
+    append,
+    remove,
+    update,
+  } = useFieldArray({
     control,
     name: "sections",
   });
@@ -55,7 +53,8 @@ export default function Page({ valorMax = 5 }) {
   };
 
   const addSectionHandler = () => {
-    const newSectionId = sections.length > 0 ? sections[sections.length - 1].id + 1 : 1; // Increment ID based on last section
+    const newSectionId =
+      sections.length > 0 ? sections[sections.length - 1].id + 1 : 1; // Increment ID based on last section
     append({ ...sectionBase, id: newSectionId });
   };
 
@@ -66,28 +65,51 @@ export default function Page({ valorMax = 5 }) {
   const addQuestionHandler = (index) => {
     const updatedQuestions = [
       ...sections[index].questions,
-      { ...questionBase, id: sections[index].questions.length > 0 ? sections[index].questions[sections[index].questions.length - 1].id + 1 : 1 }, // Increment ID based on last question
+      {
+        ...questionBase,
+        id:
+          sections[index].questions.length > 0
+            ? sections[index].questions[sections[index].questions.length - 1]
+                .id + 1
+            : 1,
+      }, // Increment ID based on last question
     ];
     update(index, { ...sections[index], questions: updatedQuestions });
   };
 
   const deleteQuestionHandler = (sectionIndex, questionIndex) => {
-    const updatedQuestions = sections[sectionIndex].questions.filter((_, idx) => idx !== questionIndex);
-    update(sectionIndex, { ...sections[sectionIndex], questions: updatedQuestions });
+    const updatedQuestions = sections[sectionIndex].questions.filter(
+      (_, idx) => idx !== questionIndex
+    );
+    update(sectionIndex, {
+      ...sections[sectionIndex],
+      questions: updatedQuestions,
+    });
   };
 
-  const updateQuestionHandler = (sectionIndex, questionIndex, newName, isValid) => {
-    const updatedQuestions = sections[sectionIndex].questions.map((question, idx) =>
-      idx === questionIndex ? { ...question, texto: newName, validacion: isValid } : question // Allow updating text and validation
+  const updateQuestionHandler = (
+    sectionIndex,
+    questionIndex,
+    newName,
+    isValid
+  ) => {
+    const updatedQuestions = sections[sectionIndex].questions.map(
+      (question, idx) =>
+        idx === questionIndex
+          ? { ...question, texto: newName, validacion: isValid }
+          : question // Allow updating text and validation
     );
-    update(sectionIndex, { ...sections[sectionIndex], questions: updatedQuestions });
+    update(sectionIndex, {
+      ...sections[sectionIndex],
+      questions: updatedQuestions,
+    });
   };
 
   return (
     <Container maxWidth="md">
       {sections && sections.length > 0 ? (
         sections.map((section, index) => (
-          <SectionOfTest
+          <SectionContainer
             key={index}
             section={section}
             sectionIndex={index}
@@ -100,8 +122,10 @@ export default function Page({ valorMax = 5 }) {
         ))
       ) : (
         <div className="flex flex-col flex-nowrap w-full my-6 items-center">
-          <Typography variant="h6" className="text-center">Ups, parece que aun no tienes ninguna sección.</Typography>
-          <MaterialIcon iconName="box" className="text-5xl"/>
+          <Typography variant="h6" className="text-center">
+            Ups, parece que aun no tienes ninguna sección.
+          </Typography>
+          <MaterialIcon iconName="box" className="text-5xl" />
         </div>
       )}
       <Grid item xs={12} className="w-full flex justify-center my-5">
