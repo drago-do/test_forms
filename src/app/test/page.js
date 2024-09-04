@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Grid,
   Container,
@@ -13,6 +13,7 @@ import {
   AccordionDetails,
   FormControlLabel,
   Checkbox,
+  Collapse,
 } from "@mui/material";
 
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -32,8 +33,20 @@ export default function Page({ valorMax = 5 }) {
     console.log(methods.getValues());
   }, [methods.watch()]);
 
-  const { control, handleSubmit, register, watch, trigger, formState: { errors } } = methods;
-  const { fields: sections, append, remove, update } = useFieldArray({
+  const {
+    control,
+    handleSubmit,
+    register,
+    watch,
+    trigger,
+    formState: { errors },
+  } = methods;
+  const {
+    fields: sections,
+    append,
+    remove,
+    update,
+  } = useFieldArray({
     control,
     name: "sections",
   });
@@ -55,7 +68,8 @@ export default function Page({ valorMax = 5 }) {
   };
 
   const addSectionHandler = () => {
-    const newSectionId = sections.length > 0 ? sections[sections.length - 1].id + 1 : 1; // Increment ID based on last section
+    const newSectionId =
+      sections.length > 0 ? sections[sections.length - 1].id + 1 : 1; // Increment ID based on last section
     append({ ...sectionBase, id: newSectionId });
   };
 
@@ -66,21 +80,44 @@ export default function Page({ valorMax = 5 }) {
   const addQuestionHandler = (index) => {
     const updatedQuestions = [
       ...sections[index].questions,
-      { ...questionBase, id: sections[index].questions.length > 0 ? sections[index].questions[sections[index].questions.length - 1].id + 1 : 1 }, // Increment ID based on last question
+      {
+        ...questionBase,
+        id:
+          sections[index].questions.length > 0
+            ? sections[index].questions[sections[index].questions.length - 1]
+                .id + 1
+            : 1,
+      }, // Increment ID based on last question
     ];
     update(index, { ...sections[index], questions: updatedQuestions });
   };
 
   const deleteQuestionHandler = (sectionIndex, questionIndex) => {
-    const updatedQuestions = sections[sectionIndex].questions.filter((_, idx) => idx !== questionIndex);
-    update(sectionIndex, { ...sections[sectionIndex], questions: updatedQuestions });
+    const updatedQuestions = sections[sectionIndex].questions.filter(
+      (_, idx) => idx !== questionIndex
+    );
+    update(sectionIndex, {
+      ...sections[sectionIndex],
+      questions: updatedQuestions,
+    });
   };
 
-  const updateQuestionHandler = (sectionIndex, questionIndex, newName, isValid) => {
-    const updatedQuestions = sections[sectionIndex].questions.map((question, idx) =>
-      idx === questionIndex ? { ...question, texto: newName, validacion: isValid } : question // Allow updating text and validation
+  const updateQuestionHandler = (
+    sectionIndex,
+    questionIndex,
+    newName,
+    isValid
+  ) => {
+    const updatedQuestions = sections[sectionIndex].questions.map(
+      (question, idx) =>
+        idx === questionIndex
+          ? { ...question, texto: newName, validacion: isValid }
+          : question // Allow updating text and validation
     );
-    update(sectionIndex, { ...sections[sectionIndex], questions: updatedQuestions });
+    update(sectionIndex, {
+      ...sections[sectionIndex],
+      questions: updatedQuestions,
+    });
   };
 
   return (
@@ -100,8 +137,10 @@ export default function Page({ valorMax = 5 }) {
         ))
       ) : (
         <div className="flex flex-col flex-nowrap w-full my-6 items-center">
-          <Typography variant="h6" className="text-center">Ups, parece que aun no tienes ninguna sección.</Typography>
-          <MaterialIcon iconName="box" className="text-5xl"/>
+          <Typography variant="h6" className="text-center">
+            Ups, parece que aun no tienes ninguna sección.
+          </Typography>
+          <MaterialIcon iconName="box" className="text-5xl" />
         </div>
       )}
       <Grid item xs={12} className="w-full flex justify-center my-5">
@@ -122,7 +161,10 @@ const SectionOfTest = ({
   deleteQuestionHandler,
   deleteSectionHandler,
 }) => {
-  const { register, formState: { errors } } = useForm({ mode: "all" });
+  const {
+    register,
+    formState: { errors },
+  } = useForm({ mode: "all" });
 
   return (
     <Container maxWidth="lg" className="my-5">
@@ -138,7 +180,8 @@ const SectionOfTest = ({
               })}
               {...register(`sections.${sectionIndex}.name`, {
                 required: "Campo requerido",
-                onChange: (e) => console.log("Section name changed:", e.target.value),
+                onChange: (e) =>
+                  console.log("Section name changed:", e.target.value),
               })}
               label="Nombre de la sección"
               fullWidth
@@ -198,7 +241,11 @@ const SectionOfTest = ({
                 )}
               </Grid>
               <Grid item xs={12} className="w-full flex justify-center my-5">
-                <Button variant="contained" color="primary" onClick={() => addQuestionHandler(sectionIndex)}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => addQuestionHandler(sectionIndex)}
+                >
                   <MaterialIcon iconName="add" className="mr-2" />
                   Agregar pregunta
                 </Button>
@@ -211,46 +258,94 @@ const SectionOfTest = ({
   );
 };
 
-const QuestionType1 = ({ question, questionIndex, sectionIndex,deleteQuestionHandler }) => {
-  const { register, formState: { errors }, getValues } = useForm({ mode: "all" });
+const QuestionType1 = ({
+  question,
+  questionIndex,
+  sectionIndex,
+  deleteQuestionHandler,
+}) => {
+  const {
+    register,
+    formState: { errors },
+    getValues,
+  } = useForm({ mode: "all" });
+  const [focus, setFocus] = useState(false);
+
+  const handleFocus = () => setFocus(true);
+  const handleBlur = () => setFocus(false);
+
+  // Function to handle clicks outside the component
+  const handleClickOutside = (event) => {
+    if (event.target.closest(".question-container") === null) {
+      setFocus(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
 
   return (
-    <Container maxWidth="lg" className="border rounded-md my-2">
-      <section>
-        <Typography variant="body1" className="text-end">
-          #{question?.id || 0}
-        </Typography>
-      </section>
-      <TextField
-        defaultValue={question?.texto} // Use defaultValue instead of value for controlled input
-        error={!!errors?.[`sections.${sectionIndex}.questions.${questionIndex}.texto`]}
-        helperText={errors?.[`sections.${sectionIndex}.questions.${questionIndex}.texto`]?.message}
-        {...register(`sections.${sectionIndex}.questions.${questionIndex}.texto`, {
-          required: "Campo requerido",
-        })}
-        label="Texto de la pregunta"
-        fullWidth
-        required
-        variant="standard"
-      />
-      <FormControlLabel
-        label={"¿Pregunta de validación?"}
-        control={
-          <Checkbox
-            defaultChecked={getValues(`sections.${sectionIndex}.questions.${questionIndex}.validacion`) || false} // Use defaultChecked instead of checked
-            {...register(`sections.${sectionIndex}.questions.${questionIndex}.validacion`)}
-          />
-        }
-      />
-      <Grid item xs={12} display={"flex"} justifyContent={"end"}>
-        <IconButton
-          onClick={() => deleteQuestionHandler(sectionIndex, questionIndex)}
-          aria-label="delete"
-          color="error"
-        >
-          <DeleteIcon />
-        </IconButton>
-      </Grid>
-    </Container>
+    <div className="question-container" onClick={handleFocus}>
+      <Container maxWidth="lg" className="border rounded-md my-2">
+        <section>
+          <Collapse in={focus}>
+            <Typography variant="body1" className="text-end">
+              #{question?.id || 0}
+            </Typography>
+          </Collapse>
+        </section>
+        <TextField
+          defaultValue={question?.texto}
+          error={
+            !!errors?.[
+              `sections.${sectionIndex}.questions.${questionIndex}.texto`
+            ]
+          }
+          helperText={
+            errors?.[
+              `sections.${sectionIndex}.questions.${questionIndex}.texto`
+            ]?.message
+          }
+          {...register(
+            `sections.${sectionIndex}.questions.${questionIndex}.texto`,
+            {
+              required: "Campo requerido",
+            }
+          )}
+          label="Texto de la pregunta"
+          fullWidth
+          required
+          variant="standard"
+        />
+        <FormControlLabel
+          label={"¿Pregunta de validación?"}
+          control={
+            <Checkbox
+              defaultChecked={
+                getValues(
+                  `sections.${sectionIndex}.questions.${questionIndex}.validacion`
+                ) || false
+              }
+              {...register(
+                `sections.${sectionIndex}.questions.${questionIndex}.validacion`
+              )}
+            />
+          }
+        />
+        <Grid item xs={12} display={"flex"} justifyContent={"end"}>
+          <IconButton
+            onClick={() => deleteQuestionHandler(sectionIndex, questionIndex)}
+            aria-label="delete"
+            color="error"
+          >
+            <DeleteIcon />
+          </IconButton>
+        </Grid>
+      </Container>
+    </div>
   );
 };
