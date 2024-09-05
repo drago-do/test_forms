@@ -1,5 +1,4 @@
 import React from "react";
-import MenuAppBar from "@/components/general/MenuAppBar";
 import {
   Grid,
   Container,
@@ -30,7 +29,6 @@ export default function MetadataTest() {
 
   return (
     <>
-      <MenuAppBar />
       <Container maxWidth="md">
         <Typography variant="h2" className="mt-16 mb-3 font-semibold">
           Crear nuevo test
