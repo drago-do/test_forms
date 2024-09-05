@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, model, models } from 'mongoose';
+import mongoose, { Schema, Document, model, models } from "mongoose";
 
 // Definir la interfaz del esquema
 export interface IUser extends Document {
@@ -42,7 +42,7 @@ const UserSchema: Schema<IUser> = new Schema(
     role: {
       type: String,
       required: true,
-      default: 'User',
+      default: "User",
     },
     creationDate: {
       type: Date,
@@ -74,12 +74,12 @@ const UserSchema: Schema<IUser> = new Schema(
     },
   },
   {
-    timestamps: true, 
-    versionKey: false, 
+    timestamps: true,
+    versionKey: false,
   }
 );
 
 // Verificar si el modelo ya está definido antes de compilarlo
-const User = models.User || model<IUser>('User', UserSchema);
+const User = models.User || model<IUser>("User", UserSchema);
 
 export default User;

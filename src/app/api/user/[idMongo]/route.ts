@@ -1,27 +1,27 @@
 import { NextResponse } from "next/server";
 import User from "../../../../models/user";
-import mongodb from "../../../../lib/mongodb"
-import { log } from "console";
-
+import mongodb from "../../../../lib/mongodb";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // 2. Obtener Usuarios (GET) - Leer
-export async function GET(request: Request, { params }: { params: { idMongo: string } }) {
+export async function GET(
+  request: Request,
+  { params }: { params: { idMongo: string } }
+) {
   try {
-    await mongodb(); 
-    const usermodel = new User
-    const users = await usermodel.find(); 
+    await mongodb();
+    const user = await User.findById(params.idMongo).select("-password").exec();
 
-    if (users.length === 0) {
+    if (!user) {
       return NextResponse.json({
         error: "Not Found",
         message: "User not found",
       });
     }
 
-    return NextResponse.json({ users });
+    return NextResponse.json({ user });
   } catch (error: any) {
     console.log(error);
     return NextResponse.json({
@@ -35,10 +35,13 @@ export async function GET(request: Request, { params }: { params: { idMongo: str
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // 3. Actualizar datos por id (PUT)
-export async function PUT(request: Request) {
+export async function PUT(
+  request: Request,
+  { params }: { params: { idMongo: string } }
+) {
   try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
+    await mongodb();
+    const id = params.idMongo;
 
     if (!id) {
       return NextResponse.json({
@@ -48,11 +51,12 @@ export async function PUT(request: Request) {
     }
 
     const updatedData = await request.json();
-    const usermodel = new User
-    const updatedUser = await usermodel.findByIdAndUpdate (id, updatedData, {
+    const updatedUser = await User.findByIdAndUpdate(id, updatedData, {
       new: true,
       runValidators: true,
-    }).select('-password').exec();
+    })
+      .select("-password")
+      .exec();
 
     if (!updatedUser) {
       return NextResponse.json({
@@ -66,6 +70,7 @@ export async function PUT(request: Request) {
       data: updatedUser,
     });
   } catch (error: any) {
+    console.log(error);
     return NextResponse.json({
       success: false,
       error: "Internal Server Error",
@@ -79,10 +84,13 @@ export async function PUT(request: Request) {
 
 // 4. Eliminar un usuario por id (DELETE)
 
-export async function DELETE(request: Request,  { params }: { params: { email: string } }) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: { idMongo: string } }
+) {
   try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
+    await mongodb();
+    const id = params.idMongo;
 
     if (!id) {
       return NextResponse.json({
@@ -91,8 +99,7 @@ export async function DELETE(request: Request,  { params }: { params: { email: s
       });
     }
 
-    const usermodel = new User
-    const deletedUser = await usermodel.findByIdAndDelete(id).exec();
+    const deletedUser = await User.findByIdAndDelete(id).exec();
 
     if (!deletedUser) {
       return NextResponse.json({
@@ -106,6 +113,7 @@ export async function DELETE(request: Request,  { params }: { params: { email: s
       message: "User Deleted Successfully",
     });
   } catch (error: any) {
+    console.log(error);
     return NextResponse.json({
       success: false,
       error: "Internal Server Error",
