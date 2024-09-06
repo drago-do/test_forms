@@ -101,7 +101,7 @@ export default function Page({ valorMax = 5 }) {
   };
 
   return (
-    <Container maxWidth="md">
+    <>
       {sections && sections.length > 0 ? (
         sections.map((section, index) => (
           <SectionContainer
@@ -129,6 +129,6 @@ export default function Page({ valorMax = 5 }) {
           Agregar sección
         </Button>
       </Grid>
-    </Container>
+    </>
   );
 }
