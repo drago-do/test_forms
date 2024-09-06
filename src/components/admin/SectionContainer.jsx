@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Grid,
   Container,
@@ -11,14 +11,11 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  FormControlLabel,
-  Checkbox,
-  Collapse,
 } from "@mui/material";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import MaterialIcon from "@/components/general/MaterialIcon";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { ExpandMore } from "@mui/icons-material";
 import QuestionType from "./QuestionType1";
 
@@ -33,7 +30,7 @@ const SectionOfTest = ({
   const {
     register,
     formState: { errors },
-  } = useForm({ mode: "all" });
+  } = useFormContext(); // Changed to useFormContext for consistency
 
   return (
     <Container maxWidth="lg" className="my-5">
@@ -46,11 +43,6 @@ const SectionOfTest = ({
               helperText={errors?.sections?.[sectionIndex]?.name?.message}
               {...register(`sections.${sectionIndex}.name`, {
                 required: "Campo requerido",
-              })}
-              {...register(`sections.${sectionIndex}.name`, {
-                required: "Campo requerido",
-                onChange: (e) =>
-                  console.log("Section name changed:", e.target.value),
               })}
               label="Nombre de la sección"
               fullWidth
@@ -78,9 +70,9 @@ const SectionOfTest = ({
             </AccordionSummary>
             <AccordionDetails>
               <Grid item xs={12}>
-                {section?.questions && section?.questions.length > 0 ? (
+                {section?.questions && section.questions.length > 0 ? (
                   section.questions.map((question, questionIndex) => (
-                    <QuestionType1
+                    <QuestionType
                       key={questionIndex}
                       question={question}
                       questionIndex={questionIndex}
@@ -126,3 +118,5 @@ const SectionOfTest = ({
     </Container>
   );
 };
+
+export default SectionOfTest;

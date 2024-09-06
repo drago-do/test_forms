@@ -18,7 +18,7 @@ import {
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import MaterialIcon from "@/components/general/MaterialIcon";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useFormContext } from "react-hook-form"; // Changed to useFormContext
 import { ExpandMore } from "@mui/icons-material";
 
 const QuestionType1 = ({
@@ -31,7 +31,7 @@ const QuestionType1 = ({
     register,
     formState: { errors },
     getValues,
-  } = useForm({ mode: "all" });
+  } = useFormContext(); // Updated to use useFormContext
   const [focus, setFocus] = useState(false);
 
   const handleFocus = () => setFocus(true);
@@ -53,7 +53,7 @@ const QuestionType1 = ({
 
   return (
     <div className="question-container" onClick={handleFocus}>
-      <Container maxWidth="lg" className="border rounded-md my-2">
+      <Container maxWidth="lg" className="border rounded-md my-4 py-4">
         <section>
           <Collapse in={focus}>
             <Typography variant="body1" className="text-end">
@@ -112,3 +112,5 @@ const QuestionType1 = ({
     </div>
   );
 };
+
+export default QuestionType1; // Added default export

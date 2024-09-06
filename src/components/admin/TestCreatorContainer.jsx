@@ -3,16 +3,11 @@ import React from "react";
 import { Grid, Container, Typography, Button } from "@mui/material";
 
 import MaterialIcon from "@/components/general/MaterialIcon";
-import { useForm, useFieldArray } from "react-hook-form";
+import { FormProvider, useFormContext, useFieldArray } from "react-hook-form";
 import SectionContainer from "./SectionContainer";
 
 export default function Page({ valorMax = 5 }) {
-  const methods = useForm({
-    defaultValues: {
-      sections: [],
-    },
-    mode: "all",
-  });
+  const methods = useFormContext();
 
   React.useEffect(() => {
     console.log(methods.getValues());

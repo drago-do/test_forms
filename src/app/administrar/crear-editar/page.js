@@ -30,7 +30,7 @@ export default function Page() {
           formTitle={"Crear nuevo Test"}
           stepComponents={SectionsForStepForm}
           edit={false}
-          debug={parseInt(stepDebug) >= 0 ? true : false}
+          debug={true}
           step={stepDebug || 0}
         />
         {parseInt(stepDebug) >= 0 && <DevTool control={control} />}

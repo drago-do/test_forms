@@ -13,11 +13,9 @@ import {
   Button,
 } from "@mui/material";
 
-import { useForm, Controller } from "react-hook-form";
+import { useFormContext, Controller } from "react-hook-form";
 
 export default function MetadataTest() {
-  const methods = useForm({ mode: "all" });
-  //Deconstruccion de methods
   const {
     control,
     register,
@@ -25,7 +23,7 @@ export default function MetadataTest() {
     handleSubmit,
     trigger,
     formState: { errors },
-  } = methods;
+  } = useFormContext();
 
   return (
     <>
@@ -77,7 +75,7 @@ export default function MetadataTest() {
           <Grid item xs={12}>
             <Controller
               name="tipo"
-              defaultValue={1}
+              defaultValue={"1"}
               control={control}
               rules={{ required: "Campo requerido." }}
               render={({ field }) => (
@@ -85,18 +83,18 @@ export default function MetadataTest() {
                   <FormLabel component="legend">Tipo de prueba</FormLabel>
                   <RadioGroup {...field} row>
                     <FormControlLabel
-                      value={1}
+                      value={"1"}
                       control={<Radio />}
                       defaultChecked
                       label="Interpretacion de Rangos (TEST 1)"
                     />
                     <FormControlLabel
-                      value={2}
+                      value={"2"}
                       control={<Radio />}
                       label="Areas academicas (Test 2)"
                     />
                     <FormControlLabel
-                      value={3}
+                      value={"3"}
                       control={<Radio />}
                       label="Porcentaje por carreras (Test 3)"
                     />
@@ -107,11 +105,6 @@ export default function MetadataTest() {
             />
           </Grid>
         </Grid>
-        <Container maxWidth="md" className="flex justify-end">
-          <Button variant="contained" color="primary">
-            Siguiente
-          </Button>
-        </Container>
       </Container>
     </>
   );
