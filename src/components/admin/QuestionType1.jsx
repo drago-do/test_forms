@@ -54,7 +54,7 @@ const QuestionType1 = ({
   return (
     <div className="question-container" onClick={handleFocus}>
       <Container maxWidth="lg" className="border rounded-md my-4 py-4">
-        <section>
+        <section> 
           <Collapse in={focus}>
             <Typography variant="body1" className="text-end">
               #{question?.id || 0}

@@ -5,6 +5,7 @@ import { Grid, Container, Typography, Button } from "@mui/material";
 import MaterialIcon from "@/components/general/MaterialIcon";
 import { FormProvider, useFormContext, useFieldArray } from "react-hook-form";
 import SectionContainer from "./SectionContainer";
+import SetRangos from "./SetRangos";
 
 export default function Page({ valorMax = 5 }) {
   const methods = useFormContext();
@@ -102,6 +103,7 @@ export default function Page({ valorMax = 5 }) {
 
   return (
     <>
+      <SetRangos />
       {sections && sections.length > 0 ? (
         sections.map((section, index) => (
           <SectionContainer
