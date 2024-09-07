@@ -20,7 +20,7 @@
     "next": "14.2.5",
     "react": "^18",
     "react-dom": "^18",
-    "swiper": "^11.1.10"
+    "swiper": "^11.1.12"
   },
   "devDependencies": {
     "@emotion/styled": "^11.11.0",
@@ -28,6 +28,7 @@
     "@fontsource/roboto": "5.0.8",
     "@types/mongoose": "^5.11.97",
     "@types/node": "22.5.0",
+    "@hookform/devtools": "^4.3.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
     "material-symbols": "^0.11.0",

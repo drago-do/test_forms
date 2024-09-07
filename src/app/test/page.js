@@ -1,351 +1,95 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import {
-  Grid,
-  Container,
-  Paper,
-  Typography,
-  Button,
-  TextField,
-  IconButton,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  FormControlLabel,
-  Checkbox,
-  Collapse,
-} from "@mui/material";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
+import useUser from "@/hook/useUser";
 
-import DeleteIcon from "@mui/icons-material/Delete";
-import MaterialIcon from "@/components/general/MaterialIcon";
-import { useForm, useFieldArray } from "react-hook-form";
-import { ExpandMore } from "@mui/icons-material";
-
-export default function Page({ valorMax = 5 }) {
-  const methods = useForm({
-    defaultValues: {
-      sections: [],
-    },
-    mode: "all",
-  });
+export default function SimpleBackdrop({ open = false }) {
+  const {
+    authenticateUser,
+    getLoggedUserInfo,
+    getSpecificUserFullInfo,
+    updateUserInfo,
+    logout,
+    getAllUser,
+    createNewUser,
+    deleteUser,
+    getUserRole,
+    isAuthenticated,
+  } = useUser();
 
   React.useEffect(() => {
-    console.log(methods.getValues());
-  }, [methods.watch()]);
+    const testUserFunctions = async () => {
+      try {
+        console.log("Testing authentication...");
+        const authResponse = await authenticateUser(
+          "carlos.lopez@example.com",
+          "hashedpassword123"
+        );
+        console.log("Authentication successful:", authResponse);
 
-  const {
-    control,
-    handleSubmit,
-    register,
-    watch,
-    trigger,
-    formState: { errors },
-  } = methods;
-  const {
-    fields: sections,
-    append,
-    remove,
-    update,
-  } = useFieldArray({
-    control,
-    name: "sections",
-  });
+        console.log("Getting logged user info...");
+        const userInfo = getLoggedUserInfo();
+        console.log("Logged user info:", userInfo);
 
-  const sectionBase = {
-    id: 0, // Start IDs from 0
-    name: "Nombre por defecto",
-    link: null,
-    maxValue: 5,
-    questions: [],
-  };
+        console.log("Testing getSpecificUserFullInfo with ID 1...");
+        const specificUserInfo = await getSpecificUserFullInfo(1);
+        console.log("Specific user info:", specificUserInfo);
 
-  const questionBase = {
-    id: 0, // Start IDs from 0
-    texto: "",
-    opciones: Array.from({ length: valorMax }, (_, index) => index + 1),
-    tipo: "escala",
-    validacion: false,
-  };
+        console.log("Testing getUserRole...");
+        const userRole = getUserRole();
+        console.log("User role:", userRole);
 
-  const addSectionHandler = () => {
-    const newSectionId =
-      sections.length > 0 ? sections[sections.length - 1].id + 1 : 1; // Increment ID based on last section
-    append({ ...sectionBase, id: newSectionId });
-  };
+        console.log("Testing getAllUser...");
+        const allUsers = await getAllUser();
+        console.log("All users:", allUsers);
 
-  const deleteSectionHandler = (index) => {
-    remove(index);
-  };
+        console.log("Testing createNewUser...");
+        const newUser = await createNewUser({
+          email: "new.user@example.com",
+          password: "newpassword",
+        });
+        console.log("New user created:", newUser);
 
-  const addQuestionHandler = (index) => {
-    const updatedQuestions = [
-      ...sections[index].questions,
-      {
-        ...questionBase,
-        id:
-          sections[index].questions.length > 0
-            ? sections[index].questions[sections[index].questions.length - 1]
-                .id + 1
-            : 1,
-      }, // Increment ID based on last question
-    ];
-    update(index, { ...sections[index], questions: updatedQuestions });
-  };
+        console.log("Testing updateUserInfo with ID 1...");
+        const updatedUser = await updateUserInfo(1, {
+          email: "updated.user@example.com",
+        });
+        console.log("User updated:", updatedUser);
 
-  const deleteQuestionHandler = (sectionIndex, questionIndex) => {
-    const updatedQuestions = sections[sectionIndex].questions.filter(
-      (_, idx) => idx !== questionIndex
-    );
-    update(sectionIndex, {
-      ...sections[sectionIndex],
-      questions: updatedQuestions,
-    });
-  };
+        console.log("Testing deleteUser with ID 1...");
+        const deleteResponse = await deleteUser(1);
+        console.log("User deleted:", deleteResponse);
 
-  const updateQuestionHandler = (
-    sectionIndex,
-    questionIndex,
-    newName,
-    isValid
-  ) => {
-    const updatedQuestions = sections[sectionIndex].questions.map(
-      (question, idx) =>
-        idx === questionIndex
-          ? { ...question, texto: newName, validacion: isValid }
-          : question // Allow updating text and validation
-    );
-    update(sectionIndex, {
-      ...sections[sectionIndex],
-      questions: updatedQuestions,
-    });
-  };
-
-  return (
-    <Container maxWidth="md">
-      {sections && sections.length > 0 ? (
-        sections.map((section, index) => (
-          <SectionOfTest
-            key={index}
-            section={section}
-            sectionIndex={index}
-            updateSectionHandler={update}
-            deleteSectionHandler={deleteSectionHandler}
-            addQuestionHandler={addQuestionHandler}
-            updateQuestionHandler={updateQuestionHandler}
-            deleteQuestionHandler={deleteQuestionHandler}
-          />
-        ))
-      ) : (
-        <div className="flex flex-col flex-nowrap w-full my-6 items-center">
-          <Typography variant="h6" className="text-center">
-            Ups, parece que aun no tienes ninguna sección.
-          </Typography>
-          <MaterialIcon iconName="box" className="text-5xl" />
-        </div>
-      )}
-      <Grid item xs={12} className="w-full flex justify-center my-5">
-        <Button variant="contained" color="primary" onClick={addSectionHandler}>
-          <MaterialIcon iconName="add_notes" className="mr-3" />
-          Agregar sección
-        </Button>
-      </Grid>
-    </Container>
-  );
-}
-
-const SectionOfTest = ({
-  section,
-  sectionIndex,
-  addQuestionHandler,
-  updateQuestionHandler,
-  deleteQuestionHandler,
-  deleteSectionHandler,
-}) => {
-  const {
-    register,
-    formState: { errors },
-  } = useForm({ mode: "all" });
-
-  return (
-    <Container maxWidth="lg" className="my-5">
-      <Paper elevation={3} className="p-3">
-        <Grid container spacing={1} alignItems={"center"}>
-          <Grid item xs={10}>
-            <TextField
-              error={!!errors?.sections?.[sectionIndex]?.name}
-              defaultValue={section.name}
-              helperText={errors?.sections?.[sectionIndex]?.name?.message}
-              {...register(`sections.${sectionIndex}.name`, {
-                required: "Campo requerido",
-              })}
-              {...register(`sections.${sectionIndex}.name`, {
-                required: "Campo requerido",
-                onChange: (e) =>
-                  console.log("Section name changed:", e.target.value),
-              })}
-              label="Nombre de la sección"
-              fullWidth
-              required
-              variant="standard"
-            />
-          </Grid>
-          <Grid item xs={2} display={"flex"} justifyContent={"end"}>
-            <IconButton
-              onClick={() => deleteSectionHandler(sectionIndex)}
-              aria-label="delete"
-              color="error"
-            >
-              <DeleteIcon />
-            </IconButton>
-          </Grid>
-          <Accordion className="w-full">
-            <AccordionSummary
-              expandIcon={<ExpandMore />}
-              aria-label="Expand"
-              aria-controls="-content"
-              id="-header"
-            >
-              <Typography>Preguntas de sección</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Grid item xs={12}>
-                {section?.questions && section?.questions.length > 0 ? (
-                  section.questions.map((question, questionIndex) => (
-                    <QuestionType1
-                      key={questionIndex}
-                      question={question}
-                      questionIndex={questionIndex}
-                      sectionIndex={sectionIndex}
-                      updateQuestionHandler={updateQuestionHandler}
-                      deleteQuestionHandler={deleteQuestionHandler}
-                    />
-                  ))
-                ) : (
-                  <section className="w-full">
-                    <Typography variant="h5" className="text-center">
-                      Parece que aun no hay preguntas
-                    </Typography>
-                    <div className="w-full">
-                      <MaterialIcon
-                        iconName="archive"
-                        className="text-5xl text-center w-full"
-                      />
-                      <Typography
-                        variant="caption"
-                        className="text-center w-full"
-                      >
-                        Añade nuevas preguntas con el botón de abajo
-                      </Typography>
-                    </div>
-                  </section>
-                )}
-              </Grid>
-              <Grid item xs={12} className="w-full flex justify-center my-5">
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => addQuestionHandler(sectionIndex)}
-                >
-                  <MaterialIcon iconName="add" className="mr-2" />
-                  Agregar pregunta
-                </Button>
-              </Grid>
-            </AccordionDetails>
-          </Accordion>
-        </Grid>
-      </Paper>
-    </Container>
-  );
-};
-
-const QuestionType1 = ({
-  question,
-  questionIndex,
-  sectionIndex,
-  deleteQuestionHandler,
-}) => {
-  const {
-    register,
-    formState: { errors },
-    getValues,
-  } = useForm({ mode: "all" });
-  const [focus, setFocus] = useState(false);
-
-  const handleFocus = () => setFocus(true);
-  const handleBlur = () => setFocus(false);
-
-  // Function to handle clicks outside the component
-  const handleClickOutside = (event) => {
-    if (event.target.closest(".question-container") === null) {
-      setFocus(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
+        console.log("Testing logout...");
+        logout();
+        console.log("User logged out successfully.");
+      } catch (error) {
+        console.error("Error during testing:", error);
+      }
     };
-  }, []);
+
+    testUserFunctions();
+  }, [
+    authenticateUser,
+    getLoggedUserInfo,
+    getSpecificUserFullInfo,
+    updateUserInfo,
+    logout,
+    getAllUser,
+    createNewUser,
+    deleteUser,
+    getUserRole,
+  ]);
 
   return (
-    <div className="question-container" onClick={handleFocus}>
-      <Container maxWidth="lg" className="border rounded-md my-2">
-        <section>
-          <Collapse in={focus}>
-            <Typography variant="body1" className="text-end">
-              #{question?.id || 0}
-            </Typography>
-          </Collapse>
-        </section>
-        <TextField
-          defaultValue={question?.texto}
-          error={
-            !!errors?.[
-              `sections.${sectionIndex}.questions.${questionIndex}.texto`
-            ]
-          }
-          helperText={
-            errors?.[
-              `sections.${sectionIndex}.questions.${questionIndex}.texto`
-            ]?.message
-          }
-          {...register(
-            `sections.${sectionIndex}.questions.${questionIndex}.texto`,
-            {
-              required: "Campo requerido",
-            }
-          )}
-          label="Texto de la pregunta"
-          fullWidth
-          required
-          variant="standard"
-        />
-        <FormControlLabel
-          label={"¿Pregunta de validación?"}
-          control={
-            <Checkbox
-              defaultChecked={
-                getValues(
-                  `sections.${sectionIndex}.questions.${questionIndex}.validacion`
-                ) || false
-              }
-              {...register(
-                `sections.${sectionIndex}.questions.${questionIndex}.validacion`
-              )}
-            />
-          }
-        />
-        <Grid item xs={12} display={"flex"} justifyContent={"end"}>
-          <IconButton
-            onClick={() => deleteQuestionHandler(sectionIndex, questionIndex)}
-            aria-label="delete"
-            color="error"
-          >
-            <DeleteIcon />
-          </IconButton>
-        </Grid>
-      </Container>
+    <div>
+      <Backdrop
+        className="bg-black bg-opacity-50 z-50" // Tailwind classes for backdrop
+        open={open}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </div>
   );
-};
+}

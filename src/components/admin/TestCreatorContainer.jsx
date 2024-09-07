@@ -3,16 +3,12 @@ import React from "react";
 import { Grid, Container, Typography, Button } from "@mui/material";
 
 import MaterialIcon from "@/components/general/MaterialIcon";
-import { useForm, useFieldArray } from "react-hook-form";
+import { FormProvider, useFormContext, useFieldArray } from "react-hook-form";
 import SectionContainer from "./SectionContainer";
+import SetRangos from "./SetRangos";
 
 export default function Page({ valorMax = 5 }) {
-  const methods = useForm({
-    defaultValues: {
-      sections: [],
-    },
-    mode: "all",
-  });
+  const methods = useFormContext();
 
   React.useEffect(() => {
     console.log(methods.getValues());
@@ -21,6 +17,7 @@ export default function Page({ valorMax = 5 }) {
   const {
     control,
     handleSubmit,
+    clearErrors,
     register,
     watch,
     trigger,
@@ -59,6 +56,7 @@ export default function Page({ valorMax = 5 }) {
   };
 
   const deleteSectionHandler = (index) => {
+    clearErrors();
     remove(index);
   };
 
@@ -78,6 +76,7 @@ export default function Page({ valorMax = 5 }) {
   };
 
   const deleteQuestionHandler = (sectionIndex, questionIndex) => {
+    clearErrors();
     const updatedQuestions = sections[sectionIndex].questions.filter(
       (_, idx) => idx !== questionIndex
     );
@@ -106,7 +105,8 @@ export default function Page({ valorMax = 5 }) {
   };
 
   return (
-    <Container maxWidth="md">
+    <>
+      <SetRangos />
       {sections && sections.length > 0 ? (
         sections.map((section, index) => (
           <SectionContainer
@@ -134,6 +134,6 @@ export default function Page({ valorMax = 5 }) {
           Agregar sección
         </Button>
       </Grid>
-    </Container>
+    </>
   );
 }
