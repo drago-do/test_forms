@@ -1,5 +1,119 @@
 import mongoose, { Schema, Document, model, models } from 'mongoose';
 
+// Interfaz para la opción
+export interface IOpcion extends Document {
+  texto: string;
+  valor: number;
+  subcategoria?: string;
+}
+
+// Esquema para la opción
+const opcionSchema: Schema<IOpcion> = new Schema(
+  {
+    texto: {
+      type: String,
+      required: true,
+      description: 'Texto de la opción',
+    },
+    valor: {
+      type: Number,
+      required: true,
+      description: 'Valor numérico asociado con la opción',
+    },
+    subcategoria: {
+      type: String,
+      default: null,
+      description: 'Solo aplicable en pruebas con opciones tipo 3',
+    },
+  },
+  {
+    timestamps: true,
+    versionKey: false,
+  }
+);
+
+// Interfaz para las preguntas
+export interface IPregunta extends Document {
+  texto: string;
+  opciones: 'opcion_multiple' | 'verdadero_falso' | 'escala';
+  respuestas: [string, boolean][];
+  respuestas_correctas: string[];
+  valor_maximo_individual?: number;
+}
+
+// Esquema para las preguntas
+const preguntaSchema: Schema<IPregunta> = new Schema(
+  {
+    texto: {
+      type: String,
+      required: true,
+    },
+    opciones: {
+      type: String,
+      enum: ['opcion_multiple', 'verdadero_falso', 'escala'],
+      required: true,
+    },
+    respuestas: {
+      type: [[String, Boolean]],
+      description: 'Array de pares [texto de respuesta, es correcta]'
+    },
+    respuestas_correctas: {
+      type: [String],
+    },
+    valor_maximo_individual: {
+      type: Number,
+      min: 0,
+      required: function() {
+        return this.opciones === 'opcion_multiple' || this.opciones === 'verdadero_falso'; 
+      },
+    },
+  },
+  {
+    timestamps: true,
+    versionKey: false,
+  }
+);
+
+// Interfaz para la sección
+export interface ISeccion extends Document {
+  descripcion?: string;
+  titulo: string;
+  vinculo: string[];
+  valorMax: number;
+  preguntas: typeof preguntaSchema[]; // Referencia a preguntas
+}
+
+// Esquema para la sección
+const seccionSchema: Schema<ISeccion> = new Schema(
+  {
+    descripcion: {
+      type: String,
+      description: 'Descripción de la sección',
+    },
+    titulo: {
+      type: String,
+      required: true,
+      description: 'Título de la sección',
+    },
+    vinculo: {
+      type: [String],
+      description: 'Enlaces a cuestionarios o contenido relevante',
+    },
+    valorMax: {
+      type: Number,
+      required: true,
+      description: 'Valor máximo para TESTS_RANGO',
+    },
+    preguntas: [{
+      type: [preguntaSchema],
+      description: 'Referencias a las preguntas asociadas a la sección',
+    }],
+  },
+  {
+    timestamps: true,
+    versionKey: false,
+  }
+);
 
 // Esquema para la categoría
 const categoriaSchema = new Schema({
@@ -23,13 +137,13 @@ export interface IPrueba extends Document {
     nivel: number;
     escala?: string[];
   };
-  categorias: typeof categoriaSchema[];
-  secciones: mongoose.Types.ObjectId[];
-  creado_por: mongoose.Types.ObjectId;
+  categorias: typeof categoriaSchema[]; // Referencia al esquema de categorías
+  secciones: typeof seccionSchema[]; // Referencia al esquema de secciones
+  creado_por: mongoose.Types.ObjectId; // Referencia al usuario creador
   fecha_creacion: Date;
 }
 
-// Definir el esquema de Mongoose para la prueba
+// Esquema para la prueba
 const pruebaSchema: Schema<IPrueba> = new Schema(
   {
     titulo: {
@@ -54,7 +168,6 @@ const pruebaSchema: Schema<IPrueba> = new Schema(
     escalas: {
       nivel: {
         type: Number,
-        required: true,
         min: 0,
         description: 'Nivel de la escala',
       },
@@ -65,8 +178,7 @@ const pruebaSchema: Schema<IPrueba> = new Schema(
     },
     categorias: [categoriaSchema], // Usar el esquema de categoría aquí
     secciones: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Seccion',
+      type: [seccionSchema],
       description: 'Referencias a las secciones asociadas a la prueba',
     }],
     creado_por: {
@@ -87,132 +199,7 @@ const pruebaSchema: Schema<IPrueba> = new Schema(
   }
 );
 
-pruebaSchema.index({ tipo: 1 });
-pruebaSchema.index({ creado_por: 1 });
-
-// Interfaz para la sección
-export interface ISeccion extends Document {
-  nombre: string;
-  descripcion?: string;
-  titulo: string;
-  vinculo: string[];
-  valorMax: number;
-  preguntas: mongoose.Types.ObjectId[];
-}
-
-// Definir el esquema de Mongoose para la sección
-const seccionSchema: Schema<ISeccion> = new Schema(
-  {
-    nombre: {
-      type: String,
-      required: true,
-      description: 'Nombre de la sección',
-    },
-    descripcion: {
-      type: String,
-      description: 'Descripción de la sección',
-    },
-    titulo: {
-      type: String,
-      required: true,
-      description: 'Título de la sección',
-    },
-    vinculo: {
-      type: [String],
-      description: 'Enlaces a cuestionarios o contenido relevante',
-    },
-    valorMax: {
-      type: Number,
-      required: true,
-      description: 'Valor máximo para TESTS_RANGO',
-    },
-    preguntas: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Pregunta',
-      description: 'Referencias a las preguntas asociadas a la sección',
-    }],
-  },
-  {
-    timestamps: true,
-    versionKey: false,
-  }
-);
-
-// Interfaz para las preguntas
-export interface IPregunta extends Document {
-  texto: string;
-  opciones: 'opcion_multiple' | 'verdadero_falso' | 'escala';
-  respuestas_correctas: string[];
-  valor_maximo_individual?: number;
-}
-
-// Definir el esquema de Mongoose para las preguntas
-const preguntaSchema: Schema<IPregunta> = new Schema(
-  {
-    texto: {
-      type: String,
-      required: true,
-    },
-    opciones: {
-      type: String,
-      enum: ['opcion_multiple', 'verdadero_falso', 'escala'], // Tipos de preguntas
-      required: true,
-    },
-    respuestas_correctas: {
-      type: [String],
-      validate: [array => array.length > 0, 'Debe haber al menos una respuesta correcta'],
-    },
-    valor_maximo_individual: {
-      type: Number,
-      min: 0,
-      required: function() {
-        // Solo necesario para opciones múltiples o verdadero/falso
-        return this.opciones === 'opcion_multiple' || this.opciones === 'verdadero_falso'; 
-      },
-    },
-  },
-  {
-    timestamps: true,
-    versionKey: false,
-  }
-);
-
-// Interfaz para la opción
-export interface IOpcion extends Document {
-  texto: string;
-  valor: number;
-  subcategoria?: string;
-}
-
-// Definir el esquema de Mongoose para la opción
-const opcionSchema: Schema<IOpcion> = new Schema(
-  {
-    texto: {
-      type: String,
-      required: true,
-      description: 'Texto de la opción',
-    },
-    valor: {
-      type: Number,
-      required: true,
-      description: 'Valor numérico asociado con la opción',
-    },
-    subcategoria: {
-      type: String,
-      default: null,
-      description: 'Solo aplicable en pruebas con opciones tipo 3',
-    },
-  },
-  {
-    timestamps: true, // Agrega campos de fecha de creación y actualización
-    versionKey: false, // Omite el campo __v
-  }
-);
-
 // Verificar si el modelo ya está definido antes de compilarlo
 const Prueba = models.Prueba || model<IPrueba>('Prueba', pruebaSchema);
-const Seccion = models.Seccion || model<ISeccion>('Seccion', seccionSchema);
-const Pregunta = models.Pregunta || model<IPregunta>('Pregunta', preguntaSchema);
-const Opcion = models.Opcion || model<IOpcion>('Opcion', opcionSchema);
 
-export { Prueba, Seccion, Pregunta, Opcion };
+export { Prueba };
