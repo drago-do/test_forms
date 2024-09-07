@@ -50,6 +50,7 @@ const SectionOfTest = ({
               variant="standard"
             />
           </Grid>
+
           <Grid item xs={2} display={"flex"} justifyContent={"end"}>
             <IconButton
               onClick={() => deleteSectionHandler(sectionIndex)}
@@ -58,6 +59,21 @@ const SectionOfTest = ({
             >
               <DeleteIcon />
             </IconButton>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              className="my-6"
+              error={!!errors?.sections?.[sectionIndex]?.valorMax}
+              defaultValue={section.valorMax || 5}
+              helperText={errors?.sections?.[sectionIndex]?.name?.valorMax}
+              {...register(`sections.${sectionIndex}.valorMax`, {
+                required: "Campo requerido",
+              })}
+              label="Valor Maximo de sección"
+              fullWidth
+              required
+              variant="standard"
+            />
           </Grid>
           <Accordion className="w-full">
             <AccordionSummary

@@ -17,6 +17,7 @@ export default function Page({ valorMax = 5 }) {
   const {
     control,
     handleSubmit,
+    clearErrors,
     register,
     watch,
     trigger,
@@ -55,6 +56,7 @@ export default function Page({ valorMax = 5 }) {
   };
 
   const deleteSectionHandler = (index) => {
+    clearErrors();
     remove(index);
   };
 
@@ -74,6 +76,7 @@ export default function Page({ valorMax = 5 }) {
   };
 
   const deleteQuestionHandler = (sectionIndex, questionIndex) => {
+    clearErrors();
     const updatedQuestions = sections[sectionIndex].questions.filter(
       (_, idx) => idx !== questionIndex
     );
