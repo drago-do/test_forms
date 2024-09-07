@@ -8,7 +8,7 @@ if (!MONGOURI) {
 
 let dbConnection: Connection | null = null;
 
-export const connect = async (): Promise<Connection> => {
+const connect = async (): Promise<Connection> => {
   if (dbConnection) {
     console.log(`Reusing existing MongoDB connection`);
     return dbConnection;
@@ -29,3 +29,5 @@ export const connect = async (): Promise<Connection> => {
     throw error;
   }
 };
+
+export default connect;
