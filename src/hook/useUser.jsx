@@ -9,24 +9,28 @@ const useUser = () => {
 
   const getUserRole = () => {
     if (isAuthenticated()) {
-      return jsCookie.get("puesto"); // Assuming 'puesto' represents the user's role
+      return jsCookie.get("role"); // Updated to use 'role' instead of 'puesto'
     }
     return null;
   };
+
   const authenticateUser = (email, password) => {
     const url = `${api}api/authenticator`;
     return new Promise((resolve, reject) =>
       axios
         .post(url, { email, password })
         .then((response) => {
-          const { data } = response.data;
-          jsCookie.set("token", data.token);
-          jsCookie.set("nombre", data.nombre);
-          jsCookie.set("apellidoPaterno", data.apellidoPaterno);
-          jsCookie.set("apellidoMaterno", data.apellidoMaterno);
-          jsCookie.set("correo", data.correo);
-          jsCookie.set("puesto", data.puesto);
-          jsCookie.set("area", data.area);
+          const data = response.data;
+          jsCookie.set("firstName", data.firstName);
+          jsCookie.set("lastName", data.lastName);
+          jsCookie.set("email", data.email);
+          jsCookie.set("role", data.role);
+          jsCookie.set("phone", data.phone);
+          jsCookie.set("currentSchool", data.currentSchool);
+          jsCookie.set("educationLevel", data.educationLevel);
+          jsCookie.set("generation", data.generation);
+          jsCookie.set("grade", data.grade);
+          jsCookie.set("group", data.group);
           jsCookie.set("_id", data._id);
           resolve(data);
         })
@@ -39,12 +43,16 @@ const useUser = () => {
 
   const getLoggedUserInfo = () => {
     const user = {
-      nombre: jsCookie.get("nombre"),
-      apellidoPaterno: jsCookie.get("apellidoPaterno"),
-      apellidoMaterno: jsCookie.get("apellidoMaterno"),
-      correo: jsCookie.get("correo"),
-      puesto: jsCookie.get("puesto"),
-      area: jsCookie.get("area"),
+      firstName: jsCookie.get("firstName"),
+      lastName: jsCookie.get("lastName"),
+      email: jsCookie.get("email"),
+      role: jsCookie.get("role"),
+      phone: jsCookie.get("phone"),
+      currentSchool: jsCookie.get("currentSchool"),
+      educationLevel: jsCookie.get("educationLevel"),
+      generation: jsCookie.get("generation"),
+      grade: jsCookie.get("grade"),
+      group: jsCookie.get("group"),
       _id: jsCookie.get("_id"),
     };
     return user;
@@ -56,7 +64,7 @@ const useUser = () => {
       axios
         .get(url)
         .then((response) => {
-          resolve(response.data.data);
+          resolve(response.data.user);
         })
         .catch((err) => {
           console.log(err);
@@ -129,13 +137,16 @@ const useUser = () => {
   const logout = () => {
     jsCookie.remove("token");
     jsCookie.remove("expireTime");
-    jsCookie.remove("puesto");
-    jsCookie.remove("apellidoMaterno");
-    jsCookie.remove("correo");
-    jsCookie.remove("area");
-    jsCookie.remove("especialidad");
-    jsCookie.remove("apellidoPaterno");
-    jsCookie.remove("nombre");
+    jsCookie.remove("role");
+    jsCookie.remove("phone");
+    jsCookie.remove("currentSchool");
+    jsCookie.remove("educationLevel");
+    jsCookie.remove("generation");
+    jsCookie.remove("grade");
+    jsCookie.remove("group");
+    jsCookie.remove("email");
+    jsCookie.remove("lastName");
+    jsCookie.remove("firstName");
     jsCookie.remove("_id");
   };
 
