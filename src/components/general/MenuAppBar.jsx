@@ -10,22 +10,42 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import FullPageLoader from "./../general/FullPageLoader";
+import Link from "next/link";
 
 import { useRouter } from "next/navigation";
 
+import useUser from "@/hook/useUser";
+
 export default function MenuAppBar({ title = "Cuestionarios" }) {
+  const { getUserRole, getLoggedUserInfo, logout } = useUser();
   const { push } = useRouter();
   const [auth, setAuth] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [loader, setLoader] = React.useState(false);
+  const [userInfo, setUserInfo] = React.useState(null);
+  const [loader, setLoader] = React.useState(true);
 
-  const handleChange = (event) => {
-    setAuth(event.target.checked);
+  React.useEffect(() => {
+    if (getUserRole()) {
+      setAuth(true);
+      const user = getLoggedUserInfo();
+      console.log(user);
+      setUserInfo(user);
+    } else {
+      setAuth(false);
+    }
+    setLoader(false);
+  }, []);
+
+  const handleRedirect = (url) => {
+    setLoader(true);
+    push(url);
   };
 
-  const handleLogIn = () => {
+  const handleLogOut = () => {
     setLoader(true);
-    push("/iniciar-sesion");
+    logout();
+    setUserInfo(null);
+    window.location.href = "/";
   };
 
   const handleMenu = (event) => {
@@ -40,8 +60,9 @@ export default function MenuAppBar({ title = "Cuestionarios" }) {
     <Box sx={{ flexGrow: 1 }}>
       <FullPageLoader open={loader} />
       <AppBar position="static">
-        <Toolbar>
-          {/* <IconButton
+        <Toolbar className="flex justify-between w-full">
+          <Link href={"/"} component="div" sx={{ flexGrow: 1 }}>
+            {/* <IconButton
             size="large"
             edge="start"
             color="inherit"
@@ -50,13 +71,16 @@ export default function MenuAppBar({ title = "Cuestionarios" }) {
           >
             <MenuIcon />
           </IconButton> */}
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {title}
-          </Typography>
+            <Typography variant="h6">{title}</Typography>
+          </Link>
           {auth && (
             <div className="flex  items-center">
               <section className="hidden md:flex md:flex-col">
-                <Typography variant="body1">nombre de usuario</Typography>
+                <Typography variant="body1">
+                  {userInfo
+                    ? `${userInfo?.firstName} ${userInfo?.lastName}`
+                    : null}
+                </Typography>
               </section>
               <IconButton
                 size="large"
@@ -83,13 +107,25 @@ export default function MenuAppBar({ title = "Cuestionarios" }) {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem onClick={handleClose}>Cerrar sesión</MenuItem>
-                <MenuItem onClick={handleClose}>Panel administrador</MenuItem>
+                <MenuItem onClick={() => handleRedirect("/perfil")}>
+                  Mi perfil
+                </MenuItem>
+                {userInfo && userInfo.role === "Admin" && (
+                  <MenuItem onClick={() => handleRedirect("/administrar")}>
+                    Adminstrar
+                  </MenuItem>
+                )}
+                <MenuItem onClick={handleLogOut}>Cerrar sesión</MenuItem>
               </Menu>
             </div>
           )}
           {!auth && (
-            <Button variant="contained" color="primary" onClick={handleLogIn}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => handleRedirect("/iniciar-sesion")}
+            >
+              {" "}
               Iniciar sesión
             </Button>
           )}
