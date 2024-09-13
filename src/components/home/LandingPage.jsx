@@ -15,10 +15,10 @@ import {
 } from "@mui/material";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import IconApp from "@/components/general/IconApp";
+import IconApp from "./../../components/general/IconApp";
 import Image from "next/image";
 
-const LandingPage = ({ showPreview = false }) => {
+const LandingPage = ({ showPreview = true, showButton = true }) => {
   const [expanded, setExpanded] = useState(showPreview);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -54,7 +54,7 @@ const LandingPage = ({ showPreview = false }) => {
           </Typography>
         </Container>
       </Box>
-      {showPreview && (
+      {showButton && (
         <Button
           onClick={toggleExpand}
           endIcon={<ExpandMoreIcon />}

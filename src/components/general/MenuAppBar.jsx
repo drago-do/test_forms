@@ -15,7 +15,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import { useRouter, usePathname } from "next/navigation";
 
-import useUser from "@/hook/useUser";
+import useUser from "./../../hook/useUser";
 
 export default function MenuAppBar({ title = "Cuestionarios" }) {
   const { getUserRole, getLoggedUserInfo, logout } = useUser();

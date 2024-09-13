@@ -11,8 +11,8 @@ import {
   Collapse,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
-import useUser from "@/hook/useUser"; // Import the useUser hook
-import FullPageLoader from "@/components/general/FullPageLoader";
+import useUser from "./../../hook/useUser"; // Import the useUser hook
+import FullPageLoader from "./../../components/general/FullPageLoader";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
