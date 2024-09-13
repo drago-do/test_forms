@@ -15,10 +15,14 @@
     "@vercel/speed-insights": "^1.0.12",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
-    "mongoose": "^8.6.1",
+    "excel4node": "^1.8.2",
+    "exceljs": "^4.4.0",
+    "mongoose": "^8.6.2",
     "next": "14.2.5",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "winston": "^3.14.2",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@emotion/styled": "^11.11.0",
