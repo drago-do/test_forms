@@ -100,7 +100,12 @@ export default function Page() {
                 {/* Change to submit button */}
                 Ingresar
               </Button>
-              <Button variant="text" color="primary" className="mt-12">
+              <Button
+                variant="text"
+                color="primary"
+                className="mt-12"
+                onClick={() => push("/registrate")}
+              >
                 Crear cuenta
               </Button>
             </Grid>
