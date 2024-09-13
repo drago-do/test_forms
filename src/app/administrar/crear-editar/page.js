@@ -5,9 +5,9 @@ import FullPageLoader from "./../../../components/general/FullPageLoader";
 
 import { FormProvider, useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
-import MetadataTest from "@/components/admin/MetadataTest";
+import MetadataTest from "./../../../components/admin/MetadataTest";
 import TestCreatorContainer from "./../../../components/admin/TestCreatorContainer";
-import MenuAppBar from "@/components/general/MenuAppBar";
+import MenuAppBar from "./../../../components/general/MenuAppBar";
 
 const SectionsForStepForm = [
   { form: MetadataTest, name: "Informacion General" },
@@ -18,7 +18,7 @@ export default function Page() {
   const [loading, setLoading] = useState(false);
   const methods = useForm({ mode: "all" });
   const { control } = methods;
-  const stepDebug = 0;
+  const stepDebug = 1;
 
   return loading ? (
     <FullPageLoader open={loading} />
@@ -31,7 +31,7 @@ export default function Page() {
           stepComponents={SectionsForStepForm}
           edit={false}
           debug={true}
-          step={0}
+          step={1}
         />
         {parseInt(stepDebug) >= 0 && <DevTool control={control} />}
       </FormProvider>

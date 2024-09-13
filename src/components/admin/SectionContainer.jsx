@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 
 import DeleteIcon from "@mui/icons-material/Delete";
-import MaterialIcon from "@/components/general/MaterialIcon";
+import MaterialIcon from "./../../components/general/MaterialIcon";
 import { useFormContext } from "react-hook-form";
 import { ExpandMore } from "@mui/icons-material";
 import QuestionType from "./QuestionType1";

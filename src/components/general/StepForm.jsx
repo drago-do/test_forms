@@ -87,7 +87,7 @@ export default function Page({
     let messages = [];
     const traverseErrors = (obj) => {
       for (const key in obj) {
-        if (obj[key].message) {
+        if (obj[key]?.message) {
           messages.push({
             path: camelCaseToCapitalizedSpaces(key),
             message: obj[key].message,

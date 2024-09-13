@@ -17,9 +17,17 @@ import {
 } from "@mui/material";
 
 import DeleteIcon from "@mui/icons-material/Delete";
-import MaterialIcon from "@/components/general/MaterialIcon";
-import { useFormContext } from "react-hook-form"; // Changed to useFormContext
+import MaterialIcon from "./../../components/general/MaterialIcon";
+import { useFormContext, useFieldArray } from "react-hook-form"; // Added useFieldArray
 import { ExpandMore } from "@mui/icons-material";
+
+const defaultOptions = [
+  "Nunca",
+  "Pocas Veces",
+  "Algunas Veces",
+  "Frecuentemente",
+  "Siempre",
+];
 
 const QuestionType1 = ({
   question,
@@ -31,8 +39,14 @@ const QuestionType1 = ({
     register,
     formState: { errors },
     getValues,
+    control,
   } = useFormContext(); // Updated to use useFormContext
   const [focus, setFocus] = useState(false);
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: `sections.${sectionIndex}.questions.${questionIndex}.opciones`,
+  });
 
   const handleFocus = () => setFocus(true);
   const handleBlur = () => setFocus(false);
@@ -51,10 +65,16 @@ const QuestionType1 = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (fields.length === 0) {
+      defaultOptions.forEach((option) => append({ texto: option, valor: 1 }));
+    }
+  }, [fields, append]);
+
   return (
     <div className="question-container" onClick={handleFocus}>
       <Container maxWidth="lg" className="border rounded-md my-4 py-4">
-        <section> 
+        <section>
           <Collapse in={focus}>
             <Typography variant="body1" className="text-end">
               #{question?.id || 0}
@@ -64,14 +84,12 @@ const QuestionType1 = ({
         <TextField
           defaultValue={question?.texto}
           error={
-            !!errors?.[
-              `sections.${sectionIndex}.questions.${questionIndex}.texto`
-            ]
+            !!errors?.sections?.[sectionIndex]?.questions?.[questionIndex]
+              ?.texto
           }
           helperText={
-            errors?.[
-              `sections.${sectionIndex}.questions.${questionIndex}.texto`
-            ]?.message
+            errors?.sections?.[sectionIndex]?.questions?.[questionIndex]?.texto
+              ?.message
           }
           {...register(
             `sections.${sectionIndex}.questions.${questionIndex}.texto`,
@@ -99,7 +117,60 @@ const QuestionType1 = ({
             />
           }
         />
-        <Grid item xs={12} display={"flex"} justifyContent={"end"}>
+        <Typography variant="h6" className="mt-4">
+          Opciones
+        </Typography>
+        {fields.map((field, optionIndex) => (
+          <Grid container spacing={2} key={field.id} alignItems="center">
+            <Grid item xs={10}>
+              <TextField
+                defaultValue={field.texto}
+                error={
+                  !!errors?.sections?.[sectionIndex]?.questions?.[questionIndex]
+                    ?.opciones?.[optionIndex]?.texto
+                }
+                helperText={
+                  errors?.sections?.[sectionIndex]?.questions?.[questionIndex]
+                    ?.opciones?.[optionIndex]?.texto?.message
+                }
+                {...register(
+                  `sections.${sectionIndex}.questions.${questionIndex}.opciones.${optionIndex}.texto`,
+                  {
+                    required: "Campo requerido",
+                  }
+                )}
+                label={`Opción ${optionIndex + 1}`}
+                fullWidth
+                required
+                variant="standard"
+              />
+            </Grid>
+            <Grid item xs={2} display={"flex"} justifyContent={"end"}>
+              <IconButton
+                onClick={() => remove(optionIndex)}
+                aria-label="delete"
+                color="error"
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Grid>
+          </Grid>
+        ))}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => append({ texto: "", valor: 0 })}
+          className="mt-4"
+        >
+          Añadir Opción
+        </Button>
+        <Grid
+          item
+          xs={12}
+          display={"flex"}
+          justifyContent={"end"}
+          className="mt-4"
+        >
           <IconButton
             onClick={() => deleteQuestionHandler(sectionIndex, questionIndex)}
             aria-label="delete"

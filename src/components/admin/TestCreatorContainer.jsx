@@ -2,7 +2,7 @@
 import React from "react";
 import { Grid, Container, Typography, Button } from "@mui/material";
 
-import MaterialIcon from "@/components/general/MaterialIcon";
+import MaterialIcon from "./../../components/general/MaterialIcon";
 import { FormProvider, useFormContext, useFieldArray } from "react-hook-form";
 import SectionContainer from "./SectionContainer";
 import SetRangos from "./SetRangos";
