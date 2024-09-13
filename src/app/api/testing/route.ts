@@ -35,14 +35,27 @@ export async function POST(request: Request) {
 
 // Metodo GET
 
-// Obtener todos los documentos del recurso
+// Obtener todos los documentos del recurso con paginación
 export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get("page") || "1", 10); // Página actual, por defecto 1
+  const limit = parseInt(searchParams.get("limit") || "10", 10); // Límite de documentos por página, por defecto 10
+  const skip = (page - 1) * limit; // Calcular cuántos documentos saltar
+
   try {
     await mongodb();
-    const documentos = await Prueba.find();
+    const documentos = await Prueba.find()
+      .skip(skip)
+      .limit(limit)
+      .exec();
+    const totalDocumentos = await Prueba.countDocuments(); // Contar el total de documentos
+
     return NextResponse.json({
       success: true,
       data: documentos,
+      total: totalDocumentos,
+      page,
+      totalPages: Math.ceil(totalDocumentos / limit),
     });
   } catch (error: any) {
     return NextResponse.json({
