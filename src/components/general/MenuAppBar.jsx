@@ -35,7 +35,6 @@ export default function MenuAppBar({ title = "Cuestionarios" }) {
     if (getUserRole()) {
       setAuth(true);
       const user = getLoggedUserInfo();
-      console.log(user);
       setUserInfo(user);
     } else {
       setAuth(false);

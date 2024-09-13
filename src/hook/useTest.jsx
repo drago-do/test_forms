@@ -1,16 +1,39 @@
-import jsCookie from "js-cookie";
 import axios from "axios";
 const api = process.env.NEXT_PUBLIC_API;
 
-const useUser = () => {
-  const getAllTest = async () => {
-    const res = await axios.get(`${api}/test`);
+const useTest = () => {
+  const getAllTests = async (page = 1, limit = 30) => {
+    const res = await axios.get(`/api/testing?page=${page}&limit=${limit}`);
+    return res?.data;
+  };
+
+  const createTest = async (data) => {
+    const res = await axios.post(`/api/testing`, data);
+    return res.data;
+  };
+
+  const getTestById = async (id) => {
+    const res = await axios.get(`/api/testing/${id}`);
+    return res.data;
+  };
+
+  const updateTest = async (id, data) => {
+    const res = await axios.put(`/api/testing/${id}`, data);
+    return res.data;
+  };
+
+  const deleteTest = async (id) => {
+    const res = await axios.delete(`/api/testing/${id}`);
     return res.data;
   };
 
   return {
-    getAllTest,
+    getAllTests,
+    createTest,
+    getTestById,
+    updateTest,
+    deleteTest,
   };
 };
 
-export default useUser;
+export default useTest;

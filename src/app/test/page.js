@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
-import useUser from "@/hook/useUser";
+import useUser from "./../../hook/useUser";
 
 export default function SimpleBackdrop({ open = false }) {
   const {
@@ -61,7 +61,6 @@ export default function SimpleBackdrop({ open = false }) {
           group: "",
         });
 
-        
         console.log("New user created:", newUser);
 
         console.log("Testing updateUserInfo with ID 1...");
