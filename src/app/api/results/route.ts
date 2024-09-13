@@ -33,15 +33,27 @@ export async function POST(request: Request) {
 
 // Método GET
 
-// Obtener documentos de Resultados
+// Obtener documentos de Resultados con paginación
 export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get("page") || "1", 10); // Página actual, por defecto 1
+  const limit = parseInt(searchParams.get("limit") || "10", 10); // Límite de documentos por página, por defecto 10
+  const skip = (page - 1) * limit; // Calcular cuántos documentos saltar
+
   try {
     await mongodb();
-    const resultados = await Resultados.find();
+    const resultados = await Resultados.find()
+      .skip(skip)
+      .limit(limit)
+      .exec();
+    const totalResultados = await Resultados.countDocuments(); // Contar el total de documentos
 
     return NextResponse.json({
       success: true,
       data: resultados,
+      total: totalResultados,
+      page,
+      totalPages: Math.ceil(totalResultados / limit),
     });
   } catch (error: any) {
     return NextResponse.json({
@@ -51,3 +63,4 @@ export async function GET(request: Request) {
     });
   }
 }
+
