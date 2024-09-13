@@ -33,7 +33,9 @@ export default function SimpleBackdrop({ open = false }) {
         console.log("Logged user info:", userInfo);
 
         console.log("Testing getSpecificUserFullInfo with ID 1...");
-        const specificUserInfo = await getSpecificUserFullInfo(1);
+        const specificUserInfo = await getSpecificUserFullInfo(
+          "66d93875c3a2e7a053b70518"
+        );
         console.log("Specific user info:", specificUserInfo);
 
         console.log("Testing getUserRole...");
@@ -46,9 +48,20 @@ export default function SimpleBackdrop({ open = false }) {
 
         console.log("Testing createNewUser...");
         const newUser = await createNewUser({
+          firstName: "New",
+          lastName: "User",
           email: "new.user@example.com",
           password: "newpassword",
+          role: "User",
+          phone: "1234567890",
+          currentSchool: "",
+          educationLevel: "",
+          generation: "",
+          grade: "",
+          group: "",
         });
+
+        
         console.log("New user created:", newUser);
 
         console.log("Testing updateUserInfo with ID 1...");

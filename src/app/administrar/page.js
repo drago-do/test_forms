@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Container from "@mui/material/Container";
 import MenuAppBar from "@/components/general/MenuAppBar";
 import Typography from "@mui/material/Typography";
@@ -18,8 +18,14 @@ import Paper from "@mui/material/Paper";
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import SearchIcon from "@mui/icons-material/Search";
+import FullPageLoader from "@/components/general/FullPageLoader";
 
-export default function page() {
+import { useRouter } from "next/navigation";
+
+export default function Page() {
+  const { push } = useRouter();
+  const [loading, setLoading] = useState(false);
+
   const tests = [
     {
       name: "test",
@@ -53,8 +59,14 @@ export default function page() {
     },
   ];
 
+  const handleURLClick = (url) => {
+    setLoading(true);
+    push(url);
+  };
+
   return (
     <>
+      <FullPageLoader open={loading} />
       <MenuAppBar />
       <Container maxWidth="md">
         <Typography variant="h2" className="mt-16 mb-3">
@@ -65,6 +77,7 @@ export default function page() {
           color="primary"
           fullWidth
           className="flex items-center"
+          onClick={() => handleURLClick("/administrar/crear-editar")}
         >
           <MaterialIcon iconName="add_notes" />
           Crear nuevo test
