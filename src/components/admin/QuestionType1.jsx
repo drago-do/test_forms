@@ -18,7 +18,7 @@ import {
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import MaterialIcon from "./../../components/general/MaterialIcon";
-import { useFormContext, useFieldArray } from "react-hook-form"; // Added useFieldArray
+import { useFormContext, useFieldArray } from "react-hook-form";
 import { ExpandMore } from "@mui/icons-material";
 
 const defaultOptions = [
@@ -40,7 +40,8 @@ const QuestionType1 = ({
     formState: { errors },
     getValues,
     control,
-  } = useFormContext(); // Updated to use useFormContext
+    setValue,
+  } = useFormContext();
   const [focus, setFocus] = useState(false);
 
   const { fields, append, remove } = useFieldArray({
@@ -51,7 +52,6 @@ const QuestionType1 = ({
   const handleFocus = () => setFocus(true);
   const handleBlur = () => setFocus(false);
 
-  // Function to handle clicks outside the component
   const handleClickOutside = (event) => {
     if (event.target.closest(".question-container") === null) {
       setFocus(false);
@@ -67,9 +67,39 @@ const QuestionType1 = ({
 
   useEffect(() => {
     if (fields.length === 0) {
-      defaultOptions.forEach((option) => append({ texto: option, valor: 1 }));
+      defaultOptions.forEach((option, index) => {
+        append({ texto: option, valor: index + 1 });
+      });
     }
-  }, [fields, append]);
+
+    // Set default values for the question text and validation
+    if (
+      !getValues(`sections.${sectionIndex}.questions.${questionIndex}.texto`)
+    ) {
+      setValue(
+        `sections.${sectionIndex}.questions.${questionIndex}.texto`,
+        question?.texto || ""
+      );
+    }
+    if (
+      getValues(
+        `sections.${sectionIndex}.questions.${questionIndex}.validacion`
+      ) === undefined
+    ) {
+      setValue(
+        `sections.${sectionIndex}.questions.${questionIndex}.validacion`,
+        false
+      );
+    }
+  }, [
+    fields,
+    append,
+    question,
+    sectionIndex,
+    questionIndex,
+    getValues,
+    setValue,
+  ]);
 
   return (
     <div className="question-container" onClick={handleFocus}>
@@ -82,7 +112,7 @@ const QuestionType1 = ({
           </Collapse>
         </section>
         <TextField
-          defaultValue={question?.texto}
+          defaultValue={question?.texto || ""}
           error={
             !!errors?.sections?.[sectionIndex]?.questions?.[questionIndex]
               ?.texto
@@ -106,11 +136,7 @@ const QuestionType1 = ({
           label={"¿Pregunta de validación?"}
           control={
             <Checkbox
-              defaultChecked={
-                getValues(
-                  `sections.${sectionIndex}.questions.${questionIndex}.validacion`
-                ) || false
-              }
+              defaultChecked={question?.validacion || false}
               {...register(
                 `sections.${sectionIndex}.questions.${questionIndex}.validacion`
               )}
@@ -159,7 +185,7 @@ const QuestionType1 = ({
         <Button
           variant="contained"
           color="primary"
-          onClick={() => append({ texto: "", valor: 0 })}
+          onClick={() => append({ texto: "", valor: fields.length + 1 })}
           className="mt-4"
         >
           Añadir Opción
@@ -184,4 +210,4 @@ const QuestionType1 = ({
   );
 };
 
-export default QuestionType1; // Added default export
+export default QuestionType1;
