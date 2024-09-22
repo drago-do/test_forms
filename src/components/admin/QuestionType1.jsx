@@ -20,6 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import MaterialIcon from "./../../components/general/MaterialIcon";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import { ExpandMore } from "@mui/icons-material";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 const defaultOptions = [
   "Nunca",
@@ -34,6 +35,7 @@ const QuestionType1 = ({
   questionIndex,
   sectionIndex,
   deleteQuestionHandler,
+  cloneQuestionHandler,
 }) => {
   const {
     register,
@@ -197,6 +199,12 @@ const QuestionType1 = ({
           justifyContent={"end"}
           className="mt-4"
         >
+          <IconButton
+            onClick={() => cloneQuestionHandler(sectionIndex, questionIndex)}
+            aria-label="delete"
+          >
+            <ContentCopyIcon />
+          </IconButton>
           <IconButton
             onClick={() => deleteQuestionHandler(sectionIndex, questionIndex)}
             aria-label="delete"

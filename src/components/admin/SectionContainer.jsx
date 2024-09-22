@@ -26,6 +26,7 @@ const SectionOfTest = ({
   updateQuestionHandler,
   deleteQuestionHandler,
   deleteSectionHandler,
+  cloneQuestionHandler,
 }) => {
   const {
     register,
@@ -95,6 +96,7 @@ const SectionOfTest = ({
                       sectionIndex={sectionIndex}
                       updateQuestionHandler={updateQuestionHandler}
                       deleteQuestionHandler={deleteQuestionHandler}
+                      cloneQuestionHandler={cloneQuestionHandler}
                     />
                   ))
                 ) : (

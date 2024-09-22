@@ -48,7 +48,6 @@ export default function Page({ valorMax = 5 }) {
     tipo: "escala",
     validacion: false,
   };
-
   const addSectionHandler = () => {
     const newSectionId =
       sections.length > 0 ? sections[sections.length - 1].id + 1 : 1; // Increment ID based on last section
@@ -80,6 +79,27 @@ export default function Page({ valorMax = 5 }) {
     const updatedQuestions = sections[sectionIndex].questions.filter(
       (_, idx) => idx !== questionIndex
     );
+    update(sectionIndex, {
+      ...sections[sectionIndex],
+      questions: updatedQuestions,
+    });
+  };
+
+  const cloneQuestionHandler = (sectionIndex, questionIndex) => {
+    const questionToClone = sections[sectionIndex].questions[questionIndex];
+    const clonedQuestion = {
+      ...questionToClone,
+      id:
+        sections[sectionIndex].questions.length > 0
+          ? sections[sectionIndex].questions[
+              sections[sectionIndex].questions.length - 1
+            ].id + 1
+          : 1,
+    };
+    const updatedQuestions = [
+      ...sections[sectionIndex].questions,
+      clonedQuestion,
+    ];
     update(sectionIndex, {
       ...sections[sectionIndex],
       questions: updatedQuestions,
@@ -118,6 +138,7 @@ export default function Page({ valorMax = 5 }) {
             addQuestionHandler={addQuestionHandler}
             updateQuestionHandler={updateQuestionHandler}
             deleteQuestionHandler={deleteQuestionHandler}
+            cloneQuestionHandler={cloneQuestionHandler}
           />
         ))
       ) : (
