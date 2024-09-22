@@ -7,7 +7,7 @@ import { FormProvider, useFormContext, useFieldArray } from "react-hook-form";
 import SectionContainer from "./SectionContainer";
 import SetRangos from "./SetRangos";
 
-export default function Page({ valorMax = 5 }) {
+export default function Page({}) {
   const methods = useFormContext();
 
   React.useEffect(() => {
@@ -37,17 +37,9 @@ export default function Page({ valorMax = 5 }) {
     id: 0, // Start IDs from 0
     name: "Nombre por defecto",
     link: null,
-    maxValue: 5,
     questions: [],
   };
 
-  const questionBase = {
-    id: 0, // Start IDs from 0
-    texto: "",
-    opciones: Array.from({ length: valorMax }, (_, index) => index + 1),
-    tipo: "escala",
-    validacion: false,
-  };
   const addSectionHandler = () => {
     const newSectionId =
       sections.length > 0 ? sections[sections.length - 1].id + 1 : 1; // Increment ID based on last section
@@ -60,6 +52,17 @@ export default function Page({ valorMax = 5 }) {
   };
 
   const addQuestionHandler = (index) => {
+    const questionBase = {
+      id: 0, // Start IDs from 0
+      texto: "",
+      opciones: Array.from(
+        { length: methods.getValues(`sections.${index}.valorMax`) },
+        (_, index2) => index2 + 1
+      ),
+      tipo: "escala",
+      validacion: false,
+    };
+
     const updatedQuestions = [
       ...sections[index].questions,
       {

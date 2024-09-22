@@ -65,7 +65,7 @@ const SectionOfTest = ({
             <TextField
               className="my-6"
               error={!!errors?.sections?.[sectionIndex]?.valorMax}
-              defaultValue={section.valorMax || 5}
+              defaultValue={section?.valorMax || 5}
               helperText={errors?.sections?.[sectionIndex]?.name?.valorMax}
               {...register(`sections.${sectionIndex}.valorMax`, {
                 required: "Campo requerido",
@@ -74,6 +74,7 @@ const SectionOfTest = ({
               fullWidth
               required
               variant="standard"
+              disabled={section.questions.length > 0}
             />
           </Grid>
           <Accordion className="w-full">

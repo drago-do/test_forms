@@ -69,9 +69,10 @@ const QuestionType1 = ({
 
   useEffect(() => {
     if (fields.length === 0) {
-      defaultOptions.forEach((option, index) => {
-        append({ texto: option, valor: index + 1 });
-      });
+      const numOptions = getValues(`sections.${sectionIndex}.valorMax`);
+      for (let i = 0; i < numOptions; i++) {
+        append({ texto: defaultOptions[i], valor: i + 1 });
+      }
     }
 
     // Set default values for the question text and validation
@@ -149,40 +150,53 @@ const QuestionType1 = ({
           Opciones
         </Typography>
         {fields.map((field, optionIndex) => (
-          <Grid container spacing={2} key={field.id} alignItems="center">
-            <Grid item xs={10}>
-              <TextField
-                defaultValue={field.texto}
-                error={
-                  !!errors?.sections?.[sectionIndex]?.questions?.[questionIndex]
-                    ?.opciones?.[optionIndex]?.texto
+          <React.Fragment key={field.id}>
+            <input
+              type="hidden"
+              defaultValue={optionIndex + 1}
+              {...register(
+                `sections.${sectionIndex}.questions.${questionIndex}.opciones.${optionIndex}.valor`,
+                {
+                  required: "Campo requerido",
                 }
-                helperText={
-                  errors?.sections?.[sectionIndex]?.questions?.[questionIndex]
-                    ?.opciones?.[optionIndex]?.texto?.message
-                }
-                {...register(
-                  `sections.${sectionIndex}.questions.${questionIndex}.opciones.${optionIndex}.texto`,
-                  {
-                    required: "Campo requerido",
+              )}
+            />
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={10}>
+                <TextField
+                  defaultValue={field.texto}
+                  error={
+                    !!errors?.sections?.[sectionIndex]?.questions?.[
+                      questionIndex
+                    ]?.opciones?.[optionIndex]?.texto
                   }
-                )}
-                label={`Opción ${optionIndex + 1}`}
-                fullWidth
-                required
-                variant="standard"
-              />
+                  helperText={
+                    errors?.sections?.[sectionIndex]?.questions?.[questionIndex]
+                      ?.opciones?.[optionIndex]?.texto?.message
+                  }
+                  {...register(
+                    `sections.${sectionIndex}.questions.${questionIndex}.opciones.${optionIndex}.texto`,
+                    {
+                      required: "Campo requerido",
+                    }
+                  )}
+                  label={`Opción ${optionIndex + 1}`}
+                  fullWidth
+                  required
+                  variant="standard"
+                />
+              </Grid>
+              <Grid item xs={2} display={"flex"} justifyContent={"end"}>
+                <IconButton
+                  onClick={() => remove(optionIndex)}
+                  aria-label="delete"
+                  color="error"
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Grid>
             </Grid>
-            <Grid item xs={2} display={"flex"} justifyContent={"end"}>
-              <IconButton
-                onClick={() => remove(optionIndex)}
-                aria-label="delete"
-                color="error"
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Grid>
-          </Grid>
+          </React.Fragment>
         ))}
         <Button
           variant="contained"
