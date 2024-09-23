@@ -8,7 +8,7 @@ import SectionContainer from "./SectionContainer";
 import SetRangos from "./SetRangos";
 import Cookies from "js-cookie";
 
-export default function Page({}) {
+export default function Page({ maxValue }) {
   const methods = useFormContext();
 
   const {
@@ -31,7 +31,6 @@ export default function Page({}) {
   });
 
   const sectionBase = {
-    id: 0, // Start IDs from 0
     name: "Nombre por defecto",
     link: null,
     questions: [],
@@ -54,10 +53,10 @@ export default function Page({}) {
     const questionBase = {
       id: 0, // Start IDs from 0
       texto: "",
-      // opciones: Array.from(
-      //   { length: methods.getValues(`sections.${index}.valorMax`) },
-      //   (_, index2) => index2 + 1
-      // ),
+      opciones: Array.from(
+        { length: methods.getValues(`sections.${index}.valorMax`) },
+        (_, index2) => ({ id: index2 + 1, texto: "", valor: index2 + 1 })
+      ),
       tipo: "escala",
       validacion: false,
     };

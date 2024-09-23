@@ -50,53 +50,15 @@ const SectionWithQuestions = ({
     watch,
   } = useFormContext();
 
-  const [focus, setFocus] = useState(false);
+  useEffect(() => {
+    console.log("section.questions");
+    console.log(section.questions);
+  }, [section, sectionIndex]);
+
   const { fields, append } = useFieldArray({
     control,
     name: `sections.${sectionIndex}.questions`,
   });
-
-  const handleFocus = useCallback(() => setFocus(true), []);
-
-  const handleClickOutside = useCallback((event) => {
-    if (!event.target.closest(".question-container")) {
-      setFocus(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [handleClickOutside]);
-
-  // Initialize question options and default values
-  useEffect(() => {
-    const valorMax = getValues(`sections.${sectionIndex}.valorMax`);
-
-    // Avoid appending new options if they already exist
-    if (fields.length === 0 && valorMax) {
-      console.log(valorMax);
-      for (let i = 0; i < valorMax; i++) {
-        console.log(i);
-        console.log(i);
-        append({ texto: `Opción ${i + 1}`, valor: i + 1 });
-      }
-    }
-
-    // Set default values for question text and validation if not present
-    const questionTextPath = `sections.${sectionIndex}.questions.texto`;
-    const validationPath = `sections.${sectionIndex}.questions.validacion`;
-
-    if (!getValues(questionTextPath)) {
-      setValue(questionTextPath, "");
-    }
-
-    if (getValues(validationPath) === undefined) {
-      setValue(validationPath, false);
-    }
-  }, [fields, append]);
 
   return (
     <Container maxWidth="lg" className="my-5">
@@ -154,11 +116,7 @@ const SectionWithQuestions = ({
               <Grid item xs={12}>
                 {section?.questions && section.questions.length > 0 ? (
                   section.questions.map((question, questionIndex) => (
-                    <div
-                      className="question-container"
-                      key={questionIndex}
-                      onClick={handleFocus}
-                    >
+                    <div className="question-container" key={questionIndex}>
                       <Collapse in={focus}>
                         <Typography variant="body1" className="text-end">
                           #{question?.id || 0}
@@ -198,39 +156,41 @@ const SectionWithQuestions = ({
                       </Typography>
 
                       {/* Options for each question */}
-                      {fields.map((field, optionIndex) => (
-                        <Grid
-                          container
-                          spacing={2}
-                          alignItems="center"
-                          key={field.id}
-                        >
-                          <input
-                            type="hidden"
-                            defaultValue={optionIndex + 1}
-                            {...register(
-                              `sections.${sectionIndex}.questions.${questionIndex}.opciones.${optionIndex}.valor`,
-                              {
-                                required: "Campo requerido",
-                              }
-                            )}
-                          />
-                          <Grid item xs={10}>
-                            <TextField
+                      {question?.opciones &&
+                        question?.opciones?.length > 0 &&
+                        question?.opciones?.map((field, optionIndex) => (
+                          <Grid
+                            container
+                            spacing={2}
+                            alignItems="center"
+                            key={field.id}
+                          >
+                            <input
+                              type="hidden"
+                              defaultValue={optionIndex + 1}
                               {...register(
-                                `sections.${sectionIndex}.questions.${questionIndex}.opciones.${optionIndex}.texto`,
+                                `sections.${sectionIndex}.questions.${questionIndex}.opciones.${optionIndex}.valor`,
                                 {
                                   required: "Campo requerido",
                                 }
                               )}
-                              label={`Opción ${optionIndex + 1}`}
-                              fullWidth
-                              required
-                              variant="standard"
                             />
+                            <Grid item xs={10}>
+                              <TextField
+                                {...register(
+                                  `sections.${sectionIndex}.questions.${questionIndex}.opciones.${optionIndex}.texto`,
+                                  {
+                                    required: "Campo requerido",
+                                  }
+                                )}
+                                label={`Opción ${optionIndex + 1}`}
+                                fullWidth
+                                required
+                                variant="standard"
+                              />
+                            </Grid>
                           </Grid>
-                        </Grid>
-                      ))}
+                        ))}
 
                       {/* Question Actions */}
                       <Grid
