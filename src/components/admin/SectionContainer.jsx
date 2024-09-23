@@ -66,7 +66,7 @@ const SectionOfTest = ({
               className="my-6"
               error={!!errors?.sections?.[sectionIndex]?.valorMax}
               defaultValue={section?.valorMax || 5}
-              helperText={errors?.sections?.[sectionIndex]?.name?.valorMax}
+              helperText={errors?.sections?.[sectionIndex]?.valorMax}
               {...register(`sections.${sectionIndex}.valorMax`, {
                 required: "Campo requerido",
               })}
@@ -77,6 +77,7 @@ const SectionOfTest = ({
               disabled={section.questions.length > 0}
             />
           </Grid>
+
           <Accordion className="w-full">
             <AccordionSummary
               expandIcon={<ExpandMore />}

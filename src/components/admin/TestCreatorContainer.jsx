@@ -1,11 +1,12 @@
 "use client";
 import React from "react";
-import { Grid, Container, Typography, Button } from "@mui/material";
+import { Grid, Container, Typography, Button, TextField } from "@mui/material";
 
 import MaterialIcon from "./../../components/general/MaterialIcon";
 import { FormProvider, useFormContext, useFieldArray } from "react-hook-form";
 import SectionContainer from "./SectionContainer";
 import SetRangos from "./SetRangos";
+import Cookies from "js-cookie";
 
 export default function Page({}) {
   const methods = useFormContext();
@@ -39,6 +40,8 @@ export default function Page({}) {
     link: null,
     questions: [],
   };
+
+  const createdBy = Cookies.get("_id") || null;
 
   const addSectionHandler = () => {
     const newSectionId =
@@ -130,6 +133,13 @@ export default function Page({}) {
   return (
     <>
       <SetRangos />
+      <Grid item xs={12}>
+        <TextField
+          type="hidden"
+          defaultValue={createdBy}
+          {...register("creado_por")}
+        />
+      </Grid>
       {sections && sections.length > 0 ? (
         sections.map((section, index) => (
           <SectionContainer

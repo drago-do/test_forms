@@ -5,7 +5,7 @@ import useUser from "./../../hook/useUser";
 export default function Layout({ children }) {
   const { getUserRole } = useUser();
 
-  if (getUserRole() !== "Admin") {
+  if (typeof window !== "undefined" && getUserRole() !== "Admin") {
     window.location.href = "/";
   }
 
