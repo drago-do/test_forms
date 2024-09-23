@@ -11,10 +11,6 @@ import Cookies from "js-cookie";
 export default function Page({}) {
   const methods = useFormContext();
 
-  React.useEffect(() => {
-    console.log(methods.getValues());
-  }, [methods.watch()]);
-
   const {
     control,
     handleSubmit,
@@ -58,10 +54,10 @@ export default function Page({}) {
     const questionBase = {
       id: 0, // Start IDs from 0
       texto: "",
-      opciones: Array.from(
-        { length: methods.getValues(`sections.${index}.valorMax`) },
-        (_, index2) => index2 + 1
-      ),
+      // opciones: Array.from(
+      //   { length: methods.getValues(`sections.${index}.valorMax`) },
+      //   (_, index2) => index2 + 1
+      // ),
       tipo: "escala",
       validacion: false,
     };
