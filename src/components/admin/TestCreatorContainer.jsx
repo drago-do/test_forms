@@ -10,7 +10,7 @@ import Cookies from "js-cookie";
 
 export default function Page({ maxValue }) {
   const methods = useFormContext();
-
+  const [valorMaxEstado, setValorMaxEstado] = React.useState(5);
   const {
     control,
     handleSubmit,
@@ -50,13 +50,21 @@ export default function Page({ maxValue }) {
   };
 
   const addQuestionHandler = (index) => {
+    if (methods.getValues(`sections.${index}.valorMax`)) {
+      setValorMaxEstado(methods.getValues(`sections.${index}.valorMax`));
+    } else {
+      methods.setValue(`sections.${index}.valorMax`, valorMaxEstado);
+    }
+    const valorMax =
+      methods.getValues(`sections.${index}.valorMax`) || valorMaxEstado; // Usa el valor actual de valorMax
     const questionBase = {
-      id: 0, // Start IDs from 0
+      id: 0,
       texto: "",
-      opciones: Array.from(
-        { length: methods.getValues(`sections.${index}.valorMax`) },
-        (_, index2) => ({ id: index2 + 1, texto: "", valor: index2 + 1 })
-      ),
+      opciones: Array.from({ length: valorMax }, (_, idx) => ({
+        id: idx + 1,
+        texto: "",
+        valor: idx + 1,
+      })),
       tipo: "escala",
       validacion: false,
     };
@@ -70,7 +78,7 @@ export default function Page({ maxValue }) {
             ? sections[index].questions[sections[index].questions.length - 1]
                 .id + 1
             : 1,
-      }, // Increment ID based on last question
+      },
     ];
     update(index, { ...sections[index], questions: updatedQuestions });
   };

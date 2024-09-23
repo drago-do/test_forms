@@ -23,15 +23,6 @@ import {
 } from "@mui/icons-material";
 import MaterialIcon from "./../../components/general/MaterialIcon";
 
-// Default options for questions
-const defaultOptions = [
-  "Nunca",
-  "Pocas Veces",
-  "Algunas Veces",
-  "Frecuentemente",
-  "Siempre",
-];
-
 const SectionWithQuestions = ({
   section,
   sectionIndex,
@@ -45,25 +36,23 @@ const SectionWithQuestions = ({
     register,
     formState: { errors },
     getValues,
-    control,
     setValue,
     watch,
   } = useFormContext();
 
-  useEffect(() => {
-    console.log("section.questions");
-    console.log(section.questions);
-  }, [section, sectionIndex]);
+  // Watching the current value of valorMax
+  const valorMax =
+    watch(`sections.${sectionIndex}.valorMax`) || section?.valorMax || 5;
 
-  const { fields, append } = useFieldArray({
-    control,
-    name: `sections.${sectionIndex}.questions`,
-  });
+  useEffect(() => {
+    if (!getValues(`sections.${sectionIndex}.valorMax`)) {
+      setValue(`sections.${sectionIndex}.valorMax`, section?.valorMax || 5);
+    }
+  }, [sectionIndex, section, setValue, getValues]);
 
   return (
     <Container maxWidth="lg" className="my-5">
       <Paper elevation={3} className="p-3">
-        {/* Section Header */}
         <Grid container spacing={1} alignItems={"center"}>
           <Grid item xs={10}>
             <TextField
@@ -94,7 +83,10 @@ const SectionWithQuestions = ({
             <TextField
               className="my-6"
               error={!!errors?.sections?.[sectionIndex]?.valorMax}
-              defaultValue={section?.valorMax || 5}
+              value={valorMax} // Use watch to bind the current value
+              onChange={(e) =>
+                setValue(`sections.${sectionIndex}.valorMax`, e.target.value)
+              }
               helperText={errors?.sections?.[sectionIndex]?.valorMax?.message}
               {...register(`sections.${sectionIndex}.valorMax`, {
                 required: "Campo requerido",

@@ -31,7 +31,7 @@ export default function Page() {
           stepComponents={SectionsForStepForm}
           edit={false}
           debug={true}
-          step={1}
+          step={0}
         />
         {parseInt(stepDebug) >= 0 && <DevTool control={control} />}
       </FormProvider>
