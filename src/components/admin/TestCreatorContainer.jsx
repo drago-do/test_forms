@@ -64,6 +64,7 @@ export default function Page({ maxValue }) {
         id: idx + 1,
         texto: "",
         valor: idx + 1,
+        subcategoria: "",
       })),
       tipo: "escala",
       validacion: false,
