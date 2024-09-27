@@ -49,8 +49,9 @@ export default function Page({
   debug = false,
   edit,
 }) {
-  const [activeStep, setActiveStep] = React.useState(step);
-  const [submitStatus, setSubmitStatus] = React.useState(null);
+  const [activeStep, setActiveStep] = useState(step);
+  const [submitStatus, setSubmitStatus] = useState("loading");
+  const [info, setInfo] = useState(null);
   const stepsToComplete = stepComponents?.length || 1;
   const [IDDocumentCreated, setIDDocumentCreated] = useState(null);
   const [errorMessages, setErrorMessages] = useState(null);
@@ -62,27 +63,29 @@ export default function Page({
     dirtyFields,
     formState: { errors },
   } = useFormContext();
+
   const onSubmit = (data) => {
+    console.log("submit");
     scrollTop();
-    setActiveStep(activeStep + 1);
     uploadToDataBase(data, formatCode)
       .then((response) => {
         console.log(response);
-        const idDocumento = response?._id || response?.data?.data?._id;
-        setIDDocumentCreated(idDocumento);
-        setSubmitStatus(true);
+        setSubmitStatus("success");
       })
       .catch((error) => {
         console.log("Error al enviar los datos");
         console.log(error);
-        setSubmitStatus(false);
+        setInfo(error);
+        setSubmitStatus("error");
       });
   };
+
   useEffect(() => {
     if (debug) {
       console.log(getValues());
     }
   }, [watch()]);
+
   const getErrorMessages = (errorObj) => {
     let messages = [];
     const traverseErrors = (obj) => {
@@ -101,11 +104,7 @@ export default function Page({
     traverseErrors(errorObj);
     return messages;
   };
-  const handleClick = () => {
-    setTimeout(() => {
-      setErrorMessages(getErrorMessages(errors));
-    }, 200);
-  };
+
   useEffect(() => {
     const handleClick = () => {
       setTimeout(() => {
@@ -118,8 +117,8 @@ export default function Page({
       document.removeEventListener("click", handleClick);
     };
   }, [errors]);
+
   function camelCaseToCapitalizedSpaces(camelCaseString) {
-    // Add a space before each uppercase letter and capitalize the first letter of the resulting string
     const result = camelCaseString
       .replace(/([A-Z])/g, " $1")
       .replace(/^./, function (str) {
@@ -127,6 +126,7 @@ export default function Page({
       });
     return result;
   }
+
   function getStepContent(step) {
     const StepComponent = stepComponents[step]?.form;
     if (StepComponent) {
@@ -134,31 +134,32 @@ export default function Page({
     } else {
       return <NoPage />;
     }
-    throw new Error("Unknown step");
   }
-  const handleNext = () => {
-    trigger().then((formIsComplete) => {
-      if (activeStep < stepsToComplete && formIsComplete) {
-        scrollTop();
-        setActiveStep(activeStep + 1);
-      }
-    });
+
+  const handleNext = async () => {
+    const formIsComplete = await trigger();
+    if (activeStep < stepsToComplete && formIsComplete) {
+      scrollTop();
+      setActiveStep(activeStep + 1);
+    }
   };
-  const goToIndex = (index) => {
-    trigger().then((formIsComplete) => {
-      if (formIsComplete) {
-        scrollTop();
-        setActiveStep(index);
-      }
-    });
+
+  const goToIndex = async (index) => {
+    const formIsComplete = await trigger();
+    if (formIsComplete) {
+      scrollTop();
+      setActiveStep(index);
+    }
   };
-  const handleSendSubmit = () => {
-    trigger().then((formIsComplete) => {
-      if (formIsComplete) {
-        setActiveStep(stepsToComplete - 1);
-      }
-    });
+
+  const handleSendSubmit = async () => {
+    const formIsComplete = await trigger();
+    if (formIsComplete) {
+      setActiveStep(activeStep + 1);
+      onSubmit(getValues());
+    }
   };
+
   const handleBack = () => {
     setSubmitStatus(null);
     if (activeStep > 0) {
@@ -166,6 +167,7 @@ export default function Page({
       setActiveStep(activeStep - 1);
     }
   };
+
   return (
     <Container component="main" maxWidth="lg" className="pb-14">
       <Typography component="h1" variant="h4">
@@ -174,7 +176,6 @@ export default function Page({
       <Stepper
         activeStep={activeStep}
         sx={{ pt: 3, pb: 2 }}
-        // style={{ overflow: "scroll" }}
         className="overflow-x md:overflow-hidden mb-8"
       >
         {stepComponents.map((component, index) => (
@@ -187,11 +188,7 @@ export default function Page({
       </Stepper>
       {activeStep === stepComponents.length ? (
         <section className="w-full flex justify-center">
-          <FinalScreen
-            success={submitStatus}
-            idDocument={IDDocumentCreated}
-            handleBack={handleBack}
-          />
+          <FinalScreen state={submitStatus} info={info} />
         </section>
       ) : (
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
@@ -207,10 +204,7 @@ export default function Page({
               <Button
                 onClick={handleBack}
                 sx={{ mt: 3, ml: 1 }}
-                disabled={
-                  Object.keys(errors).length !== 0 &&
-                  errors.constructor === Object
-                }
+                disabled={Object.keys(errors).length !== 0}
               >
                 Regresar
               </Button>
@@ -232,10 +226,7 @@ export default function Page({
               <Collapse in={activeStep < stepsToComplete - 1}>
                 <Button
                   variant="contained"
-                  disabled={
-                    Object.keys(errors).length !== 0 &&
-                    errors.constructor === Object
-                  }
+                  disabled={Object.keys(errors).length !== 0}
                   type="button"
                   onClick={handleNext}
                   sx={{ mt: 3, ml: 0 }}
@@ -247,10 +238,7 @@ export default function Page({
               <Collapse in={activeStep === stepsToComplete - 1}>
                 <Button
                   variant="contained"
-                  disabled={
-                    Object.keys(errors).length !== 0 &&
-                    errors.constructor === Object
-                  }
+                  disabled={Object.keys(errors).length !== 0}
                   type="submit"
                   sx={{ mt: 3, ml: 0 }}
                   color="secondary"

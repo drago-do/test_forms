@@ -40,16 +40,6 @@ const SectionWithQuestions = ({
     watch,
   } = useFormContext();
 
-  // Watching the current value of valorMax
-  const valorMax =
-    watch(`sections.${sectionIndex}.valorMax`) || section?.valorMax || 5;
-
-  useEffect(() => {
-    if (!getValues(`sections.${sectionIndex}.valorMax`)) {
-      setValue(`sections.${sectionIndex}.valorMax`, section?.valorMax || 5);
-    }
-  }, [sectionIndex, section, setValue, getValues]);
-
   return (
     <Container maxWidth="lg" className="my-5">
       <Paper elevation={3} className="p-3">
@@ -78,29 +68,35 @@ const SectionWithQuestions = ({
             </IconButton>
           </Grid>
 
-          {/* Max Value Input */}
-          <Grid item xs={12}>
+          {/* Link Input */}
+          <Grid item xs={12} className="mt-4">
             <TextField
-              className="my-6"
+              defaultValue={section.link?.join(", ") || ""}
+              {...register(`sections.${sectionIndex}.link`)}
+              label="Enlaces de la sección (separados por comas)"
+              fullWidth
+              variant="standard"
+            />
+          </Grid>
+
+          {/* Max Value Input */}
+          <Grid item xs={12} className="mt-4">
+            <TextField
               error={!!errors?.sections?.[sectionIndex]?.valorMax}
-              value={valorMax} // Use watch to bind the current value
-              onChange={(e) =>
-                setValue(`sections.${sectionIndex}.valorMax`, e.target.value)
-              }
+              defaultValue={section.valorMax}
               helperText={errors?.sections?.[sectionIndex]?.valorMax?.message}
               {...register(`sections.${sectionIndex}.valorMax`, {
                 required: "Campo requerido",
               })}
-              label="Valor Maximo de sección"
+              label="Valor máximo de la sección"
               fullWidth
               required
               variant="standard"
-              disabled={section.questions.length > 0}
             />
           </Grid>
 
           {/* Accordion for questions */}
-          <Accordion className="w-full">
+          <Accordion className="w-full mt-4">
             <AccordionSummary expandIcon={<ExpandMore />} aria-label="Expand">
               <Typography>Preguntas de sección</Typography>
             </AccordionSummary>

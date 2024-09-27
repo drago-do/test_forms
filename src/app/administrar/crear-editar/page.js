@@ -16,44 +16,36 @@ const SectionsForStepForm = [
 ];
 
 export default function Page() {
-  const [loading, setLoading] = useState(false);
   const methods = useForm({ mode: "all" });
   const { control } = methods;
-  const stepDebug = 1;
+  const stepDebug = false;
   const { createTest, updateTest } = useTest();
 
   const handleFormSubmit = (data) => {
     return new Promise((resolve, reject) => {
-      setLoading(true);
       if (data?._id) {
         updateTest(data?._id, data)
           .then((response) => {
-            setLoading(false);
             resolve(response);
           })
           .catch((error) => {
             console.error("Error updating test:", error);
-            setLoading(false);
             reject(error);
           });
       } else {
         createTest(data)
           .then((response) => {
-            setLoading(false);
             resolve(response);
           })
           .catch((error) => {
             console.error("Error creating test:", error);
-            setLoading(false);
             reject(error);
           });
       }
     });
   };
 
-  return loading ? (
-    <FullPageLoader open={loading} />
-  ) : (
+  return (
     <>
       <MenuAppBar />
       <FormProvider {...methods}>
@@ -61,8 +53,8 @@ export default function Page() {
           formTitle={"Crear nuevo Test"}
           stepComponents={SectionsForStepForm}
           edit={false}
-          debug={true}
-          step={0}
+          debug={false}
+          step={stepDebug ? stepDebug : 0}
           uploadToDataBase={handleFormSubmit}
         />
         {parseInt(stepDebug) >= 0 && <DevTool control={control} />}
