@@ -89,7 +89,7 @@ const seccionSchema: Schema<ISeccion> = new Schema(
     },
     questions: [
       {
-        type: [preguntaSchema],
+        type: preguntaSchema,
         description: "Referencias a las preguntas asociadas a la sección",
       },
     ],
@@ -167,7 +167,7 @@ const pruebaSchema: Schema<IPrueba> = new Schema(
     categorias: [categoriaSchema], // Usar el esquema de categoría aquí
     sections: [
       {
-        type: [seccionSchema],
+        type: seccionSchema,
         description: "Referencias a las secciones asociadas a la prueba",
       },
     ],

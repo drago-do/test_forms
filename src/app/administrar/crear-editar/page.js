@@ -14,7 +14,7 @@ import { Toaster } from "sonner";
 
 const SectionsForStepForm = [
   { form: MetadataTest, name: "Informacion General" },
-  { form: TestCreatorContainer, name: "Laboral" },
+  { form: TestCreatorContainer, name: "Secciones y preguntas" },
 ];
 
 export default function Page() {
@@ -23,8 +23,8 @@ export default function Page() {
   const stepDebug = false;
   const { createTest, updateTest, getTestById } = useTest();
   const params = useSearchParams();
-  const [loading, setLoading] = useState(false);
   const idDocument = params.get("id");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (idDocument) {
@@ -51,12 +51,16 @@ export default function Page() {
           methods.setValue("fecha_creacion", test.fecha_creacion);
           methods.setValue("createdAt", test.createdAt);
           methods.setValue("updatedAt", test.updatedAt);
-          setLoading(false);
+          setTimeout(() => {
+            setLoading(false);
+          }, 1000);
         })
         .catch((error) => {
           console.error("Error getting test:", error);
           setLoading(false);
         });
+    } else {
+      setLoading(false);
     }
   }, [idDocument]);
 
@@ -84,10 +88,13 @@ export default function Page() {
     });
   };
 
+  if (loading) {
+    return <FullPageLoader open={true} />;
+  }
+
   return (
     <>
       <MenuAppBar />
-      <FullPageLoader open={loading} />
       <FormProvider {...methods}>
         <StepForm
           formTitle={"Crear nuevo Test"}

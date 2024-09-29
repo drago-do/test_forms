@@ -31,7 +31,7 @@ export default function Page({ maxValue }) {
   });
 
   const sectionBase = {
-    name: "Nombre por defecto",
+    name: "",
     link: null,
     questions: [],
   };

@@ -74,10 +74,12 @@ const ReturnButonsGroup = () => {
       <Button
         variant="contained"
         color="primary"
-        onClick={() => window.location.reload()}
+        onClick={() => {
+          push("/administrar/", undefined, { shallow: true });
+        }}
       >
         <MaterialIcon iconName="frame_reload" className="mr-3" />
-        Realizar otro Test
+        Regresar a administración
       </Button>
     </section>
   );
