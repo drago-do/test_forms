@@ -9,7 +9,6 @@ import MaterialIcon from "../general/MaterialIcon";
 import { useRouter } from "next/navigation";
 
 export default function Page({ state = "loading", info = "Error " }) {
-  const { push } = useRouter();
   const renderContent = () => {
     switch (state) {
       case "success":
@@ -64,6 +63,8 @@ export default function Page({ state = "loading", info = "Error " }) {
 }
 
 const ReturnButonsGroup = () => {
+  const { push } = useRouter();
+
   return (
     <section className="w-full flex justify-between">
       <Button variant="text" color="secondary" onClick={() => push("/")}>

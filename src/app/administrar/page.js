@@ -11,6 +11,10 @@ import {
   ListItemText,
   TextField,
   InputAdornment,
+  Menu,
+  MenuItem,
+  Dialog,
+  DialogTitle,
 } from "@mui/material";
 
 import Paper from "@mui/material/Paper";
@@ -105,6 +109,7 @@ export default function Page() {
             {tests.map((test) => (
               <ItemTest
                 key={test._id}
+                _id={test._id}
                 titulo={test.titulo}
                 descripcion={test.descripcion}
                 instrucciones={test.instrucciones}
@@ -118,30 +123,81 @@ export default function Page() {
   );
 }
 
-const ItemTest = ({ titulo, descripcion, instrucciones, categorias }) => (
-  <Paper elevation={2} className="my-2 p-2 flex items-center justify-between">
-    <div className="flex items-center">
-      <ListItemIcon>
-        <MaterialIcon iconName="question_mark" />
-      </ListItemIcon>
-      <ListItemText
-        primary={titulo}
-        secondary={
-          <>
-            <Typography component="span">{descripcion}</Typography>
-            <Typography component="span">{instrucciones}</Typography>
-            <Typography component="span">
-              Categorías: {categorias.map((cat) => cat.nombre).join(", ")}
-            </Typography>
-          </>
-        }
-      />
-    </div>
-    <IconButton>
-      <MoreVertIcon />
-    </IconButton>
-  </Paper>
-);
+const ItemTest = ({ titulo, descripcion, instrucciones, categorias, _id }) => {
+  const { deleteTest } = useTest();
+  const [deleteDialog, setDeleteDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const { push } = useRouter();
+
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDeleteDialog = () => {
+    setDeleteDialog(!deleteDialog);
+  };
+
+  const handleDeleteTest = async () => {
+    handleDeleteDialog();
+    setLoading(true);
+    await deleteTest(_id);
+    window.location.reload();
+    setLoading(false);
+  };
+
+  return (
+    <Paper elevation={2} className="my-2 p-2 flex items-center justify-between">
+      <div className="flex items-center">
+        <FullPageLoader open={loading} />
+        <ListItemIcon>
+          <MaterialIcon iconName="question_mark" />
+        </ListItemIcon>
+        <ListItemText
+          primary={titulo}
+          secondary={
+            <>
+              <Typography component="span">{descripcion}</Typography>
+              <Typography component="span">{instrucciones}</Typography>
+              <Typography component="span">
+                Categorías: {categorias.map((cat) => cat.nombre).join(", ")}
+              </Typography>
+            </>
+          }
+        />
+      </div>
+      <div>
+        <IconButton onClick={handleClick}>
+          <MoreVertIcon />
+        </IconButton>
+        <Menu
+          id="basic-menu"
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          MenuListProps={{
+            "aria-labelledby": "basic-button",
+          }}
+        >
+          <MenuItem onClick={() => push(`/administrar/crear-editar?id=${_id}`)}>
+            Editar
+          </MenuItem>
+          <MenuItem onClick={handleDeleteDialog}>Eliminar</MenuItem>
+          <MenuItem onClick={handleClose}>Ver Resultados</MenuItem>
+        </Menu>
+        <DeleteDialog
+          open={deleteDialog}
+          handleClose={handleDeleteDialog}
+          handleDeleteTest={handleDeleteTest}
+        />
+      </div>
+    </Paper>
+  );
+};
 
 const SeachTextBox = (props) => (
   <TextField
@@ -159,3 +215,30 @@ const SeachTextBox = (props) => (
     }}
   />
 );
+
+const DeleteDialog = ({ handleClose, handleDeleteTest, open }) => {
+  return (
+    <Dialog onClose={handleClose} open={open}>
+      <DialogTitle>¿Seguro que deseas eliminar este test?</DialogTitle>
+      <section className="w-full flex justify-end">
+        <Button
+          variant="contained"
+          color="error"
+          onClick={handleDeleteTest}
+          className="m-3"
+        >
+          <MaterialIcon iconName="delete" />
+          Eliminar test
+        </Button>
+        <Button
+          variant="text"
+          color="primary"
+          onClick={handleClose}
+          className="m-3"
+        >
+          Cancelar
+        </Button>
+      </section>
+    </Dialog>
+  );
+};

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import StepForm from "./../../../components/general/StepForm";
 import FullPageLoader from "./../../../components/general/FullPageLoader";
 
@@ -9,6 +9,8 @@ import MetadataTest from "./../../../components/admin/MetadataTest";
 import TestCreatorContainer from "./../../../components/admin/TestCreatorContainer";
 import MenuAppBar from "./../../../components/general/MenuAppBar";
 import useTest from "./../../../hook/useTest";
+import { useSearchParams } from "next/navigation";
+import { Toaster } from "sonner";
 
 const SectionsForStepForm = [
   { form: MetadataTest, name: "Informacion General" },
@@ -19,7 +21,44 @@ export default function Page() {
   const methods = useForm({ mode: "all" });
   const { control } = methods;
   const stepDebug = false;
-  const { createTest, updateTest } = useTest();
+  const { createTest, updateTest, getTestById } = useTest();
+  const params = useSearchParams();
+  const [loading, setLoading] = useState(false);
+  const idDocument = params.get("id");
+
+  useEffect(() => {
+    if (idDocument) {
+      setLoading(true);
+      getTestById(idDocument)
+        .then((testDocument) => {
+          const test = testDocument.documento;
+          methods.setValue("escalas", test.escalas);
+          methods.setValue("_id", test._id);
+          methods.setValue("titulo", test.titulo);
+          methods.setValue("descripcion", test.descripcion);
+          methods.setValue("instrucciones", test.instrucciones);
+          methods.setValue("tipo", test.tipo);
+
+          // Flatten the nested sections and questions arrays
+          const flattenedSections = test.sections.flat().map((section) => ({
+            ...section,
+            questions: section.questions.flat(),
+          }));
+          methods.setValue("sections", flattenedSections);
+
+          methods.setValue("creado_por", test.creado_por);
+          methods.setValue("categorias", test.categorias);
+          methods.setValue("fecha_creacion", test.fecha_creacion);
+          methods.setValue("createdAt", test.createdAt);
+          methods.setValue("updatedAt", test.updatedAt);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error getting test:", error);
+          setLoading(false);
+        });
+    }
+  }, [idDocument]);
 
   const handleFormSubmit = (data) => {
     return new Promise((resolve, reject) => {
@@ -48,12 +87,13 @@ export default function Page() {
   return (
     <>
       <MenuAppBar />
+      <FullPageLoader open={loading} />
       <FormProvider {...methods}>
         <StepForm
           formTitle={"Crear nuevo Test"}
           stepComponents={SectionsForStepForm}
           edit={false}
-          debug={false}
+          debug={true}
           step={stepDebug ? stepDebug : 0}
           uploadToDataBase={handleFormSubmit}
         />

@@ -137,13 +137,7 @@ export default function Page({ maxValue }) {
   return (
     <>
       <SetRangos />
-      <Grid item xs={12}>
-        <TextField
-          type="hidden"
-          defaultValue={createdBy}
-          {...register("creado_por")}
-        />
-      </Grid>
+
       {sections && sections.length > 0 ? (
         sections.map((section, index) => (
           <SectionContainer
@@ -166,6 +160,11 @@ export default function Page({ maxValue }) {
           <MaterialIcon iconName="box" className="text-5xl" />
         </div>
       )}
+      <TextField
+        type="hidden"
+        defaultValue={createdBy}
+        {...register("creado_por")}
+      />
       <Grid item xs={12} className="w-full flex justify-center my-5">
         <Button variant="contained" color="primary" onClick={addSectionHandler}>
           <MaterialIcon iconName="add_notes" className="mr-3" />
