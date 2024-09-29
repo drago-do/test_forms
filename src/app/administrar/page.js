@@ -187,7 +187,14 @@ const ItemTest = ({ titulo, descripcion, instrucciones, categorias, _id }) => {
             Editar
           </MenuItem>
           <MenuItem onClick={handleDeleteDialog}>Eliminar</MenuItem>
-          <MenuItem onClick={handleClose}>Ver Resultados</MenuItem>
+          <MenuItem
+            onClick={() => {
+              setLoading(true);
+              push(`/administrar/ver-resultados?id=${_id}`);
+            }}
+          >
+            Ver Resultados
+          </MenuItem>
         </Menu>
         <DeleteDialog
           open={deleteDialog}
