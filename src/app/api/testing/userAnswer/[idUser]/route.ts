@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import Resultados, { IResultados } from "../../../../../models/results";
-import { Prueba } from "../../../../../models/testing";
+import mongoose from "mongoose";
 import mongodb from "../../../../../lib/mongodb";
+import Resultados, { IResultados } from "../../../../../models/results";
+import { Prueba as PruebaModel } from "../../../../../models/testing";
 
 // Metodo GET
 
@@ -17,13 +18,17 @@ export async function GET(
     const { idUser } = params;
 
     // Intentar buscar los documentos resueltos por el usuario
-    const documentos: IResultados[] = await Resultados.find({
-      id_user: idUser,
-    }).populate({
-      path: "id_prueba",
-      model: Prueba,
-      select: "escalas titulo descripcion instrucciones tipo",
-    });
+    const documentos: IResultados[] = await (
+      Resultados as mongoose.Model<IResultados>
+    )
+      .find({
+        id_user: idUser,
+      })
+      .populate({
+        path: "id_prueba",
+        model: PruebaModel as mongoose.Model<any>,
+        select: "escalas titulo descripcion instrucciones tipo",
+      });
 
     // Si no encuentra los documentos, devolver error
     if (!documentos || documentos.length === 0) {

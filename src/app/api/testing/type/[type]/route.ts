@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import mongodb from "../../../../../lib/mongodb";
-import { Prueba, IPrueba } from "../../../../../models/testing";
+import { Prueba as PruebaModel, IPrueba } from "../../../../../models/testing";
+import mongoose from "mongoose";
 
 // Metodo GET
 
@@ -16,7 +17,8 @@ export async function GET(
     const { type } = params;
 
     // Intentar buscar el documento por su tipo
-    const documentos: IPrueba[] = await Prueba.find({ tipo: parseInt(type) })
+    const documentos: IPrueba[] = await (PruebaModel as mongoose.Model<IPrueba>)
+      .find({ tipo: parseInt(type) })
       .select("titulo descripcion")
       .exec();
 
