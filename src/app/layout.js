@@ -6,9 +6,8 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
-import { ThemeProvider } from "@mui/material/styles";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { useEffect, useState } from "react";
-import { createTheme } from "@mui/material/styles";
 import localFont from "next/font/local";
 import { esES } from "@mui/material/locale";
 import { StyledEngineProvider } from "@mui/material/styles";
@@ -17,14 +16,14 @@ import { Toaster, toast } from "sonner";
 import "material-symbols";
 
 const materialSymbols = localFont({
-  variable: "--font-family-symbols", // Variable name (to reference after in CSS/styles)
+  variable: "--font-family-symbols",
   style: "normal",
-  src: "./../../node_modules/material-symbols/material-symbols-outlined.woff2", // This is a reference to woff2 file from NPM package "material-symbols"
+  src: "./../../node_modules/material-symbols/material-symbols-outlined.woff2",
   display: "block",
   weight: "100 700",
 });
 
-export const theme = createTheme({
+const theme = createTheme({
   esES,
   palette: {
     mode: "dark",
@@ -45,7 +44,7 @@ export const theme = createTheme({
   },
 });
 
-export const ligthTeme = createTheme({
+const lightTheme = createTheme({
   palette: {
     mode: "light",
     primary: {
@@ -69,41 +68,21 @@ export default function RootLayout({ children }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    // Aquí podrías usar algún mecanismo para detectar el tema preferido del usuario o del navegador
     const prefersDarkMode = window.matchMedia(
       "(prefers-color-scheme: dark)"
     ).matches;
     setIsDarkMode(prefersDarkMode);
   }, []);
 
-  useEffect(() => {
-    // define a custom handler function
-    // for the contextmenu event
-    const handleContextMenu = (e) => {
-      // prevent the right-click menu from appearing
-      e.preventDefault();
-    };
-    // attach the event listener to
-    // the document object
-    document.addEventListener("contextmenu", handleContextMenu);
-    // clean up the event listener when
-    // the component unmounts
-    return () => {
-      document.removeEventListener("contextmenu", handleContextMenu);
-    };
-  }, []);
-
   return (
     <html lang="es" className={`${materialSymbols.variable}`}>
       <Toaster richColors position="bottom-left" closeButton />
       <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={isDarkMode ? theme : ligthTeme}>
-          {/* <Suspense fallback={<Loading />}> */}
+        <ThemeProvider theme={isDarkMode ? theme : lightTheme}>
           <body>
             {children}
             <SpeedInsights />
           </body>
-          {/* </Suspense> */}
         </ThemeProvider>
       </StyledEngineProvider>
     </html>

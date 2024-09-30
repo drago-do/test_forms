@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import StepForm from "./../../../components/general/StepForm";
 import FullPageLoader from "./../../../components/general/FullPageLoader";
 
@@ -17,7 +17,7 @@ const SectionsForStepForm = [
   { form: TestCreatorContainer, name: "Secciones y preguntas" },
 ];
 
-export default function Page() {
+function PageContent() {
   const methods = useForm({ mode: "all" });
   const { control } = methods;
   const stepDebug = 1;
@@ -107,5 +107,13 @@ export default function Page() {
         {parseInt(stepDebug) >= 0 && <DevTool control={control} />}
       </FormProvider>
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<FullPageLoader open={true} />}>
+      <PageContent />
+    </Suspense>
   );
 }
