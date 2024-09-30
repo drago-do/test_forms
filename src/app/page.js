@@ -24,10 +24,10 @@ export default function Home() {
           <LandingPage showPreview={!auth} showButton={auth} />
           {auth && (
             <>
-              <ContainerPruebasCarrousel title={"Autoconocimiento"} />
-              <ContainerPruebasCarrousel title={"vocacional"} />
+              <ContainerPruebasCarrousel title={"Autoconocimiento"} type={1} />
+              <ContainerPruebasCarrousel title={"vocacional"} type={2} />
               <Container maxWidth="xs" className="flex justify-center">
-                <Button variant="contained" color="primary">
+                <Button variant="contained" color="primary" className="my-16">
                   Introducir codigo
                 </Button>
               </Container>

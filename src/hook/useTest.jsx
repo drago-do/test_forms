@@ -17,6 +17,11 @@ const useTest = () => {
     return res.data;
   };
 
+  const getTestByType = async (type) => {
+    const res = await axios.get(`/api/testing/type/${type}`);
+    return res.data;
+  };
+
   const updateTest = async (id, data) => {
     const res = await axios.put(`/api/testing/${id}`, data);
     return res.data;
@@ -33,6 +38,7 @@ const useTest = () => {
     getTestById,
     updateTest,
     deleteTest,
+    getTestByType,
   };
 };
 
