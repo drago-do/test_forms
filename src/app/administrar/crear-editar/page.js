@@ -20,7 +20,7 @@ const SectionsForStepForm = [
 function PageContent() {
   const methods = useForm({ mode: "all" });
   const { control } = methods;
-  const stepDebug = 1;
+  const stepDebug = false;
   const { createTest, updateTest, getTestById } = useTest();
   const params = useSearchParams();
   const idDocument = params.get("id");

@@ -22,6 +22,11 @@ const useTest = () => {
     return res.data;
   };
 
+  const getUserCompletedTest = async (id) => {
+    const res = await axios.get(`/api/testing/userAnswer/${id}`);
+    return res.data;
+  };
+
   const updateTest = async (id, data) => {
     const res = await axios.put(`/api/testing/${id}`, data);
     return res.data;
@@ -39,6 +44,7 @@ const useTest = () => {
     updateTest,
     deleteTest,
     getTestByType,
+    getUserCompletedTest,
   };
 };
 

@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import useUser from "./../../../hook/useUser";
+import useTest from "./../../../hook/useTest";
 import FullPageLoader from "./../../../components/general/FullPageLoader";
 import { useRouter } from "next/navigation";
 
@@ -30,6 +31,7 @@ export default function UserProfile() {
   const { push } = useRouter();
   const [loading, setLoading] = useState(true);
   const { getLoggedUserInfo, logout } = useUser();
+  const { getUserCompletedTest } = useTest();
   const [user, setUser] = useState(null);
   const [completedTests, setCompletedTests] = useState([]);
 
@@ -37,14 +39,13 @@ export default function UserProfile() {
     const userInfo = getLoggedUserInfo();
     setUser(userInfo);
 
-    // Fetch completed tests (replace with actual API call)
+    // Fetch completed tests using the hook
     const fetchCompletedTests = async () => {
       try {
-        const response = await fetch(
-          `/api/user/${userInfo._id}/completed-tests`
-        );
-        const data = await response.json();
-        setCompletedTests(data);
+        const response = await getUserCompletedTest(userInfo._id);
+        if (response.success) {
+          setCompletedTests(response.data);
+        }
       } catch (error) {
         console.error("Error fetching completed tests:", error);
       }
@@ -156,32 +157,44 @@ export default function UserProfile() {
         </List>
       </StyledPaper>
 
-      <StyledPaper elevation={3}>
+      <StyledPaper elevation={3} style={{ padding: "20px", marginTop: "20px" }}>
         <Typography variant="h6" gutterBottom>
           Pruebas Completadas
         </Typography>
         {completedTests.length > 0 ? (
           <List>
             {completedTests.map((test, index) => (
-              <React.Fragment key={test.id}>
-                <ListItem>
+              <React.Fragment key={test._id}>
+                <ListItem
+                  style={{
+                    borderRadius: "8px",
+                    margin: "10px 0",
+                    padding: "15px",
+                  }}
+                  className="dark:bg-slate-800 bg-slate-400"
+                >
                   <ListItemText
-                    primary={test.title}
+                    primary={
+                      <Typography variant="h6" style={{ fontWeight: "bold" }}>
+                        {test.id_prueba.titulo}
+                      </Typography>
+                    }
                     secondary={
                       <>
                         <Typography
                           component="span"
                           variant="body2"
-                          color="textPrimary"
+                          color="textSecondary"
+                          style={{ display: "block", marginBottom: "5px" }}
                         >
                           Completado el:{" "}
-                          {new Date(test.completionDate).toLocaleDateString()}
+                          {new Date(test.createdAt).toLocaleDateString()}
                         </Typography>
-                        <br />
                         <Chip
-                          label={`Puntuación: ${test.score}`}
+                          label={`Nivel: ${test.id_prueba.escalas.nivel}`}
                           color="primary"
                           size="small"
+                          style={{ marginTop: "5px" }}
                         />
                       </>
                     }

@@ -16,6 +16,7 @@ import {
   FormControl,
   FormLabel,
   CircularProgress,
+  Container,
 } from "@mui/material";
 import { shuffle } from "lodash";
 import useTest from "../../../hook/useTest";
@@ -50,16 +51,14 @@ export default function TestForm({ params }) {
 
           // Flatten and shuffle questions
           const allQuestions =
-            testData.documento.sections?.flatMap((sectionGroup) =>
-              sectionGroup.flatMap((section) =>
-                section.questions?.flatMap((questionGroup) =>
-                  questionGroup.map((question) => ({
-                    ...question,
-                    sectionName: section.name,
-                  }))
-                )
-              )
-            ) || [];
+            testData.documento.sections?.reduce((acc, section) => {
+              return acc.concat(
+                section.questions?.map((question) => ({
+                  ...question,
+                  sectionName: section.name,
+                })) || []
+              );
+            }, []) || [];
           console.log("allQuestions");
           console.log(allQuestions);
           setQuestions(shuffle(allQuestions));
@@ -190,7 +189,7 @@ export default function TestForm({ params }) {
   };
 
   return (
-    <Box sx={{ width: "100%", padding: "10px" }}>
+    <Container maxWidth="lg">
       {/* <Stepper activeStep={activeStep} className="my-8">
         {steps.map((label, index) => {
           const stepProps = {};
@@ -232,6 +231,6 @@ export default function TestForm({ params }) {
           </Button>
         )}
       </Box>
-    </Box>
+    </Container>
   );
 }
