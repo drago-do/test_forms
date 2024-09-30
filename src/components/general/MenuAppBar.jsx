@@ -1,23 +1,57 @@
+"use client";
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
+import Button from "@mui/material/Button";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import Switch from "@mui/material/Switch";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormGroup from "@mui/material/FormGroup";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
+import FullPageLoader from "./../general/FullPageLoader";
+import Link from "next/link";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
-export default function MenuAppBar() {
-  const [auth, setAuth] = React.useState(true);
+import { useRouter, usePathname } from "next/navigation";
+
+import useUser from "./../../hook/useUser";
+
+export default function MenuAppBar({ title = "Cuestionarios" }) {
+  const { getUserRole, getLoggedUserInfo, logout } = useUser();
+  const pathname = usePathname();
+  const { push } = useRouter();
+  const [auth, setAuth] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [userInfo, setUserInfo] = React.useState(null);
+  const [loader, setLoader] = React.useState(true);
+  const [mainPage, setMainPage] = React.useState(true);
 
-  const handleChange = (event) => {
-    setAuth(event.target.checked);
+  React.useEffect(() => {
+    pathname === "/" ? setMainPage(false) : setMainPage(true);
+  }, [pathname]);
+
+  React.useEffect(() => {
+    if (getUserRole()) {
+      setAuth(true);
+      const user = getLoggedUserInfo();
+      setUserInfo(user);
+    } else {
+      setAuth(false);
+    }
+    setLoader(false);
+  }, []);
+
+  const handleRedirect = (url) => {
+    setLoader(true);
+    push(url);
+  };
+
+  const handleLogOut = () => {
+    setLoader(true);
+    logout();
+    setUserInfo(null);
+    window.location.href = "/";
   };
 
   const handleMenu = (event) => {
@@ -30,34 +64,39 @@ export default function MenuAppBar() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <FormGroup>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={auth}
-              onChange={handleChange}
-              aria-label="login switch"
-            />
-          }
-          label={auth ? "Logout" : "Login"}
-        />
-      </FormGroup>
+      <FullPageLoader open={loader} />
       <AppBar position="static">
-        <Toolbar>
-          <IconButton
+        <Toolbar className="flex justify-between w-full">
+          <div className="flex flex-nowrap items-center">
+            <IconButton
+              aria-label="delete"
+              className={`mr-3 ${mainPage ? "" : "hidden"}`}
+              onClick={() => window.history.back()}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <Link href={"/"} component="div" sx={{ flexGrow: 1 }}>
+              {/* <IconButton
             size="large"
             edge="start"
             color="inherit"
             aria-label="menu"
             sx={{ mr: 2 }}
-          >
+            >
             <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Photos
-          </Typography>
+            </IconButton> */}
+              <Typography variant="h6">{title}</Typography>
+            </Link>
+          </div>
           {auth && (
-            <div>
+            <div className="flex  items-center">
+              <section className="hidden md:flex md:flex-col">
+                <Typography variant="body1">
+                  {userInfo
+                    ? `${userInfo?.firstName} ${userInfo?.lastName}`
+                    : null}
+                </Typography>
+              </section>
               <IconButton
                 size="large"
                 aria-label="account of current user"
@@ -83,10 +122,29 @@ export default function MenuAppBar() {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem
+                  onClick={() => handleRedirect(`/usuario/${userInfo._id}`)}
+                >
+                  Mi perfil
+                </MenuItem>
+                {userInfo && userInfo.role === "Admin" && (
+                  <MenuItem onClick={() => handleRedirect("/administrar")}>
+                    Adminstrar
+                  </MenuItem>
+                )}
+                <MenuItem onClick={handleLogOut}>Cerrar sesión</MenuItem>
               </Menu>
             </div>
+          )}
+          {!auth && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => handleRedirect("/iniciar-sesion")}
+            >
+              {" "}
+              Iniciar sesión
+            </Button>
           )}
         </Toolbar>
       </AppBar>
