@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import Resultados from "../../../models/results";
+import Resultados, { IResultados } from "../../../models/results";
 import mongodb from "../../../lib/mongodb";
+import mongoose from "mongoose";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -11,7 +12,7 @@ import mongodb from "../../../lib/mongodb";
 export async function POST(request: Request) {
   try {
     await mongodb();
-    const data = await request.json(); 
+    const data = await request.json();
     const newResultado = new Resultados(data);
     const savedResultado = await newResultado.save();
 
@@ -42,7 +43,10 @@ export async function GET(request: Request) {
 
   try {
     await mongodb();
-    const resultados = await Resultados.find()
+    const resultados: IResultados[] = await (
+      Resultados as mongoose.Model<IResultados>
+    )
+      .find()
       .skip(skip)
       .limit(limit)
       .exec();
@@ -63,4 +67,3 @@ export async function GET(request: Request) {
     });
   }
 }
-
