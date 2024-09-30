@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import mongodb from "../../../lib/mongodb"; 
-import Resultados from "../../../models/results"; // Ajusta la ruta si es necesario
-import User from "../../../models/user"; // Asegúrate de importar tu modelo de usuario
+import Resultados from "../../../models/results"; 
+import User from "../../../models/user"; 
 
 export async function GET(request) {
-  const { id_prueba } = request.query; // Obtén el id_prueba desde los parámetros de la consulta
+  const { id_prueba } = request.query; 
 
   try {
     // Consultar los resultados de MongoDB y poblar los datos del usuario
