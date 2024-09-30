@@ -7,6 +7,7 @@ import LandingPage from "./../components/home/LandingPage";
 import { Container } from "@mui/material";
 import Footer from "./../components/general/Footer";
 import useUser from "./../hook/useUser";
+import TitlePage from "./../components/general/TitlePage";
 
 export default function Home() {
   const { getUserRole } = useUser();
@@ -19,6 +20,7 @@ export default function Home() {
   return (
     <>
       <MenuAppBar title="Will be" />
+      <TitlePage />
       <Container maxWidth="lg">
         <main className="flex flex-col w-full items-center">
           <LandingPage showPreview={!auth} showButton={auth} />

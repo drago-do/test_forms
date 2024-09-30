@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { Prueba } from "../../../../../models/testing";
 import mongodb from "../../../../../lib/mongodb";
+import { Prueba, IPrueba } from "../../../../../models/testing";
 
 // Metodo GET
 
-// Obtener un documento por su ID y tipo
+// Obtener un documento por su tipo
 export async function GET(
   request: Request,
   { params }: { params: { type: string } }
@@ -15,24 +15,24 @@ export async function GET(
 
     const { type } = params;
 
-    // Intentar buscar el documento por su ID y tipo
-    const documento = await Prueba.find({ tipo: type })
-      .select("titulo descripcion ")
+    // Intentar buscar el documento por su tipo
+    const documentos: IPrueba[] = await Prueba.find({ tipo: parseInt(type) })
+      .select("titulo descripcion")
       .exec();
 
-    // Si no encuentra el documento, devolver error
-    if (!documento) {
+    // Si no encuentra documentos, devolver error
+    if (documentos.length === 0) {
       return NextResponse.json({
         success: false,
         error: "Not Found",
-        message: "Document not found",
+        message: "Documents not found",
       });
     }
 
-    // Devolver el documento encontrado
+    // Devolver los documentos encontrados
     return NextResponse.json({
       success: true,
-      data: documento,
+      data: documentos,
     });
   } catch (error: any) {
     console.log(error);

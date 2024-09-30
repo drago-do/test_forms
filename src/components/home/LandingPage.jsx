@@ -29,31 +29,6 @@ const LandingPage = ({ showPreview = true, showButton = true }) => {
 
   return (
     <>
-      <Box
-        sx={{
-          background: `linear-gradient(to right, rgba(255, 255, 255, 0) 5%, ${theme.palette.primary.main} 20%, ${theme.palette.primary.main} 80%,rgba(255, 255, 255, 0) 95%)`,
-          color: "primary.contrastText",
-          py: 8,
-          textAlign: "center",
-          width: "100%",
-        }}
-      >
-        <Container className="flex flex-col items-center w-full">
-          <IconApp forceMode="dark" />
-          <Typography
-            variant="h3"
-            component="h1"
-            gutterBottom
-            fontWeight="bold"
-          >
-            Descubre Tu Propósito de Vida
-          </Typography>
-          <Typography variant="h5" paragraph>
-            Te apoyamos a desarrollar tu carrera profesional y alcanzar tus
-            sueños
-          </Typography>
-        </Container>
-      </Box>
       {showButton && (
         <Button
           onClick={toggleExpand}

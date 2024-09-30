@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import Resultados from "../../../../../models/results";
+import Resultados, { IResultados } from "../../../../../models/results";
+import { Prueba } from "../../../../../models/testing";
 import mongodb from "../../../../../lib/mongodb";
 
 // Metodo GET
@@ -14,15 +15,15 @@ export async function GET(
     await mongodb();
 
     const { idUser } = params;
-    console.log(idUser);
 
     // Intentar buscar los documentos resueltos por el usuario
-    const documentos = await Resultados.find({ id_user: idUser })
-      .populate({
-        path: "id_prueba",
-        select: "escalas titulo descripcion instrucciones tipo",
-      })
-      .exec();
+    const documentos: IResultados[] = await Resultados.find({
+      id_user: idUser,
+    }).populate({
+      path: "id_prueba",
+      model: Prueba,
+      select: "escalas titulo descripcion instrucciones tipo",
+    });
 
     // Si no encuentra los documentos, devolver error
     if (!documentos || documentos.length === 0) {
