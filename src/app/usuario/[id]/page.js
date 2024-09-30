@@ -18,6 +18,8 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import useUser from "./../../../hook/useUser";
+import FullPageLoader from "./../../../components/general/FullPageLoader";
+import { useRouter } from "next/navigation";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -25,6 +27,8 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 }));
 
 export default function UserProfile() {
+  const { push } = useRouter();
+  const [loading, setLoading] = useState(true);
   const { getLoggedUserInfo, logout } = useUser();
   const [user, setUser] = useState(null);
   const [completedTests, setCompletedTests] = useState([]);
@@ -47,10 +51,17 @@ export default function UserProfile() {
     };
 
     fetchCompletedTests();
+    setLoading(false);
   }, []);
 
-  if (!user) {
-    return <Typography>Cargando...</Typography>;
+  const userLogout = () => {
+    setLoading(true);
+    logout();
+    push("/");
+  };
+
+  if (!user || loading) {
+    return <FullPageLoader open={true} />;
   }
 
   return (
@@ -74,7 +85,7 @@ export default function UserProfile() {
               </Typography>
             </Grid>
             <Grid item>
-              <Button variant="outlined" color="secondary" onClick={logout}>
+              <Button variant="outlined" color="secondary" onClick={userLogout}>
                 Cerrar Sesión
               </Button>
             </Grid>
