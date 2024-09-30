@@ -122,7 +122,9 @@ export default function MenuAppBar({ title = "Cuestionarios" }) {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem onClick={() => handleRedirect("/perfil")}>
+                <MenuItem
+                  onClick={() => handleRedirect(`/usuario/${userInfo._id}`)}
+                >
                   Mi perfil
                 </MenuItem>
                 {userInfo && userInfo.role === "Admin" && (
