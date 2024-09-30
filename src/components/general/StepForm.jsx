@@ -200,15 +200,6 @@ export default function Page({
               alignItems: "start",
             }}
           >
-            {activeStep !== 0 && (
-              <Button
-                onClick={handleBack}
-                sx={{ mt: 3, ml: 1 }}
-                disabled={Object.keys(errors).length !== 0}
-              >
-                Regresar
-              </Button>
-            )}
             <div className="flex flex-col flex-nowrap items-end">
               <Collapse in={errorMessages !== null}>
                 {errorMessages?.length > 0 && (
@@ -223,30 +214,41 @@ export default function Page({
                   </Alert>
                 )}
               </Collapse>
-              <Collapse in={activeStep < stepsToComplete - 1}>
-                <Button
-                  variant="contained"
-                  disabled={Object.keys(errors).length !== 0}
-                  type="button"
-                  onClick={handleNext}
-                  sx={{ mt: 3, ml: 0 }}
-                  color={"primary"}
-                >
-                  Siguiente paso
-                </Button>
-              </Collapse>
-              <Collapse in={activeStep === stepsToComplete - 1}>
-                <Button
-                  variant="contained"
-                  disabled={Object.keys(errors).length !== 0}
-                  type="submit"
-                  sx={{ mt: 3, ml: 0 }}
-                  color="secondary"
-                  onClick={handleSendSubmit}
-                >
-                  Enviar
-                </Button>
-              </Collapse>
+              <section className="w-full flex justify-end flex-nowrap">
+                {activeStep !== 0 && (
+                  <Button
+                    onClick={handleBack}
+                    sx={{ mt: 3, ml: 1 }}
+                    disabled={Object.keys(errors).length !== 0}
+                  >
+                    Regresar
+                  </Button>
+                )}
+                <Collapse in={activeStep < stepsToComplete - 1}>
+                  <Button
+                    variant="contained"
+                    disabled={Object.keys(errors).length !== 0}
+                    type="button"
+                    onClick={handleNext}
+                    sx={{ mt: 3, ml: 0 }}
+                    color={"primary"}
+                  >
+                    Siguiente paso
+                  </Button>
+                </Collapse>
+                <Collapse in={activeStep === stepsToComplete - 1}>
+                  <Button
+                    variant="contained"
+                    disabled={Object.keys(errors).length !== 0}
+                    type="submit"
+                    sx={{ mt: 3, ml: 0 }}
+                    color="secondary"
+                    onClick={handleSendSubmit}
+                  >
+                    Enviar
+                  </Button>
+                </Collapse>
+              </section>
             </div>
           </Box>
         </form>

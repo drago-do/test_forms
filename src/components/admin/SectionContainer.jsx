@@ -22,6 +22,7 @@ import {
   ExpandMore,
 } from "@mui/icons-material";
 import MaterialIcon from "./../../components/general/MaterialIcon";
+import LinkInput from "./LinksTesting";
 
 const SectionWithQuestions = ({
   section,
@@ -67,9 +68,9 @@ const SectionWithQuestions = ({
               <DeleteIcon />
             </IconButton>
           </Grid>
-
           {/* Link Input */}
-          <Grid item xs={12} className="mt-4">
+          <LinkInput sectionIndex={sectionIndex} defaultValue={section?.link} />
+          {/* <Grid item xs={12} className="mt-4">
             <TextField
               defaultValue={section.link?.join(", ") || ""}
               {...register(`sections.${sectionIndex}.link`)}
@@ -77,8 +78,7 @@ const SectionWithQuestions = ({
               fullWidth
               variant="standard"
             />
-          </Grid>
-
+          </Grid> */}
           {/* Max Value Input */}
           <Grid item xs={12} className="mt-4">
             <TextField
@@ -94,7 +94,6 @@ const SectionWithQuestions = ({
               variant="standard"
             />
           </Grid>
-
           {/* Accordion for questions */}
           <Accordion className="w-full mt-4">
             <AccordionSummary expandIcon={<ExpandMore />} aria-label="Expand">
