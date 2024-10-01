@@ -23,6 +23,7 @@ import {
 } from "@mui/icons-material";
 import MaterialIcon from "./../../components/general/MaterialIcon";
 import LinkInput from "./LinksTesting";
+import { v4 as uuidv4 } from "uuid";
 
 const SectionWithQuestions = ({
   section,
@@ -45,6 +46,38 @@ const SectionWithQuestions = ({
     watch,
   } = useFormContext();
 
+  if (getValues("tipo") === "1") {
+    return (
+      <SectionType1
+        section={section}
+        sectionIndex={sectionIndex}
+        testType={testType}
+        updateSectionHandler={update}
+        deleteSectionHandler={deleteSectionHandler}
+        addQuestionHandler={addQuestionHandler}
+        updateQuestionHandler={updateQuestionHandler}
+        deleteQuestionHandler={deleteQuestionHandler}
+        cloneQuestionHandler={cloneQuestionHandler}
+      />
+    );
+  } else {
+    return <SectionType2 section={section} sectionIndex={sectionIndex} />;
+  }
+};
+
+const SectionType1 = ({
+  section,
+  sectionIndex,
+  testType,
+  addQuestionHandler,
+  deleteQuestionHandler,
+  deleteSectionHandler,
+  cloneQuestionHandler,
+}) => {
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
   return (
     <Container maxWidth="lg" className="my-5">
       <Paper elevation={3} className="p-3">
@@ -248,6 +281,118 @@ const SectionWithQuestions = ({
         </Grid>
       </Paper>
     </Container>
+  );
+};
+
+const SectionType2 = ({ section, sectionIndex }) => {
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
+  return (
+    <Container maxWidth="lg" className="my-5">
+      <Paper elevation={3} className="p-3">
+        <Grid container spacing={1} alignItems={"center"}>
+          <Grid item xs={10}>
+            <TextField
+              error={!!errors?.sections?.[sectionIndex]?.name}
+              defaultValue={section?.name}
+              helperText={errors?.sections?.[sectionIndex]?.name?.message}
+              {...register(`sections.${sectionIndex}.name`, {
+                required: "Campo requerido",
+              })}
+              label="Nombre de la sección"
+              fullWidth
+              required
+              variant="standard"
+            />
+          </Grid>
+        </Grid>
+        <QuestionsType2 section={section} sectionIndex={sectionIndex} />
+      </Paper>
+    </Container>
+  );
+};
+
+const QuestionsType2 = ({ section, sectionIndex }) => {
+  const {
+    control,
+    register,
+    formState: { errors },
+  } = useFormContext();
+
+  const {
+    fields: questions,
+    append,
+    remove,
+  } = useFieldArray({
+    control,
+    name: `sections.${sectionIndex}.questions`,
+  });
+
+  const addQuestionHandler = () => {
+    append(getQuestionBase());
+  };
+
+  const deleteQuestionHandler = (questionIndex) => {
+    remove(questionIndex);
+  };
+
+  const getQuestionBase = () => {
+    return {
+      id: uuidv4(),
+      texto: "",
+      opciones: [],
+      tipo: "opcion_multiple",
+      validacion: false,
+    };
+  };
+
+  return (
+    <Grid item xs={12}>
+      {questions && questions.length > 0 ? (
+        questions.map((question, questionIndex) => (
+          <Container maxWidth="lg" key={questionIndex}>
+            <TextField
+              defaultValue={question?.texto || ""}
+              {...register(
+                `sections.${sectionIndex}.questions.${questionIndex}.texto`,
+                {
+                  required: "Campo requerido",
+                }
+              )}
+              label="Texto de la pregunta"
+              fullWidth
+              required
+              variant="standard"
+            />
+            <FormControlLabel
+              label="¿Pregunta de validación?"
+              control={
+                <Checkbox
+                  defaultChecked={question?.validacion || false}
+                  {...register(
+                    `sections.${sectionIndex}.questions.${questionIndex}.validacion`
+                  )}
+                />
+              }
+            />
+          </Container>
+        ))
+      ) : (
+        <Typography variant="body1">No hay preguntas</Typography>
+      )}
+      <Grid item xs={12} className="w-full flex justify-center my-5">
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => addQuestionHandler(sectionIndex)}
+        >
+          <MaterialIcon iconName="add" className="mr-2" />
+          Agregar pregunta
+        </Button>
+      </Grid>
+    </Grid>
   );
 };
 

@@ -34,6 +34,7 @@ export default function MetadataTest() {
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <TextField
+              defaultValue={"TestDebug"}
               error={!!errors?.titulo}
               helperText={errors?.titulo?.message}
               {...register("titulo", {
@@ -47,6 +48,7 @@ export default function MetadataTest() {
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
+              defaultValue={"TestDebug"}
               error={!!errors?.descripcion}
               helperText={errors?.descripcion?.message}
               {...register("descripcion", {
@@ -60,6 +62,7 @@ export default function MetadataTest() {
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
+              defaultValue={"TestDebug"}
               error={!!errors?.instrucciones}
               helperText={errors?.instrucciones?.message}
               {...register("instrucciones", {
@@ -75,7 +78,7 @@ export default function MetadataTest() {
           <Grid item xs={12}>
             <Controller
               name="tipo"
-              defaultValue={"1"}
+              defaultValue={"2"}
               control={control}
               rules={{ required: "Campo requerido." }}
               render={({ field }) => (
@@ -85,11 +88,11 @@ export default function MetadataTest() {
                     <FormControlLabel
                       value={"1"}
                       control={<Radio />}
-                      defaultChecked
                       label="Interpretacion de Rangos (TEST 1)"
                     />
                     <FormControlLabel
                       value={"2"}
+                      defaultChecked
                       control={<Radio />}
                       label="Areas academicas (Test 2)"
                     />

@@ -39,6 +39,7 @@ export interface IPregunta extends Document {
   texto: string;
   opciones: [IOpcion];
   tipo: "opcion_multiple" | "verdadero_falso" | "escala";
+  validacion: Boolean;
 }
 
 // Esquema para las preguntas
@@ -50,6 +51,7 @@ const preguntaSchema: Schema<IPregunta> = new Schema(
     },
     opciones: typeof opcionSchema,
     tipo: String,
+    validacion: Boolean,
   },
   {
     timestamps: true,
