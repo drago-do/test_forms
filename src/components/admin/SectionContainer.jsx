@@ -27,8 +27,12 @@ import LinkInput from "./LinksTesting";
 const SectionWithQuestions = ({
   section,
   sectionIndex,
+  testType,
   addQuestionHandler,
   updateQuestionHandler,
+  addQuestionHandlerType2,
+  addQuestionOptionHandlerType2,
+  deleteQuestionOptionHandlerType2,
   deleteQuestionHandler,
   deleteSectionHandler,
   cloneQuestionHandler,
@@ -80,20 +84,22 @@ const SectionWithQuestions = ({
             />
           </Grid> */}
           {/* Max Value Input */}
-          <Grid item xs={12} className="mt-4">
-            <TextField
-              error={!!errors?.sections?.[sectionIndex]?.valorMax}
-              defaultValue={section.valorMax}
-              helperText={errors?.sections?.[sectionIndex]?.valorMax?.message}
-              {...register(`sections.${sectionIndex}.valorMax`, {
-                required: "Campo requerido",
-              })}
-              label="Valor máximo de la sección"
-              fullWidth
-              required
-              variant="standard"
-            />
-          </Grid>
+          {testType === "1" && (
+            <Grid item xs={12} className="mt-4">
+              <TextField
+                error={!!errors?.sections?.[sectionIndex]?.valorMax}
+                defaultValue={section.valorMax}
+                helperText={errors?.sections?.[sectionIndex]?.valorMax?.message}
+                {...register(`sections.${sectionIndex}.valorMax`, {
+                  required: "Campo requerido",
+                })}
+                label="Valor máximo de la sección"
+                fullWidth
+                required
+                variant="standard"
+              />
+            </Grid>
+          )}
           {/* Accordion for questions */}
           <Accordion className="w-full mt-4">
             <AccordionSummary expandIcon={<ExpandMore />} aria-label="Expand">

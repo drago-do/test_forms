@@ -85,6 +85,70 @@ export default function Page({ maxValue }) {
     update(index, { ...sections[index], questions: updatedQuestions });
   };
 
+  const addQuestionHandlerType2 = (sectionIndex, questionIndex) => {
+    clearErrors();
+    const questionBase = {
+      texto: "",
+      opciones: [],
+      tipo: "opcion_multiple",
+      validacion: false,
+    };
+    const updatedQuestions = [...sections[sectionIndex].questions];
+    updatedQuestions.splice(questionIndex, 0, questionBase);
+    update(sectionIndex, {
+      ...sections[sectionIndex],
+      questions: updatedQuestions,
+    });
+  };
+
+  const addQuestionOptionHandlerType2 = (
+    sectionIndex,
+    questionIndex,
+    optionIndex
+  ) => {
+    //La pregunta debe tener
+    // {
+    //     texto: "",
+    //     valor: idx + 1,
+    //     subcategoria: "",
+    // }
+    clearErrors();
+    const updatedQuestions = sections[sectionIndex].questions.map(
+      (question, idx) => {
+        if (idx === questionIndex) {
+          return {
+            ...question,
+            opciones: [
+              ...question.opciones.slice(0, optionIndex),
+              ...question.opciones.slice(optionIndex + 1),
+            ],
+          };
+
+          return question;
+        }
+        return question;
+      }
+    );
+
+    update(sectionIndex, {
+      questions: updatedQuestions,
+    });
+  };
+
+  const deleteQuestionOptionHandlerType2 = (
+    sectionIndex,
+    questionIndex,
+    optionIndex
+  ) => {
+    clearErrors();
+    const updatedQuestions = sections[sectionIndex].questions.filter(
+      (_, idx) => idx !== questionIndex
+    );
+    update(sectionIndex, {
+      questions: updatedQuestions,
+    });
+  };
+
   const deleteQuestionHandler = (sectionIndex, questionIndex) => {
     clearErrors();
     const updatedQuestions = sections[sectionIndex].questions.filter(
@@ -149,9 +213,13 @@ export default function Page({ maxValue }) {
             key={index}
             section={section}
             sectionIndex={index}
+            testType={methods.getValues("tipo") || 1}
             updateSectionHandler={update}
             deleteSectionHandler={deleteSectionHandler}
             addQuestionHandler={addQuestionHandler}
+            addQuestionHandlerType2={addQuestionHandlerType2}
+            addQuestionOptionHandlerType2={addQuestionOptionHandlerType2}
+            deleteQuestionOptionHandlerType2={deleteQuestionOptionHandlerType2}
             updateQuestionHandler={updateQuestionHandler}
             deleteQuestionHandler={deleteQuestionHandler}
             cloneQuestionHandler={cloneQuestionHandler}
