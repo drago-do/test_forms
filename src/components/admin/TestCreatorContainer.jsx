@@ -7,6 +7,7 @@ import { FormProvider, useFormContext, useFieldArray } from "react-hook-form";
 import SectionContainer from "./SectionContainer";
 import SetRangos from "./SetRangos";
 import Cookies from "js-cookie";
+import QuestionsCategories from "./QuestionsCategories";
 
 export default function Page({ maxValue }) {
   const methods = useFormContext();
@@ -136,7 +137,11 @@ export default function Page({ maxValue }) {
 
   return (
     <>
-      <SetRangos />
+      {methods.getValues("tipo") === "1" ? (
+        <SetRangos />
+      ) : (
+        <QuestionsCategories />
+      )}
 
       {sections && sections.length > 0 ? (
         sections.map((section, index) => (
