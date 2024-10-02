@@ -14,6 +14,9 @@ import {
   Collapse,
   FormControlLabel,
   Checkbox,
+  Select,
+  MenuItem,
+  Alert,
 } from "@mui/material";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import {
@@ -24,6 +27,7 @@ import {
 import MaterialIcon from "./../../components/general/MaterialIcon";
 import LinkInput from "./LinksTesting";
 import { v4 as uuidv4 } from "uuid";
+import { toast } from "sonner";
 
 const SectionWithQuestions = ({
   section,
@@ -46,7 +50,7 @@ const SectionWithQuestions = ({
     watch,
   } = useFormContext();
 
-  if (getValues("tipo") === "1") {
+  if (false) {
     return (
       <SectionType1
         section={section}
@@ -61,7 +65,7 @@ const SectionWithQuestions = ({
       />
     );
   } else {
-    return <SectionType2 section={section} sectionIndex={sectionIndex} />;
+    return <SectionType2 />;
   }
 };
 
@@ -284,40 +288,143 @@ const SectionType1 = ({
   );
 };
 
-const SectionType2 = ({ section, sectionIndex }) => {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext();
-  return (
-    <Container maxWidth="lg" className="my-5">
-      <Paper elevation={3} className="p-3">
-        <Grid container spacing={1} alignItems={"center"}>
-          <Grid item xs={10}>
-            <TextField
-              error={!!errors?.sections?.[sectionIndex]?.name}
-              defaultValue={section?.name}
-              helperText={errors?.sections?.[sectionIndex]?.name?.message}
-              {...register(`sections.${sectionIndex}.name`, {
-                required: "Campo requerido",
-              })}
-              label="Nombre de la sección"
-              fullWidth
-              required
-              variant="standard"
-            />
-          </Grid>
-        </Grid>
-        <QuestionsType2 section={section} sectionIndex={sectionIndex} />
-      </Paper>
-    </Container>
-  );
-};
-
-const QuestionsType2 = ({ section, sectionIndex }) => {
+const SectionType2 = () => {
   const {
     control,
     register,
+    getValues,
+    formState: { errors },
+  } = useFormContext();
+
+  const {
+    fields: sections,
+    append,
+    remove,
+  } = useFieldArray({
+    control,
+    name: `sections`,
+  });
+  const tipoPrueba = getValues("tipo");
+
+  const getSectionBase = () => {
+    return {
+      name: "",
+      link: null,
+      questions: [
+        {
+          id: uuidv4(),
+          texto: "",
+          opciones: [
+            {
+              id: uuidv4(),
+              texto: "",
+              valor: 1,
+              subcategoria: "",
+            },
+          ],
+          tipo:
+            tipoPrueba === "1"
+              ? "escala"
+              : tipoPrueba === "2"
+              ? "opcion_multiple"
+              : "verdadero_falso",
+          validacion: false,
+        },
+      ],
+    };
+  };
+
+  const addSection = () => {
+    append(getSectionBase());
+  };
+
+  const deleteSection = (indexSection) => {
+    if (sections.length > 1) {
+      remove(indexSection);
+    } else {
+      toast.error("No te puedes quedar sin secciones");
+    }
+  };
+  return (
+    <>
+      {sections && sections.length > 0 ? (
+        sections.map((section, sectionIndex) => (
+          <>
+            <Container key={sectionIndex} maxWidth="lg" className="my-5">
+              <Paper elevation={3} className="p-3">
+                <Grid container spacing={1} alignItems={"center"}>
+                  <Grid item xs={10}>
+                    <TextField
+                      error={!!errors?.sections?.[sectionIndex]?.name}
+                      defaultValue={section?.name}
+                      helperText={
+                        errors?.sections?.[sectionIndex]?.name?.message
+                      }
+                      {...register(`sections.${sectionIndex}.name`, {
+                        required: "Campo requerido",
+                      })}
+                      label="Nombre de la sección"
+                      color="secondary"
+                      fullWidth
+                      required
+                      variant="standard"
+                    />
+                  </Grid>
+                  <Grid item xs={2} display={"flex"} justifyContent={"end"}>
+                    <IconButton
+                      onClick={() => deleteSection(sectionIndex)}
+                      aria-label="delete"
+                      color="error"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+                <LinkInput
+                  sectionIndex={sectionIndex}
+                  defaultValue={section?.link}
+                />
+                {tipoPrueba === "1" && (
+                  <Grid item xs={12} className="mt-4">
+                    <TextField
+                      error={!!errors?.sections?.[sectionIndex]?.valorMax}
+                      defaultValue={section.valorMax}
+                      helperText={
+                        errors?.sections?.[sectionIndex]?.valorMax?.message
+                      }
+                      {...register(`sections.${sectionIndex}.valorMax`, {
+                        required: "Campo requerido",
+                      })}
+                      label="Valor máximo de la sección"
+                      fullWidth
+                      required
+                      variant="standard"
+                    />
+                  </Grid>
+                )}
+              </Paper>
+            </Container>
+            <QuestionsType2 section={section} sectionIndex={sectionIndex} />
+          </>
+        ))
+      ) : (
+        <Typography variant="body1">No hay secciones</Typography>
+      )}
+      <Grid item xs={12} className="w-full flex justify-center my-5">
+        <Button variant="contained" color="primary" onClick={addSection}>
+          <MaterialIcon iconName="add_notes" className="mr-3" />
+          Agregar sección
+        </Button>
+      </Grid>
+    </>
+  );
+};
+
+const QuestionsType2 = ({ sectionIndex }) => {
+  const {
+    control,
+    register,
+    getValues,
     formState: { errors },
   } = useFormContext();
 
@@ -335,21 +442,40 @@ const QuestionsType2 = ({ section, sectionIndex }) => {
   };
 
   const deleteQuestionHandler = (questionIndex) => {
-    remove(questionIndex);
+    if (questions.length > 1) {
+      remove(questionIndex);
+    } else {
+      toast.error("No te puedes quedar sin preguntas en la sección.");
+    }
+  };
+
+  const cloneQuestionHandler = (questionIndex) => {
+    const clonedQuestion = getValues(
+      `sections.${sectionIndex}.questions.${questionIndex}`
+    );
+    clonedQuestion.id = uuidv4();
+    append(clonedQuestion);
   };
 
   const getQuestionBase = () => {
     return {
       id: uuidv4(),
       texto: "",
-      opciones: [],
+      opciones: [
+        {
+          id: uuidv4(),
+          texto: "",
+          valor: 1,
+          subcategoria: "",
+        },
+      ],
       tipo: "opcion_multiple",
       validacion: false,
     };
   };
 
   return (
-    <Grid item xs={12}>
+    <Container maxWidth="lg">
       {questions && questions.length > 0 ? (
         questions.map((question, questionIndex) => (
           <Container maxWidth="lg" key={questionIndex}>
@@ -358,18 +484,26 @@ const QuestionsType2 = ({ section, sectionIndex }) => {
               {...register(
                 `sections.${sectionIndex}.questions.${questionIndex}.texto`,
                 {
-                  required: "Campo requerido",
+                  required: {
+                    message: `Debes ingresar un texto para la pregunta ${
+                      questionIndex + 1
+                    } de la seccion ${sectionIndex + 1}`,
+                    value: true,
+                  },
                 }
               )}
               label="Texto de la pregunta"
               fullWidth
               required
+              color="secondary"
               variant="standard"
             />
             <FormControlLabel
               label="¿Pregunta de validación?"
+              color="secondary"
               control={
                 <Checkbox
+                  color="secondary"
                   defaultChecked={question?.validacion || false}
                   {...register(
                     `sections.${sectionIndex}.questions.${questionIndex}.validacion`
@@ -377,6 +511,34 @@ const QuestionsType2 = ({ section, sectionIndex }) => {
                 />
               }
             />
+            <Typography variant="h6" className="mt-4">
+              Opciones
+            </Typography>
+            <QuestionOptionsType2
+              sectionIndex={sectionIndex}
+              questionIndex={questionIndex}
+            />
+            <Grid
+              item
+              xs={12}
+              display="flex"
+              justifyContent="end"
+              className="mt-4"
+            >
+              <IconButton
+                onClick={() => cloneQuestionHandler(questionIndex)}
+                aria-label="clone"
+              >
+                <ContentCopyIcon />
+              </IconButton>
+              <IconButton
+                onClick={() => deleteQuestionHandler(questionIndex)}
+                aria-label="delete"
+                color="error"
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Grid>
           </Container>
         ))
       ) : (
@@ -392,7 +554,135 @@ const QuestionsType2 = ({ section, sectionIndex }) => {
           Agregar pregunta
         </Button>
       </Grid>
-    </Grid>
+    </Container>
+  );
+};
+
+const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
+  const {
+    control,
+    register,
+    getValues,
+    formState: { errors },
+  } = useFormContext();
+
+  const {
+    fields: opciones,
+    append,
+    remove,
+  } = useFieldArray({
+    control,
+    name: `sections.${sectionIndex}.questions.${questionIndex}.opciones`,
+  });
+
+  const categorias = getValues("categorias");
+
+  const addQuestionOption = () => {
+    append(getQuestionOptionBase());
+  };
+
+  const deleteQuestionOption = (questionOptionIndex) => {
+    if (opciones.length > 1) {
+      remove(questionOptionIndex);
+    } else {
+      toast.error("No te puedes quedar sin opciones para una pregunta");
+    }
+  };
+
+  const getQuestionOptionBase = () => {
+    return { id: uuidv4(), texto: "", valor: 1, subcategoria: "" };
+  };
+
+  return (
+    <>
+      {opciones && opciones.length > 0 ? (
+        opciones.map((opcion, opcionIndex) => (
+          <Grid container spacing={2} alignItems="center" key={opcionIndex}>
+            <Grid item xs={6}>
+              <TextField
+                {...register(
+                  `sections.${sectionIndex}.questions.${questionIndex}.opciones.${opcionIndex}.texto`,
+                  {
+                    required: {
+                      message: `El valor de la opción ${
+                        opcionIndex + 1
+                      } de la pregunta ${questionIndex + 1} de la seccion ${
+                        sectionIndex + 1
+                      } es obligatorio`,
+                      value: true,
+                    },
+                  }
+                )}
+                fullWidth
+                placeholder={`Ingrese el texto de la opción ${opcionIndex + 1}`}
+                required
+                variant="standard"
+              />
+            </Grid>
+            {categorias && categorias.length > 0 ? (
+              <Grid item xs={5}>
+                <Select
+                  defaultValue=""
+                  {...register(
+                    `sections.${sectionIndex}.questions.${questionIndex}.opciones.${opcionIndex}.subcategoria`,
+                    {
+                      required: {
+                        value: true,
+                        message: `Es necesario seleccionar una subcategoria para la opcion ${
+                          opcionIndex + 1
+                        } de la pregunta ${questionIndex + 1} de la seccion ${
+                          sectionIndex + 1
+                        }`,
+                      },
+                    }
+                  )}
+                  fullWidth
+                >
+                  {categorias.map((categoria) =>
+                    categoria.subcategorias.map((subcat, index) => (
+                      <MenuItem
+                        key={subcat}
+                        value={subcat}
+                        selected={index === 0}
+                      >
+                        {`${categoria?.nombre} - ${subcat}`}
+                      </MenuItem>
+                    ))
+                  )}
+                </Select>
+              </Grid>
+            ) : (
+              <Grid item xs={5}>
+                <Alert severity="warning">
+                  Aún no se han agregado categorías y subcategorías
+                </Alert>
+              </Grid>
+            )}
+            <Grid item xs={1}>
+              <IconButton
+                onClick={() => deleteQuestionOption(opcionIndex)}
+                aria-label="delete"
+                color="error"
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Grid>
+          </Grid>
+        ))
+      ) : (
+        <Typography variant="body1">No hay opciones</Typography>
+      )}
+      <Grid item xs={12} className="w-full flex justify-center my-5">
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => addQuestionOption()}
+        >
+          <MaterialIcon iconName="add" className="mr-2" />
+          Agregar opcion
+        </Button>
+      </Grid>
+    </>
   );
 };
 

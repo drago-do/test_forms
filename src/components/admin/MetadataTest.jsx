@@ -12,6 +12,7 @@ import {
   FormHelperText,
   Button,
 } from "@mui/material";
+import Cookies from "js-cookie";
 
 import { useFormContext, Controller } from "react-hook-form";
 
@@ -24,6 +25,10 @@ export default function MetadataTest() {
     trigger,
     formState: { errors },
   } = useFormContext();
+
+  register("creado_por", {
+    value: Cookies.get("_id") || null,
+  });
 
   return (
     <>
@@ -78,27 +83,29 @@ export default function MetadataTest() {
           <Grid item xs={12}>
             <Controller
               name="tipo"
-              defaultValue={"2"}
+              defaultValue={"1"}
               control={control}
               rules={{ required: "Campo requerido." }}
               render={({ field }) => (
                 <FormControl component="fieldset" error={!!errors?.tipo}>
-                  <FormLabel component="legend">Tipo de prueba</FormLabel>
+                  <FormLabel component="legend" color="secondary">
+                    Tipo de prueba
+                  </FormLabel>
                   <RadioGroup {...field} row>
                     <FormControlLabel
                       value={"1"}
-                      control={<Radio />}
+                      control={<Radio color="secondary" />}
                       label="Interpretacion de Rangos (TEST 1)"
+                      defaultChecked
                     />
                     <FormControlLabel
                       value={"2"}
-                      defaultChecked
-                      control={<Radio />}
+                      control={<Radio color="secondary" />}
                       label="Areas academicas (Test 2)"
                     />
                     <FormControlLabel
                       value={"3"}
-                      control={<Radio />}
+                      control={<Radio color="secondary" />}
                       label="Porcentaje por carreras (Test 3)"
                     />
                   </RadioGroup>
