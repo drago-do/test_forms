@@ -18,7 +18,7 @@ import {
   MenuItem,
   Alert,
 } from "@mui/material";
-import { useFormContext, useFieldArray } from "react-hook-form";
+import { useFormContext, useFieldArray, Controller } from "react-hook-form";
 import {
   Delete as DeleteIcon,
   ContentCopy as ContentCopyIcon,
@@ -397,35 +397,31 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
             </Grid>
             {tipoPrueba !== "1" && categorias && categorias.length > 0 ? (
               <Grid item xs={5}>
-                <Select
-                  defaultValue=""
-                  {...register(
-                    `sections.${sectionIndex}.questions.${questionIndex}.opciones.${opcionIndex}.subcategoria`,
-                    {
-                      required: {
-                        value: true,
-                        message: `Es necesario seleccionar una subcategoria para la opcion ${
-                          opcionIndex + 1
-                        } de la pregunta ${questionIndex + 1} de la seccion ${
-                          sectionIndex + 1
-                        }`,
-                      },
-                    }
+                <Controller
+                  name={`sections.${sectionIndex}.questions.${questionIndex}.opciones.${opcionIndex}.subcategoria`}
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: `Es necesario seleccionar una subcategoria para la opcion ${
+                        opcionIndex + 1
+                      } de la pregunta ${questionIndex + 1} de la seccion ${
+                        sectionIndex + 1
+                      }`,
+                    },
+                  }}
+                  render={({ field }) => (
+                    <Select {...field} fullWidth>
+                      {categorias.map((categoria) =>
+                        categoria.subcategorias.map((subcat, index) => (
+                          <MenuItem key={subcat} value={subcat}>
+                            {`${categoria?.nombre} - ${subcat}`}
+                          </MenuItem>
+                        ))
+                      )}
+                    </Select>
                   )}
-                  fullWidth
-                >
-                  {categorias.map((categoria) =>
-                    categoria.subcategorias.map((subcat, index) => (
-                      <MenuItem
-                        key={subcat}
-                        value={subcat}
-                        selected={index === 0}
-                      >
-                        {`${categoria?.nombre} - ${subcat}`}
-                      </MenuItem>
-                    ))
-                  )}
-                </Select>
+                />
               </Grid>
             ) : (
               <>

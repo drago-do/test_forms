@@ -42,6 +42,8 @@ function CategoryDialog({ open, onClose, initialData }) {
     if (categoryName.trim()) {
       onClose({ nombre: categoryName.trim(), subcategorias: subcategories });
     }
+    setCategoryName("");
+    subcategories([]);
   };
 
   return (
@@ -112,10 +114,10 @@ function CategoryDialog({ open, onClose, initialData }) {
 }
 
 export default function ExamCategories() {
+  const { setValue, getValues } = useFormContext();
   const [open, setOpen] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(getValues("categorias") || []);
   const [editingIndex, setEditingIndex] = useState(null);
-  const { setValue } = useFormContext();
 
   const handleOpen = (index = null) => {
     setEditingIndex(index);
@@ -144,6 +146,9 @@ export default function ExamCategories() {
   };
 
   const updateFormValue = () => {
+    // if (categories.length === 0) {
+    //   setCategories(getValues("categories") || []);
+    // }
     setValue("categorias", categories);
   };
 

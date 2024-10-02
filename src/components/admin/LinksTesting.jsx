@@ -15,7 +15,7 @@ import { toast } from "sonner";
 const URLLocal = process.env.NEXT_PUBLIC_API;
 
 export default function LinkInput({ sectionIndex }) {
-  const { control } = useFormContext();
+  const { control, getValues } = useFormContext();
   const {
     fields: link,
     append,
@@ -26,7 +26,9 @@ export default function LinkInput({ sectionIndex }) {
   });
 
   const [tests, setTests] = useState([]);
-  const [linksToRender, setLinksToRender] = useState([]);
+  const [linksToRender, setLinksToRender] = useState(
+    getValues(`sections.${sectionIndex}.link`) || []
+  );
   const [newLink, setNewLink] = useState("");
   const { getAllTests } = useTest();
 
