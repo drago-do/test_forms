@@ -76,10 +76,10 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="es" className={`${materialSymbols.variable}`}>
-      <Toaster richColors position="bottom-left" closeButton />
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={isDarkMode ? theme : lightTheme}>
           <body>
+            <Toaster richColors position="bottom-left" closeButton />
             {children}
             <SpeedInsights />
           </body>

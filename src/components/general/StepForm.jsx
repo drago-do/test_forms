@@ -70,7 +70,14 @@ export default function Page({
     uploadToDataBase(data, formatCode)
       .then((response) => {
         console.log(response);
-        setSubmitStatus("success");
+        const { success } = response;
+        if (success) {
+          setSubmitStatus("success");
+        } else {
+          const { message } = response;
+          setSubmitStatus("error");
+          setInfo(message);
+        }
       })
       .catch((error) => {
         console.log("Error al enviar los datos");

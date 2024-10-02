@@ -39,7 +39,6 @@ export default function MetadataTest() {
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <TextField
-              defaultValue={"TestDebug"}
               error={!!errors?.titulo}
               helperText={errors?.titulo?.message}
               {...register("titulo", {
@@ -53,7 +52,6 @@ export default function MetadataTest() {
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
-              defaultValue={"TestDebug"}
               error={!!errors?.descripcion}
               helperText={errors?.descripcion?.message}
               {...register("descripcion", {
@@ -67,7 +65,6 @@ export default function MetadataTest() {
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
-              defaultValue={"TestDebug"}
               error={!!errors?.instrucciones}
               helperText={errors?.instrucciones?.message}
               {...register("instrucciones", {
@@ -103,11 +100,11 @@ export default function MetadataTest() {
                       control={<Radio color="secondary" />}
                       label="Areas academicas (Test 2)"
                     />
-                    <FormControlLabel
+                    {/* <FormControlLabel
                       value={"3"}
                       control={<Radio color="secondary" />}
                       label="Porcentaje por carreras (Test 3)"
-                    />
+                    /> */}
                   </RadioGroup>
                   <FormHelperText>{errors?.tipo?.message}</FormHelperText>
                 </FormControl>

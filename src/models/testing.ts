@@ -86,7 +86,6 @@ const seccionSchema: Schema<ISeccion> = new Schema(
     },
     valorMax: {
       type: Number,
-      required: true,
       description: "Valor máximo para TESTS_RANGO",
     },
     questions: [

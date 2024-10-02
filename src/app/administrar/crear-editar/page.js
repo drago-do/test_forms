@@ -20,7 +20,7 @@ const SectionsForStepForm = [
 function PageContent() {
   const methods = useForm({ mode: "all" });
   const { control } = methods;
-  const stepDebug = 1;
+  const stepDebug = false;
   const { createTest, updateTest, getTestById } = useTest();
   const params = useSearchParams();
   const idDocument = params.get("id");
@@ -100,7 +100,7 @@ function PageContent() {
           formTitle={"Crear nuevo Test"}
           stepComponents={SectionsForStepForm}
           edit={false}
-          debug={true}
+          debug={stepDebug ? true : false}
           step={stepDebug ? stepDebug : 0}
           uploadToDataBase={handleFormSubmit}
         />

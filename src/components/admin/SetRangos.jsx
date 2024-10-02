@@ -107,12 +107,6 @@ export default function SetRangos() {
     }
   };
 
-  const onSubmit = (data) => {
-    const newEscalas = [...escalas, { nivel: data.nivel, escala: data.escala }];
-    setEscalas(newEscalas);
-    handleClose();
-  };
-
   return (
     <div>
       <section className="w-full flex flex-nowrap justify-between">

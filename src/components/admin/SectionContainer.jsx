@@ -29,266 +29,7 @@ import LinkInput from "./LinksTesting";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 
-const SectionWithQuestions = ({
-  section,
-  sectionIndex,
-  testType,
-  addQuestionHandler,
-  updateQuestionHandler,
-  addQuestionHandlerType2,
-  addQuestionOptionHandlerType2,
-  deleteQuestionOptionHandlerType2,
-  deleteQuestionHandler,
-  deleteSectionHandler,
-  cloneQuestionHandler,
-}) => {
-  const {
-    register,
-    formState: { errors },
-    getValues,
-    setValue,
-    watch,
-  } = useFormContext();
-
-  if (false) {
-    return (
-      <SectionType1
-        section={section}
-        sectionIndex={sectionIndex}
-        testType={testType}
-        updateSectionHandler={update}
-        deleteSectionHandler={deleteSectionHandler}
-        addQuestionHandler={addQuestionHandler}
-        updateQuestionHandler={updateQuestionHandler}
-        deleteQuestionHandler={deleteQuestionHandler}
-        cloneQuestionHandler={cloneQuestionHandler}
-      />
-    );
-  } else {
-    return <SectionType2 />;
-  }
-};
-
-const SectionType1 = ({
-  section,
-  sectionIndex,
-  testType,
-  addQuestionHandler,
-  deleteQuestionHandler,
-  deleteSectionHandler,
-  cloneQuestionHandler,
-}) => {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext();
-  return (
-    <Container maxWidth="lg" className="my-5">
-      <Paper elevation={3} className="p-3">
-        <Grid container spacing={1} alignItems={"center"}>
-          <Grid item xs={10}>
-            <TextField
-              error={!!errors?.sections?.[sectionIndex]?.name}
-              defaultValue={section.name}
-              helperText={errors?.sections?.[sectionIndex]?.name?.message}
-              {...register(`sections.${sectionIndex}.name`, {
-                required: "Campo requerido",
-              })}
-              label="Nombre de la sección"
-              fullWidth
-              required
-              variant="standard"
-            />
-          </Grid>
-          <Grid item xs={2} display={"flex"} justifyContent={"end"}>
-            <IconButton
-              onClick={() => deleteSectionHandler(sectionIndex)}
-              aria-label="delete"
-              color="error"
-            >
-              <DeleteIcon />
-            </IconButton>
-          </Grid>
-          {/* Link Input */}
-          <LinkInput sectionIndex={sectionIndex} defaultValue={section?.link} />
-          {/* <Grid item xs={12} className="mt-4">
-            <TextField
-              defaultValue={section.link?.join(", ") || ""}
-              {...register(`sections.${sectionIndex}.link`)}
-              label="Enlaces de la sección (separados por comas)"
-              fullWidth
-              variant="standard"
-            />
-          </Grid> */}
-          {/* Max Value Input */}
-          {testType === "1" && (
-            <Grid item xs={12} className="mt-4">
-              <TextField
-                error={!!errors?.sections?.[sectionIndex]?.valorMax}
-                defaultValue={section.valorMax}
-                helperText={errors?.sections?.[sectionIndex]?.valorMax?.message}
-                {...register(`sections.${sectionIndex}.valorMax`, {
-                  required: "Campo requerido",
-                })}
-                label="Valor máximo de la sección"
-                fullWidth
-                required
-                variant="standard"
-              />
-            </Grid>
-          )}
-          {/* Accordion for questions */}
-          <Accordion className="w-full mt-4">
-            <AccordionSummary expandIcon={<ExpandMore />} aria-label="Expand">
-              <Typography>Preguntas de sección</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Grid item xs={12}>
-                {section?.questions && section.questions.length > 0 ? (
-                  section.questions.map((question, questionIndex) => (
-                    <div className="question-container" key={questionIndex}>
-                      <Collapse in={focus}>
-                        <Typography variant="body1" className="text-end">
-                          #{question?.id || 0}
-                        </Typography>
-                      </Collapse>
-
-                      {/* Question Text Input */}
-                      <TextField
-                        defaultValue={question?.texto || ""}
-                        {...register(
-                          `sections.${sectionIndex}.questions.${questionIndex}.texto`,
-                          {
-                            required: "Campo requerido",
-                          }
-                        )}
-                        label="Texto de la pregunta"
-                        fullWidth
-                        required
-                        variant="standard"
-                      />
-
-                      {/* Validation Checkbox */}
-                      <FormControlLabel
-                        label="¿Pregunta de validación?"
-                        control={
-                          <Checkbox
-                            defaultChecked={question?.validacion || false}
-                            {...register(
-                              `sections.${sectionIndex}.questions.${questionIndex}.validacion`
-                            )}
-                          />
-                        }
-                      />
-
-                      <Typography variant="h6" className="mt-4">
-                        Opciones
-                      </Typography>
-
-                      {/* Options for each question */}
-                      {question?.opciones &&
-                        question?.opciones?.length > 0 &&
-                        question?.opciones?.map((field, optionIndex) => (
-                          <Grid
-                            container
-                            spacing={2}
-                            alignItems="center"
-                            key={field.id}
-                          >
-                            <input
-                              type="hidden"
-                              defaultValue={optionIndex + 1}
-                              {...register(
-                                `sections.${sectionIndex}.questions.${questionIndex}.opciones.${optionIndex}.valor`,
-                                {
-                                  required: "Campo requerido",
-                                }
-                              )}
-                            />
-                            <Grid item xs={10}>
-                              <TextField
-                                {...register(
-                                  `sections.${sectionIndex}.questions.${questionIndex}.opciones.${optionIndex}.texto`,
-                                  {
-                                    required: "Campo requerido",
-                                  }
-                                )}
-                                label={`Opción ${optionIndex + 1}`}
-                                fullWidth
-                                required
-                                variant="standard"
-                              />
-                            </Grid>
-                          </Grid>
-                        ))}
-
-                      {/* Question Actions */}
-                      <Grid
-                        item
-                        xs={12}
-                        display="flex"
-                        justifyContent="end"
-                        className="mt-4"
-                      >
-                        <IconButton
-                          onClick={() =>
-                            cloneQuestionHandler(sectionIndex, questionIndex)
-                          }
-                          aria-label="clone"
-                        >
-                          <ContentCopyIcon />
-                        </IconButton>
-                        <IconButton
-                          onClick={() =>
-                            deleteQuestionHandler(sectionIndex, questionIndex)
-                          }
-                          aria-label="delete"
-                          color="error"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Grid>
-                    </div>
-                  ))
-                ) : (
-                  <section className="w-full">
-                    <Typography variant="h5" className="text-center">
-                      Parece que aun no hay preguntas
-                    </Typography>
-                    <div className="w-full">
-                      <MaterialIcon
-                        iconName="archive"
-                        className="text-5xl text-center w-full"
-                      />
-                      <Typography
-                        variant="caption"
-                        className="text-center w-full"
-                      >
-                        Añade nuevas preguntas con el botón de abajo
-                      </Typography>
-                    </div>
-                  </section>
-                )}
-              </Grid>
-              <Grid item xs={12} className="w-full flex justify-center my-5">
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => addQuestionHandler(sectionIndex)}
-                >
-                  <MaterialIcon iconName="add" className="mr-2" />
-                  Agregar pregunta
-                </Button>
-              </Grid>
-            </AccordionDetails>
-          </Accordion>
-        </Grid>
-      </Paper>
-    </Container>
-  );
-};
-
-const SectionType2 = () => {
+const SectionWithQuestions = () => {
   const {
     control,
     register,
@@ -314,14 +55,17 @@ const SectionType2 = () => {
         {
           id: uuidv4(),
           texto: "",
-          opciones: [
-            {
-              id: uuidv4(),
-              texto: "",
-              valor: 1,
-              subcategoria: "",
-            },
-          ],
+          opciones:
+            tipoPrueba === "2"
+              ? [
+                  {
+                    id: uuidv4(),
+                    texto: "",
+                    valor: 1,
+                    subcategoria: "",
+                  },
+                ]
+              : [],
           tipo:
             tipoPrueba === "1"
               ? "escala"
@@ -437,6 +181,8 @@ const QuestionsType2 = ({ sectionIndex }) => {
     name: `sections.${sectionIndex}.questions`,
   });
 
+  const tipoPrueba = getValues("tipo");
+
   const addQuestionHandler = () => {
     append(getQuestionBase());
   };
@@ -461,14 +207,17 @@ const QuestionsType2 = ({ sectionIndex }) => {
     return {
       id: uuidv4(),
       texto: "",
-      opciones: [
-        {
-          id: uuidv4(),
-          texto: "",
-          valor: 1,
-          subcategoria: "",
-        },
-      ],
+      opciones:
+        tipoPrueba === "2"
+          ? [
+              {
+                id: uuidv4(),
+                texto: "",
+                valor: 1,
+                subcategoria: "",
+              },
+            ]
+          : [],
       tipo: "opcion_multiple",
       validacion: false,
     };
@@ -577,8 +326,22 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
 
   const categorias = getValues("categorias");
 
+  const tipoPrueba = getValues("tipo");
+  let valorMax = getValues(`sections.${sectionIndex}.valorMax`);
+
   const addQuestionOption = () => {
-    append(getQuestionOptionBase());
+    console.log("valorMax");
+    console.log(valorMax);
+    if (tipoPrueba === "2") {
+      append(getQuestionOptionBase());
+    } else if (tipoPrueba === "1" && valorMax > 0 && valorMax < 10) {
+      const questions = getQuestionOptionBaseScala(valorMax);
+      append(questions);
+    } else {
+      toast.error(
+        "No puedes agregar preguntas a la seccion sin valor maximo de seccion."
+      );
+    }
   };
 
   const deleteQuestionOption = (questionOptionIndex) => {
@@ -593,12 +356,25 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
     return { id: uuidv4(), texto: "", valor: 1, subcategoria: "" };
   };
 
+  const getQuestionOptionBaseScala = (valorMax) => {
+    const opciones = [];
+    for (let i = 1; i <= valorMax; i++) {
+      opciones.push({
+        id: uuidv4(),
+        texto: "",
+        valor: i,
+        subcategoria: "",
+      });
+    }
+    return opciones;
+  };
+
   return (
     <>
       {opciones && opciones.length > 0 ? (
         opciones.map((opcion, opcionIndex) => (
           <Grid container spacing={2} alignItems="center" key={opcionIndex}>
-            <Grid item xs={6}>
+            <Grid item xs={tipoPrueba === "1" ? 12 : 6}>
               <TextField
                 {...register(
                   `sections.${sectionIndex}.questions.${questionIndex}.opciones.${opcionIndex}.texto`,
@@ -619,7 +395,7 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
                 variant="standard"
               />
             </Grid>
-            {categorias && categorias.length > 0 ? (
+            {tipoPrueba !== "1" && categorias && categorias.length > 0 ? (
               <Grid item xs={5}>
                 <Select
                   defaultValue=""
@@ -652,35 +428,57 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
                 </Select>
               </Grid>
             ) : (
-              <Grid item xs={5}>
-                <Alert severity="warning">
-                  Aún no se han agregado categorías y subcategorías
-                </Alert>
+              <>
+                {tipoPrueba !== "1" && (
+                  <Grid item xs={5}>
+                    <Alert severity="warning">
+                      Aún no se han agregado categorías y subcategorías
+                    </Alert>
+                  </Grid>
+                )}
+              </>
+            )}
+            {tipoPrueba !== "1" && (
+              <Grid item xs={1}>
+                <IconButton
+                  onClick={() => deleteQuestionOption(opcionIndex)}
+                  aria-label="delete"
+                  color="error"
+                >
+                  <DeleteIcon />
+                </IconButton>
               </Grid>
             )}
-            <Grid item xs={1}>
-              <IconButton
-                onClick={() => deleteQuestionOption(opcionIndex)}
-                aria-label="delete"
-                color="error"
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Grid>
           </Grid>
         ))
       ) : (
-        <Typography variant="body1">No hay opciones</Typography>
+        <Typography variant="body1">
+          No hay opciones hasta que definas el valor maximo y des click en el
+          boton
+        </Typography>
       )}
       <Grid item xs={12} className="w-full flex justify-center my-5">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => addQuestionOption()}
-        >
-          <MaterialIcon iconName="add" className="mr-2" />
-          Agregar opcion
-        </Button>
+        {tipoPrueba === "1" ? (
+          <Collapse in={opciones.length === 0}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => addQuestionOption()}
+            >
+              <MaterialIcon iconName="add" className="mr-2" />
+              Agregar opcion
+            </Button>
+          </Collapse>
+        ) : (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => addQuestionOption()}
+          >
+            <MaterialIcon iconName="add" className="mr-2" />
+            Agregar opcion
+          </Button>
+        )}
       </Grid>
     </>
   );
