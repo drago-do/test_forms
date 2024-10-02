@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { Prueba } from "../../../models/testing";
+import { Prueba, IPrueba } from "../../../models/testing";
 import mongodb from "../../../lib/mongodb";
-
+import mongoose from "mongoose";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@ import mongodb from "../../../lib/mongodb";
 export async function POST(request: Request) {
   try {
     await mongodb();
-    const data = await request.json();  
+    const data = await request.json();
     console.log(data);
     const newDocument = new Prueba(data);
 
@@ -44,7 +44,8 @@ export async function GET(request: Request) {
 
   try {
     await mongodb();
-    const documentos = await Prueba.find()
+    const documentos: IPrueba[] = await (Prueba as mongoose.Model<IPrueba>)
+      .find()
       .skip(skip)
       .limit(limit)
       .exec();

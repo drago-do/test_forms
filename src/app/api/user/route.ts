@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import User from "../../../models/user";
+import User, { IUser } from "../../../models/user";
 import mongodb from "../../../lib/mongodb";
+import mongoose from "mongoose";
 
 export async function POST(request: Request) {
   console.log("endpint user");
@@ -38,7 +39,8 @@ export async function GET(request: Request) {
 
   try {
     await mongodb();
-    const users = await User.find()
+    const users: IUser[] = await (User as mongoose.Model<IUser>)
+      .find()
       .skip(skip)
       .limit(limit)
       .select("-password")
