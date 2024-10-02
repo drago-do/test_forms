@@ -4,10 +4,10 @@ import useUser from "./../../../hook/useUser";
 import MenuAppBar from "../../../components/general/MenuAppBar";
 
 export default function Layout({ children }) {
-  const { getUserRole } = useUser();
+  const { isAuthenticated } = useUser();
 
-  if (typeof window !== "undefined" && getUserRole() !== "Admin") {
-    window.location.href = "/";
+  if (typeof window !== "undefined" && !isAuthenticated()) {
+    window.location.href = "/iniciar-sesion";
   }
 
   return (

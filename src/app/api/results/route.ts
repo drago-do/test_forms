@@ -13,6 +13,8 @@ export async function POST(request: Request) {
   try {
     await mongodb();
     const data = await request.json();
+    console.log(data);
+
     const newResultado = new Resultados(data);
     const savedResultado = await newResultado.save();
 

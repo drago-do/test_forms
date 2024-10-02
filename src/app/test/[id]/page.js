@@ -22,6 +22,7 @@ import { shuffle } from "lodash";
 import useTest from "../../../hook/useTest";
 import useUser from "../../../hook/useUser";
 import useResults from "./../../../hook/useResults";
+import PersonIcon from "@mui/icons-material/Person";
 
 import MaterialIcon from "./../../../components/general/MaterialIcon";
 
@@ -29,13 +30,16 @@ export default function TestForm({ params }) {
   const { createResult } = useResults();
   const { id } = params;
   const { getTestById } = useTest();
-  const { getLoggedUserInfo } = useUser();
+  const { getLoggedUserInfo, isAuthenticated } = useUser();
   const [activeStep, setActiveStep] = useState(0);
   const [test, setTest] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
   const [score, setScore] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [testType, setTestType] = useState("1");
+
+  const idUser = isAuthenticated();
 
   useEffect(() => {
     console.log(answers);
@@ -48,6 +52,7 @@ export default function TestForm({ params }) {
           const testData = await getTestById(id);
           console.log(testData);
           setTest(testData);
+          setTestType(testData?.tipo);
 
           // Flatten and shuffle questions
           const allQuestions =
@@ -91,6 +96,8 @@ export default function TestForm({ params }) {
     const totalScore = Object.entries(answers).reduce(
       (sum, [questionId, answer]) => {
         const question = questions.find((q) => q._id === questionId);
+        console.log("question");
+        console.log(question);
         const selectedOption = question.opciones.find((o) => o.id === answer);
         return sum + (selectedOption ? selectedOption.valor : 0);
       },
@@ -98,8 +105,12 @@ export default function TestForm({ params }) {
     );
 
     setScore(totalScore);
+    //TODO Solucionar esto
     console.log("answers");
     console.log(answers);
+    console.log("answers");
+    console.log("answers");
+    console.log("answers");
     // Submit results to backend
     try {
       const user = getLoggedUserInfo();
@@ -155,7 +166,9 @@ export default function TestForm({ params }) {
               ¡Felicidades por completar la prueba!
             </Typography>
             <Typography variant="caption"></Typography>
-            <Typography variant="body1">Tu puntuación: {score}</Typography>
+            <Typography variant="body1">
+              Tu puntuación: Valor pendiente TABLA DE RESULTADOS
+            </Typography>
           </CardContent>
         </Card>
       );
@@ -175,7 +188,9 @@ export default function TestForm({ params }) {
                 {question.opciones.map((option) => (
                   <FormControlLabel
                     key={option.id}
-                    value={option.id}
+                    value={
+                      testType === "1" ? option.valor : option.subcategoria
+                    }
                     control={<Radio />}
                     label={option.texto}
                   />
@@ -213,9 +228,16 @@ export default function TestForm({ params }) {
         </Button>
         <Box sx={{ flex: "1 1 auto" }} />
         {activeStep === steps.length - 1 ? (
-          <Button onClick={() => setActiveStep(0)}>
-            <MaterialIcon iconName="home" /> Inicio
-          </Button>
+          <>
+            <Button
+              onClick={() => (window.location.href = "/usuario/" + idUser)}
+            >
+              <PersonIcon /> Mi perfil
+            </Button>
+            <Button onClick={() => (window.location.href = "/")}>
+              <MaterialIcon iconName="home" /> Inicio
+            </Button>
+          </>
         ) : (
           <Button
             onClick={
