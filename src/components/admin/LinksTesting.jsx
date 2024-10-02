@@ -8,41 +8,42 @@ import {
   Autocomplete,
   Button,
 } from "@mui/material";
-import { useFormContext, Controller } from "react-hook-form";
+import { useFormContext, Controller, useFieldArray } from "react-hook-form";
 import useTest from "../../hook/useTest";
 import { toast } from "sonner";
 
-export default function LinkInput({ sectionIndex, defaultValue = [] }) {
+const URLLocal = process.env.NEXT_PUBLIC_API;
+
+export default function LinkInput({ sectionIndex }) {
   const { control, setValue, getValues, register } = useFormContext();
-  const [links, setLinks] = useState(
-    Array.isArray(defaultValue) ? defaultValue : []
-  );
+  const {
+    fields: link,
+    append,
+    remove,
+  } = useFieldArray({
+    control,
+    name: `sections.${sectionIndex}.link`,
+  });
+
   const [tests, setTests] = useState([]);
+  const [linksToRender, setlinksToRender] = useState([]);
   const [newLink, setNewLink] = useState("");
   const { getAllTests } = useTest();
 
   useEffect(() => {
-    if (!Array.isArray(defaultValue)) {
-      console.error("defaultValue is not an array");
-      setLinks([]);
-    } else {
-      setLinks(defaultValue);
-    }
-  }, [defaultValue]);
-
-  useEffect(() => {
     const fetchTests = async () => {
       const testList = await getAllTests();
-      console.log(testList.data);
       setTests(testList.data);
     };
     fetchTests();
   }, []);
 
-  const handleDeleteLink = (linkToDelete) => {
-    const updatedLinks = links.filter((link) => link !== linkToDelete);
-    setLinks(updatedLinks);
-    setValue(`sections.${sectionIndex}.link`, updatedLinks); // Update form value
+  const handleDeleteLink = (indexLink) => {
+    remove(indexLink);
+    // Elimina del estado tipo array por índice
+    setlinksToRender((prevLinks) =>
+      prevLinks.filter((_, index) => index !== indexLink)
+    );
   };
 
   const formatLink = (link) => {
@@ -52,93 +53,80 @@ export default function LinkInput({ sectionIndex, defaultValue = [] }) {
       const path = url.pathname;
       const truncatedPath =
         path.length > 10 ? `${path.slice(0, 3)}...${path.slice(-7)}` : path;
-      return `${domain}${truncatedPath}`;
+      console.log(truncatedPath);
+      return domain + truncatedPath;
     } catch (error) {
       return link;
     }
   };
 
-  const handleAddLink = () => {
+  const handleAddLink = (newLinkTest = false) => {
     try {
-      let formattedLink = newLink.trim();
-
+      let formattedLink = newLinkTest ? newLinkTest : newLink.trim();
       // Agregar "https://" si no está presente al inicio de la URL
       if (!/^https?:\/\//i.test(formattedLink)) {
-        formattedLink = `https://${formattedLink}`;
+        formattedLink = "https://" + formattedLink;
       }
-
       // Validar la URL
-      new URL(formattedLink);
-
-      // Actualizar la lista de enlaces
-      const updatedLinks = [...links, formattedLink];
-      setLinks(updatedLinks);
-      setValue(`sections.${sectionIndex}.link`, updatedLinks); // Actualizar el valor del formulario
+      append(formattedLink);
+      setlinksToRender((prevLinks) => [...prevLinks, formattedLink]);
       setNewLink(""); // Limpiar el campo de entrada
     } catch (error) {
-      toast.error("El enlace no tiene una estructura válida");
+      toast.error("El enlace no tiene una estructura válida.");
     }
+  };
+
+  const verArray = () => {
+    console.log(linksToRender);
   };
 
   return (
     <Grid item xs={12} className="mt-4">
       <section className="flex flex-col md:flex-row justify-between">
-        <Controller
-          name={`sections.${sectionIndex}.link`}
-          disableClearable
-          control={control}
-          defaultValue={links}
-          render={({ field: { onChange, value }, fieldState: { error } }) => (
-            <>
-              <Autocomplete
-                freeSolo
-                fullWidth
-                options={tests}
-                getOptionLabel={(option) => option?.titulo || option}
-                onInputChange={(event, newInputValue) => {
-                  setNewLink(newInputValue);
-                }}
-                onChange={(event, newValue) => {
-                  if (typeof newValue === "string") {
-                    setNewLink(newValue);
-                  } else {
-                    if (newValue?._id) {
-                      const updatedLinks = [
-                        ...links,
-                        `${process.env.NEXT_PUBLIC_API}test/${newValue?._id}`,
-                      ];
-                      setLinks(updatedLinks);
-                      onChange(updatedLinks);
-                    }
-                  }
-                }}
-                renderOption={(props, option) => (
-                  <li {...props} key={option?._id || option}>
-                    {option?.titulo || option}
-                  </li>
-                )}
-                renderTags={(tagValue, getTagProps) => {
-                  return tagValue.map((option, index) => (
-                    <Chip
-                      {...getTagProps({ index })}
-                      key={option?._id || option}
-                      label={option?.titulo || formatLink(option)}
-                    />
-                  ));
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Agregar enlace de test o externo"
-                    variant="standard"
-                    error={!!error}
-                    helperText={error ? error.message : null}
-                  />
-                )}
+        <Button variant="text" color="primary" onClick={verArray}>
+          ver
+        </Button>
+        <Autocomplete
+          freeSolo
+          fullWidth
+          options={tests}
+          getOptionLabel={(option) => option?.titulo || option}
+          onInputChange={(event, newInputValue) => {
+            setNewLink(newInputValue);
+          }}
+          onChange={(event, newValue) => {
+            if (typeof newValue === "string") {
+              setNewLink(newValue);
+            } else {
+              if (newValue?._id) {
+                const testLink = URLLocal + "test/" + newValue?._id;
+                handleAddLink(testLink);
+              }
+            }
+          }}
+          renderOption={(props, option) => (
+            <li {...props} key={option?._id || option}>
+              {option?.titulo || option}
+            </li>
+          )}
+          renderTags={(tagValue, getTagProps) => {
+            return tagValue.map((option, index) => (
+              <Chip
+                {...getTagProps({ index })}
+                key={option?._id || option}
+                label={option?.titulo || formatLink(option)}
               />
-            </>
+            ));
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Agregar enlace de test o externo"
+              variant="standard"
+            />
           )}
         />
+
         <Button
           variant="contained"
           color="primary"
@@ -153,17 +141,16 @@ export default function LinkInput({ sectionIndex, defaultValue = [] }) {
 
       {/* Display Chips */}
       <Grid item xs={12} className="mt-4">
-        {links && links?.length > 0 ? (
-          links.map((link, index) => {
+        {linksToRender && linksToRender?.length > 0 ? (
+          linksToRender.map((link, index) => {
             const test = tests.find(
-              (test) =>
-                `${process.env.NEXT_PUBLIC_API}test/${test._id}` === link
+              (test) => `${URLLocal}test/${test._id}` === link
             );
             return (
               <Chip
                 key={index}
-                label={test ? test.titulo : formatLink(link)}
-                onDelete={() => handleDeleteLink(link)}
+                label={test ? test?.titulo : link}
+                onDelete={() => handleDeleteLink(index)}
                 className="mr-2 mb-2"
               />
             );
@@ -174,13 +161,6 @@ export default function LinkInput({ sectionIndex, defaultValue = [] }) {
           </Typography>
         )}
       </Grid>
-
-      {/* Hidden input to maintain form data */}
-      <input
-        type="hidden"
-        {...register(`sections.${sectionIndex}.link`)}
-        value={links && links?.join(",")}
-      />
     </Grid>
   );
 }

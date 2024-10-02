@@ -349,8 +349,8 @@ const SectionType2 = () => {
     <>
       {sections && sections.length > 0 ? (
         sections.map((section, sectionIndex) => (
-          <>
-            <Container key={sectionIndex} maxWidth="lg" className="my-5">
+          <div key={sectionIndex}>
+            <Container maxWidth="lg" className="my-5">
               <Paper elevation={3} className="p-3">
                 <Grid container spacing={1} alignItems={"center"}>
                   <Grid item xs={10}>
@@ -405,7 +405,7 @@ const SectionType2 = () => {
               </Paper>
             </Container>
             <QuestionsType2 section={section} sectionIndex={sectionIndex} />
-          </>
+          </div>
         ))
       ) : (
         <Typography variant="body1">No hay secciones</Typography>
