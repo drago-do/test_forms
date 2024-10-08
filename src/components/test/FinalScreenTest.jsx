@@ -1,5 +1,18 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Container, Typography, Button, Alert } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Button,
+  Alert,
+  Chip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import ConfettiExplosion from "react-confetti-explosion";
@@ -11,20 +24,10 @@ const ReturnButonsGroup = () => {
   const { push } = useRouter();
 
   return (
-    <section className="w-full flex justify-between">
+    <section className="w-full flex justify-end">
       <Button variant="text" color="secondary" onClick={() => push("/")}>
         <MaterialIcon iconName="home" className="mr-3" /> Regresar a la página
         principal
-      </Button>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => {
-          push("/administrar/", undefined, { shallow: true });
-        }}
-      >
-        <MaterialIcon iconName="frame_reload" className="mr-3" />
-        Regresar a administración
       </Button>
     </section>
   );
@@ -37,6 +40,38 @@ export default function Page({
 }) {
   const [showConfetti, setShowConfetti] = useState(false);
   const { getResultsById } = useResults();
+  const [loading, showLoading] = useState(true);
+  const [results, setResults] = useState([
+    {
+      nombreSeccion: "Seccion1",
+      porcentaje: 32,
+      escala: "Medio",
+      enlaces: ["www.google.com", "facebook.com"],
+    },
+    {
+      nombreSeccion: "Seccion2",
+      porcentaje: 100,
+      escala: "Medio",
+      enlaces: [
+        "www.google.com",
+        "facebook.com",
+        "www.google.com",
+        "facebook.com",
+        "www.google.com",
+        "facebook.com",
+        "www.google.com",
+        "facebook.com",
+        "www.google.com",
+        "facebook.com",
+      ],
+    },
+    {
+      nombreSeccion: "Seccion3",
+      porcentaje: 84,
+      escala: "Alto",
+      enlaces: [],
+    },
+  ]);
 
   // Manejar efecto solo cuando el estado es "success"
   useEffect(() => {
@@ -47,13 +82,27 @@ export default function Page({
     }
   }, [state]);
 
+  useEffect(() => {
+    const fetchResults = async () => {
+      if (idResults) {
+        //TODO descomentar esto
+        // const response = await getResultsById(idResults);
+        // if (response.success) {
+        //   setResults(response.data);
+        //   showLoading(false);
+        // }
+      }
+    };
+    fetchResults();
+  }, [idResults]);
+
   // Memorizar las imágenes para evitar renders innecesarios
   const successImage = useMemo(
     () => (
       <Image
         src="/test_creado.png"
-        width={200}
-        height={200}
+        width={100}
+        height={100}
         alt="Test creado"
       />
     ),
@@ -85,6 +134,8 @@ export default function Page({
             <section className="w-full flex justify-center my-12">
               {successImage}
             </section>
+            <Typography variant="h4">Resultados</Typography>
+            <ResultsTable results={results} />
             <ReturnButonsGroup />
           </>
         );
@@ -118,3 +169,57 @@ export default function Page({
 
   return <Container maxWidth="sm">{renderContent()}</Container>;
 }
+const ResultsTable = ({ results }) => {
+  const [showLinks, setShowLinks] = useState({});
+
+  const handleShowLinks = (index) => {
+    setShowLinks((prev) => ({ ...prev, [index]: true }));
+  };
+
+  return (
+    <TableContainer component={Paper} className="my-5">
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell style={{ width: "25%" }}>Sección</TableCell>
+            <TableCell style={{ width: "25%" }}>Porcentaje</TableCell>
+            <TableCell style={{ width: "25%" }}>Escala</TableCell>
+            <TableCell style={{ width: "25%" }}>Enlaces</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {results.map((result, index) => (
+            <TableRow key={index}>
+              <TableCell>{result.nombreSeccion}</TableCell>
+              <TableCell>{result.porcentaje}%</TableCell>
+              <TableCell>{result.escala}</TableCell>
+              <TableCell>
+                {showLinks[index] ? (
+                  result.enlaces.map((enlace, enlaceIndex) => (
+                    <Chip
+                      key={enlaceIndex}
+                      className="my-2"
+                      label={enlace}
+                      component="a"
+                      href={enlace}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      clickable
+                    />
+                  ))
+                ) : (
+                  <Button
+                    variant="contained"
+                    onClick={() => handleShowLinks(index)}
+                  >
+                    Mostrar Enlaces
+                  </Button>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
