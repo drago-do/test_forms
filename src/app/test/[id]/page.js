@@ -37,7 +37,7 @@ export default function TestForm({ params }) {
   const [answers, setAnswers] = useState({});
   const [score, setScore] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [testType, setTestType] = useState("1");
+  const [testType, setTestType] = useState(1);
 
   const idUser = isAuthenticated();
 
@@ -52,7 +52,7 @@ export default function TestForm({ params }) {
           const testData = await getTestById(id);
           console.log(testData);
           setTest(testData);
-          setTestType(testData?.tipo);
+          setTestType(testData?.documento?.tipo);
 
           // Flatten and shuffle questions
           const allQuestions =
@@ -188,9 +188,7 @@ export default function TestForm({ params }) {
                 {question.opciones.map((option) => (
                   <FormControlLabel
                     key={option.id}
-                    value={
-                      testType === "1" ? option.valor : option.subcategoria
-                    }
+                    value={testType === 1 ? option.valor : option.subcategoria}
                     control={<Radio />}
                     label={option.texto}
                   />
