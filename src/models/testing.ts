@@ -193,4 +193,4 @@ const pruebaSchema: Schema<IPrueba> = new Schema(
 // Verificar si el modelo ya está definido antes de compilarlo
 const Prueba = models.Prueba || model<IPrueba>("Prueba", pruebaSchema);
 
-export { Prueba };
+export default Prueba;

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import * as XLSX from 'xlsx';
 import mongodb from '../../../../lib/mongodb';
 import Resultados, { IResultados } from '../../../../models/results';
-import { Prueba, IPrueba, ISeccion, IPregunta } from "../../../../models/testing";
+import Prueba, { IPrueba, ISeccion } from "../../../../models/testing";
 import mongoose from "mongoose"; // Import mongoose for ObjectId validation
 
 export async function GET(request: Request, { params }: { params: { idExport: string } }) {

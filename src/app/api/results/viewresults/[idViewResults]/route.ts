@@ -1,16 +1,21 @@
 import { NextResponse } from "next/server";
 import mongodb from "../../../../../lib/mongodb";
-import Resultados, { IResultados } from "../../../../../models/results";
-import { Prueba, IPrueba } from "../../../../../models/testing";
+import Resultados from "../../../../../models/results";
+import Prueba from "../../../../../models/testing";
 import mongoose from "mongoose";
 
 // Método GET: Recuperar los resultados de la prueba
 export async function GET(
-  request: Request,
+  request: any,
   { params }: { params: { idviewResulst: string } }
 ) {
   try {
     const id_resultados = params.idviewResulst; // Obtener id de la prueba desde los parámetros
+
+    // Validar que el ID es un ObjectId válido
+    if (!mongoose.Types.ObjectId.isValid(id_resultados)) {
+      return NextResponse.json({ error: "ID no válido" }, { status: 400 });
+    }
 
     // Obtener los resultados de la prueba y procesarlos
     const response = await obtenerResultadosPrueba(id_resultados);
@@ -20,7 +25,7 @@ export async function GET(
     }
 
     return NextResponse.json(response, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error en GET:", error);
     return NextResponse.json(
       { error: "Error al obtener los resultados." },
@@ -30,18 +35,12 @@ export async function GET(
 }
 
 // Función principal para obtener los resultados de una prueba
-export async function obtenerResultadosPrueba(id_resultados: string) {
+export async function obtenerResultadosPrueba(id_resultados: any): Promise<any> {
   try {
     // Conectarse a la base de datos
     await mongodb();
 
-    const resultado = await (
-      Resultados as mongoose.Model<IResultados>
-    )
-      .findById(id_resultados)
-      .lean() as unknown as IResultados
-
-    // Obtener los resultados de la prueba para ese id_resultados
+    const resultado = await Resultados.findById(id_resultados).lean();
 
     if (!resultado) {
       return { error: "No se encontraron resultados para esta prueba." };
@@ -49,60 +48,48 @@ export async function obtenerResultadosPrueba(id_resultados: string) {
 
     const { id_prueba, respuestas } = resultado;
 
-    // Obtener la prueba correspondiente
-    const prueba: IPrueba = await (Prueba as mongoose.Model<IPrueba>)
-      .findById(id_prueba)
-      .lean() as unknown as IPrueba
+    const prueba = await Prueba.findById(id_prueba).lean();
 
     if (!prueba) {
       return { error: "No se encontró la prueba." };
     }
 
-    // Clasificar las preguntas por secciones y calcular el porcentaje y escala
     const seccionesResultado: any[] = [];
 
     prueba.sections.forEach((seccion: any) => {
       let puntajeSeccion = 0;
 
-      // Obtener el puntaje de la sección comparando las respuestas
-      seccion?.questions?.forEach((pregunta: any) => {
-        const respuesta = respuestas[pregunta._id.toString()]; // Acceso como objeto
+      seccion.questions.forEach((pregunta: any) => {
+        const respuesta = respuestas[pregunta._id.toString()];
         if (respuesta !== undefined) {
-          const opcion = pregunta.opciones.find(
-            (op: any) => op.valor === respuesta
-          );
+          const opcion = pregunta.opciones.find((op: any) => op.valor === respuesta);
           if (opcion) {
             puntajeSeccion += opcion.valor;
           }
         }
       });
 
-      // Calcular el porcentaje obtenido para la sección
-      const porcentajeObtenido = (puntajeSeccion / seccion?.valorMax) * 100;
-
-      // Calcular la escala
+      const porcentajeObtenido = (puntajeSeccion / seccion.valorMax) * 100;
       const numEscalas = prueba.escalas.nivel;
       const brinco = seccion.valorMax / numEscalas;
       let escala = Math.ceil(puntajeSeccion / brinco);
 
       if (escala > numEscalas) {
-        escala = numEscalas; // En caso de que exceda el número de escalas
+        escala = numEscalas;
       }
       const escalaTexto =
-        prueba?.escalas?.escala[escala - 1] || "Error al obtener escala";
+        prueba.escalas.escala[escala - 1] || "Error al obtener escala";
 
-      // Añadir la información de la sección al resultado
       seccionesResultado.push({
         nombreSeccion: seccion.name,
         porcentaje: porcentajeObtenido.toFixed(2),
         escala: escalaTexto,
-        enlaces: seccion.link, // Asumiendo que link es un array de strings
+        enlaces: seccion.link,
       });
     });
 
-    // Retornar el JSON final con los resultados procesados
     return { secciones: seccionesResultado };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error obteniendo los resultados de la prueba:", error);
     return { error: "Error interno del servidor." };
   }

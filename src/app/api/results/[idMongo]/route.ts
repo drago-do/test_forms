@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Resultados, { IResultados } from "../../../../models/results";
-import { Prueba, IPrueba } from "../../../../models/testing";
+import Prueba, { IPrueba } from "../../../../models/testing";
 import User, { IUser } from "../../../../models/user";
 import mongodb from "../../../../lib/mongodb";
 import mongoose from "mongoose";

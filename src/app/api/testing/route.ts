@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { Prueba, IPrueba } from "../../../models/testing";
+import Prueba, { IPrueba } from "../../../models/testing";
 import mongodb from "../../../lib/mongodb";
 import mongoose from "mongoose";
 
