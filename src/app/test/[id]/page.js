@@ -17,6 +17,7 @@ import {
   FormLabel,
   CircularProgress,
   Container,
+  Alert,
 } from "@mui/material";
 import { shuffle } from "lodash";
 import useTest from "../../../hook/useTest";
@@ -25,6 +26,8 @@ import useResults from "./../../../hook/useResults";
 import PersonIcon from "@mui/icons-material/Person";
 
 import MaterialIcon from "./../../../components/general/MaterialIcon";
+import FinalScreenTest from "./../../../components/test/FinalScreenTest";
+import FullPageLoader from "./../../../components/general/FullPageLoader";
 
 export default function TestForm({ params }) {
   const { createResult } = useResults();
@@ -35,9 +38,11 @@ export default function TestForm({ params }) {
   const [test, setTest] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
-  const [score, setScore] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [testType, setTestType] = useState(1);
+  const [resultId, setResultId] = useState(null);
+  const [finalScreenState, setFinalScreenState] = useState("loading");
 
   const idUser = isAuthenticated();
 
@@ -71,6 +76,7 @@ export default function TestForm({ params }) {
           setLoading(false);
         } catch (error) {
           console.error("Error fetching test:", error);
+          setError("Error fetching test data.");
           setLoading(false);
         }
       };
@@ -92,25 +98,6 @@ export default function TestForm({ params }) {
   };
 
   const handleSubmit = async () => {
-    // Calculate score
-    const totalScore = Object.entries(answers).reduce(
-      (sum, [questionId, answer]) => {
-        const question = questions.find((q) => q._id === questionId);
-        console.log("question");
-        console.log(question);
-        const selectedOption = question.opciones.find((o) => o.id === answer);
-        return sum + (selectedOption ? selectedOption.valor : 0);
-      },
-      0
-    );
-
-    setScore(totalScore);
-    //TODO Solucionar esto
-    console.log("answers");
-    console.log(answers);
-    console.log("answers");
-    console.log("answers");
-    console.log("answers");
     // Submit results to backend
     try {
       const user = getLoggedUserInfo();
@@ -120,19 +107,70 @@ export default function TestForm({ params }) {
         respuestas: answers,
       });
       console.log(response);
+      setResultId(response.data._id);
+      setFinalScreenState("success");
     } catch (error) {
+      setFinalScreenState("error");
       console.error("Error submitting test results:", error);
+      setError("Error submitting test results.");
     }
 
     handleNext();
   };
 
   if (loading) {
-    return <CircularProgress />;
+    return <FullPageLoader open={true} />;
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="sm" sx={{ textAlign: "center", mt: 5 }}>
+        <Card variant="outlined" sx={{ p: 3 }}>
+          <CardContent>
+            <Typography variant="h4" color="error" gutterBottom>
+              Error
+            </Typography>
+            <Typography variant="body1" color="textSecondary" paragraph>
+              {error}
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => window.location.reload()}
+              sx={{ mt: 2 }}
+            >
+              Volver a cargar
+            </Button>
+          </CardContent>
+        </Card>
+      </Container>
+    );
   }
 
   if (!test) {
-    return <Typography>Error loading test.</Typography>;
+    return (
+      <Container maxWidth="sm" sx={{ textAlign: "center", mt: 5 }}>
+        <Card variant="outlined" sx={{ p: 3 }}>
+          <CardContent>
+            <Typography variant="h4" color="error" gutterBottom>
+              Error cargando prueba
+            </Typography>
+            <Typography variant="body1" color="textSecondary" paragraph>
+              Hubo un problema al cargar la prueba. Por favor, inténtelo de
+              nuevo más tarde o contacte al soporte si el problema persiste.
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => window.location.reload()}
+              sx={{ mt: 2 }}
+            >
+              Volver a cargar
+            </Button>
+          </CardContent>
+        </Card>
+      </Container>
+    );
   }
 
   const steps = [
@@ -160,17 +198,11 @@ export default function TestForm({ params }) {
       );
     } else if (step === steps.length - 1) {
       return (
-        <Card>
-          <CardContent>
-            <Typography variant="h5" gutterBottom>
-              ¡Felicidades por completar la prueba!
-            </Typography>
-            <Typography variant="caption"></Typography>
-            <Typography variant="body1">
-              Tu puntuación: Valor pendiente TABLA DE RESULTADOS
-            </Typography>
-          </CardContent>
-        </Card>
+        <FinalScreenTest
+          state={finalScreenState}
+          idResults={resultId}
+          info={error || ""}
+        />
       );
     } else {
       const question = questions[step - 1];
@@ -203,17 +235,6 @@ export default function TestForm({ params }) {
 
   return (
     <Container maxWidth="lg">
-      {/* <Stepper activeStep={activeStep} className="my-8">
-        {steps.map((label, index) => {
-          const stepProps = {};
-          const labelProps = {};
-          return (
-            <Step key={label} {...stepProps}>
-              <StepLabel {...labelProps}>{label}</StepLabel>
-            </Step>
-          );
-        })}
-      </Stepper> */}
       <Box sx={{ mt: 2, mb: 1 }}>{renderStepContent(activeStep)}</Box>
       <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
         <Button
