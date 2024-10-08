@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import ConfettiExplosion from "react-confetti-explosion";
 import MaterialIcon from "../general/MaterialIcon";
 import LoaderPencil from "../general/LoaderPencil";
+import useResults from "./../../hook/useResults";
 
 const ReturnButonsGroup = () => {
   const { push } = useRouter();
@@ -29,8 +30,13 @@ const ReturnButonsGroup = () => {
   );
 };
 
-export default function Page({ state = "success", info = "Error " }) {
+export default function Page({
+  state = "success",
+  idResults = null,
+  info = "Error ",
+}) {
   const [showConfetti, setShowConfetti] = useState(false);
+  const { getResultsById } = useResults();
 
   // Manejar efecto solo cuando el estado es "success"
   useEffect(() => {
