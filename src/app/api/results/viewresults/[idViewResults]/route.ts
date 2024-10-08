@@ -1,61 +1,48 @@
 import { NextResponse } from "next/server";
 import mongodb from "../../../../../lib/mongodb";
-import Resultados from "../../../../../models/results";
-import Prueba from "../../../../../models/testing";
+import Resultados, { IResultados } from "../../../../../models/results";
+import Prueba, { IPrueba } from "../../../../../models/testing";
 import mongoose from "mongoose";
 
 // Método GET: Recuperar los resultados de la prueba
 export async function GET(
   request: any,
-  { params }: { params: { idviewResulst: string } }
+  { params }: { params: { idviewResults: string } }
 ) {
   try {
-    const id_resultados = params.idviewResulst; // Obtener id de la prueba desde los parámetros
+    const id_resultados = params.idviewResults;
 
     // Validar que el ID es un ObjectId válido
     if (!mongoose.Types.ObjectId.isValid(id_resultados)) {
       return NextResponse.json({ error: "ID no válido" }, { status: 400 });
     }
 
-    // Obtener los resultados de la prueba y procesarlos
-    const response = await obtenerResultadosPrueba(id_resultados);
-
-    if (response.error) {
-      return NextResponse.json(response, { status: 404 });
-    }
-
-    return NextResponse.json(response, { status: 200 });
-  } catch (error: any) {
-    console.error("Error en GET:", error);
-    return NextResponse.json(
-      { error: "Error al obtener los resultados." },
-      { status: 500 }
-    );
-  }
-}
-
-// Función principal para obtener los resultados de una prueba
-export async function obtenerResultadosPrueba(id_resultados: any): Promise<any> {
-  try {
-    // Conectarse a la base de datos
+    // Conectar a la base de datos
     await mongodb();
 
-    const resultado = await Resultados.findById(id_resultados).lean();
-
+    // Obtener los resultados de la prueba
+    const resultado = await (Resultados as mongoose.Model<IResultados>).findById(id_resultados).lean();
     if (!resultado) {
-      return { error: "No se encontraron resultados para esta prueba." };
+      return NextResponse.json(
+        { error: "No se encontraron resultados para esta prueba." },
+        { status: 404 }
+      );
     }
 
     const { id_prueba, respuestas } = resultado;
 
-    const prueba = await Prueba.findById(id_prueba).lean();
-
+    // Obtener los detalles de la prueba
+    const prueba = await (Prueba as mongoose.Model<IPrueba>).findById(id_prueba).lean();
     if (!prueba) {
-      return { error: "No se encontró la prueba." };
+      return NextResponse.json(
+        { error: "No se encontró la prueba." },
+        { status: 404 }
+      );
     }
 
     const seccionesResultado: any[] = [];
 
+    // Procesar las secciones de la prueba
     prueba.sections.forEach((seccion: any) => {
       let puntajeSeccion = 0;
 
@@ -88,9 +75,12 @@ export async function obtenerResultadosPrueba(id_resultados: any): Promise<any> 
       });
     });
 
-    return { secciones: seccionesResultado };
+    return NextResponse.json({ secciones: seccionesResultado }, { status: 200 });
   } catch (error: any) {
-    console.error("Error obteniendo los resultados de la prueba:", error);
-    return { error: "Error interno del servidor." };
+    console.error("Error en GET:", error);
+    return NextResponse.json(
+      { error: "Error al obtener los resultados." },
+      { status: 500 }
+    );
   }
 }
