@@ -29,29 +29,48 @@ import {
 } from "recharts";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import * as XLSX from "xlsx";
+import PasswordIcon from "@mui/icons-material/Password";
+import { toast } from "sonner";
 
 export default function TestResults() {
-  const [test, setTest] = useState(null);
-  const [results, setResults] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Replace with actual API calls
-        const testResponse = await fetch("/api/test");
-        const testData = await testResponse.json();
-        setTest(testData);
-
-        const resultsResponse = await fetch("/api/results");
-        const resultsData = await resultsResponse.json();
-        setResults(resultsData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const [test, setTest] = useState({
+    _id: "testx",
+    titulo: "Simulated Test Title",
+    descripcion: "Simulated Test Description",
+    instrucciones: "Simulated Instructions",
+    sections: [
+      {
+        name: "Section 1",
+        valorMax: 100,
+      },
+      {
+        name: "Section 2",
+        valorMax: 100,
+      },
+    ],
+  });
+  const [results, setResults] = useState([
+    {
+      id_user: "user1",
+      createdAt: new Date(),
+      respuestas: {
+        "Section 1 - Q1": 10,
+        "Section 1 - Q2": 20,
+        "Section 2 - Q1": 30,
+        "Section 2 - Q2": 40,
+      },
+    },
+    {
+      id_user: "user2",
+      createdAt: new Date(),
+      respuestas: {
+        "Section 1 - Q1": 15,
+        "Section 1 - Q2": 25,
+        "Section 2 - Q1": 35,
+        "Section 2 - Q2": 45,
+      },
+    },
+  ]);
 
   const respondentCount = results.length;
   const averageScore =
@@ -81,6 +100,19 @@ export default function TestResults() {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Results");
     XLSX.writeFile(workbook, "test_results.xlsx");
+    toast.success("Descargando Excel de resultados");
+  };
+
+  const copyTestCode = () => {
+    const testLink = `${process.env.NEXT_PUBLIC_API}/test/${test._id}`;
+    navigator.clipboard
+      .writeText(testLink)
+      .then(() => {
+        toast.info("Enlace del test copiado al portapapeles");
+      })
+      .catch((err) => {
+        toast.error("Error al enlace el código del test");
+      });
   };
 
   if (!test) return <Typography>Loading...</Typography>;
@@ -114,13 +146,20 @@ export default function TestResults() {
         <Grid item xs={12} md={6}>
           <Card>
             <CardHeader title="Acciones" />
-            <CardContent>
+            <CardContent className="w-full flex justify-between ">
               <Button
                 variant="contained"
                 startIcon={<FileDownloadIcon />}
                 onClick={exportToExcel}
               >
                 Exportar a Excel
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<PasswordIcon />}
+                onClick={copyTestCode}
+              >
+                Obtener código del test
               </Button>
             </CardContent>
           </Card>
