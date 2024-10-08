@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
 // Método GET
 
-// Obtener documentos de Resultados con paginación
+// Obtener documentos de Resultados con pagination
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1", 10); // Página actual, por defecto 1

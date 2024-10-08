@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 import * as XLSX from 'xlsx';
 import mongodb from '../../../../lib/mongodb';
-import Resultados from '../../../../models/results';
-import { Prueba } from "../../../../models/testing";
+import Resultados, { IResultados } from '../../../../models/results';
+import { Prueba, IPrueba, ISeccion, IPregunta } from "../../../../models/testing";
 import mongoose from "mongoose"; // Import mongoose for ObjectId validation
 
-export async function GET(request) {
-  const { pathname } = request.nextUrl;
-  const idPrueba = pathname.split("/").pop();
+export async function GET(request: Request, { params }: { params: { idExport: string } }) {
+  const idPrueba = params.idExport || "";
 
   console.log('ID de prueba recibido:', idPrueba);
 
@@ -22,9 +21,8 @@ export async function GET(request) {
     console.log('Conexión a MongoDB exitosa.');
 
     // Find results associated with the test ID, populating user data
-    const resultados = await Resultados.find({ id_prueba: idPrueba })
-      .populate('id_user', 'firstName lastName email role creationDate phone currentSchool educationLevel generation grade group')
-      .lean();
+    const resultados = await (Resultados as mongoose.Model<IResultados>).find({ id_prueba: idPrueba })
+      .populate('id_user', 'firstName lastName email role creationDate phone currentSchool educationLevel generation grade group');
 
     console.log('Resultados encontrados:', resultados);
 
@@ -34,18 +32,19 @@ export async function GET(request) {
     }
 
     console.log(`Buscando documento asociado a la prueba con ID: ${idPrueba}`);
-    const documento = await Prueba.findById(idPrueba).lean(); // Changed to fetch the test document
+    const documento = await (Prueba as mongoose.Model<IPrueba>).findById(idPrueba);  // Sin 'lean()' para evitar el problema
     if (!documento) {
       return NextResponse.json({ error: `No se encontró documento para el ID de prueba: ${idPrueba}` }, { status: 404 });
     }
 
     // Prepare questions from the test document
-    const preguntas = documento?.sections?.flatMap(section => section.questions) || [];
+    const preguntas = (documento?.sections as unknown as ISeccion[])?.flatMap(section => section.questions) || [];
+
     console.log('Preguntas encontradas:', preguntas);
 
     // Format data for Excel export
-    const data = resultados.map((resultado) => {
-      const user = resultado.id_user || {};
+    const data = await Promise.all(resultados.map(async (resultado) => {
+      const user: any = resultado.id_user
 
       // Extract user-related data with fallback for empty fields
       const userInfo = {
@@ -64,20 +63,20 @@ export async function GET(request) {
 
       const respuestasFormateadas = resultado.respuestas && typeof resultado.respuestas === 'object'
         ? Object.fromEntries(
-            Object.entries(resultado.respuestas).map(([idPregunta, respuesta]) => {
-              const pregunta = preguntas.find(p => p._id.toString() === idPregunta) || {};
-              const textoPregunta = pregunta.texto || `Pregunta ${idPregunta}`;
-              console.log(`Procesando respuesta para la pregunta: ${textoPregunta}, respuesta: ${respuesta}`);
-              return [textoPregunta, respuesta];
-            })
-          )
+          Object.entries(resultado.respuestas).map(([idPregunta, respuesta]) => {
+            const pregunta: any = preguntas.find((p: any) => p?._id.toString() === idPregunta) || {};
+            const textoPregunta: any = pregunta?.texto || `Pregunta ${idPregunta}`;
+            console.log(`Procesando respuesta para la pregunta: ${textoPregunta}, respuesta: ${respuesta}`);
+            return [textoPregunta, respuesta];
+          })
+        )
         : {};
 
       return {
         ...userInfo,
         ...respuestasFormateadas
       };
-    });
+    }));
 
     console.log('Datos formateados para Excel:', JSON.stringify(data, null, 2));
 

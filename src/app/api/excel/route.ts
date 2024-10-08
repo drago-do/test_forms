@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import * as XLSX from 'xlsx';
-import mongodb from '../../../../lib/mongodb';
-import Resultados from '../../../../models/results';
+import mongodb from '../../../lib/mongodb';
+import Resultados, { IResultados } from '../../../models/results';
+import mongoose from "mongoose";
 
-export async function GET(request) {
+export async function GET(request: Request, { params }: { params: { idExport: string } }) {
   // Obtener el ID de la prueba desde la URL
-  const { pathname } = request.nextUrl;
-  const idPrueba = pathname.split("/").pop();  // Extraer el último segmento de la URL como el ID
+  const idPrueba = params.idExport || ""
 
   // Validación del parámetro 'id'
   if (!idPrueba) {
@@ -18,9 +18,9 @@ export async function GET(request) {
     await mongodb();
 
     // Buscar resultados asociados al 'id_prueba' con populate en 'id_user'
-    const resultados = await Resultados.find({ id_prueba: idPrueba })
+    const resultados = await (Resultados as mongoose.Model<IResultados>).find({ id_prueba: idPrueba })
       .populate('id_user', 'firstName lastName email role creationDate phone currentSchool educationLevel generation grade group')
-      .lean();
+      .lean();  // `lean()` hace que las propiedades de mongoose sean objetos planos
 
     // Verificación de resultados
     if (!resultados || resultados.length === 0) {
@@ -29,9 +29,9 @@ export async function GET(request) {
 
     // Formatear datos para exportar a Excel
     const data = resultados.map((resultado) => {
-      const user = resultado.id_user || {};
-      const respuestasFormateadas = resultado.respuestas && typeof resultado.respuestas === 'object'
-        ? Object.fromEntries(Object.entries(resultado.respuestas)) // Convierte las respuestas en pares clave-valor
+      const user: any = resultado.id_user || {};
+      const respuestasFormateadas = resultado.respuestas
+        ? Object.fromEntries(Object.entries(resultado.respuestas as Record<string, string>)) // Convierte las respuestas en pares clave-valor
         : {};
 
       return {

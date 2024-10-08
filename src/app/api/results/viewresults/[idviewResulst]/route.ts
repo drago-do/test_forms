@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import mongodb from "../../../../../lib/mongodb";
 import Resultados, { IResultados } from "../../../../../models/results";
-import { Prueba, IPrueba, ISeccion } from "../../../../../models/testing";
+import { Prueba, IPrueba } from "../../../../../models/testing";
 import mongoose from "mongoose";
 
 // Método GET: Recuperar los resultados de la prueba
@@ -35,11 +35,11 @@ export async function obtenerResultadosPrueba(id_resultados: string) {
     // Conectarse a la base de datos
     await mongodb();
 
-    const resultado: IResultados = await (
+    const resultado = await (
       Resultados as mongoose.Model<IResultados>
     )
       .findById(id_resultados)
-      .lean();
+      .lean() as unknown as IResultados
 
     // Obtener los resultados de la prueba para ese id_resultados
 
@@ -52,7 +52,7 @@ export async function obtenerResultadosPrueba(id_resultados: string) {
     // Obtener la prueba correspondiente
     const prueba: IPrueba = await (Prueba as mongoose.Model<IPrueba>)
       .findById(id_prueba)
-      .lean();
+      .lean() as unknown as IPrueba
 
     if (!prueba) {
       return { error: "No se encontró la prueba." };
@@ -61,7 +61,7 @@ export async function obtenerResultadosPrueba(id_resultados: string) {
     // Clasificar las preguntas por secciones y calcular el porcentaje y escala
     const seccionesResultado: any[] = [];
 
-    prueba.sections.forEach((seccion) => {
+    prueba.sections.forEach((seccion: any) => {
       let puntajeSeccion = 0;
 
       // Obtener el puntaje de la sección comparando las respuestas

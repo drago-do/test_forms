@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import User from "../../../../models/user";
+import User, { IUser } from "../../../../models/user";
 import mongodb from "../../../../lib/mongodb";
+import mongoose from "mongoose"
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -12,7 +14,7 @@ export async function GET(
 ) {
   try {
     await mongodb();
-    const user = await User.findById(params.idMongo).select("-password").exec();
+    const user = await (User as mongoose.Model<IUser>).findById(params.idMongo).select("-password").exec();
 
     if (!user) {
       return NextResponse.json({
@@ -51,7 +53,7 @@ export async function PUT(
     }
 
     const updatedData = await request.json();
-    const updatedUser = await User.findByIdAndUpdate(id, updatedData, {
+    const updatedUser: IUser = await (User as mongoose.Model<IUser>).findByIdAndUpdate(id, updatedData, {
       new: true,
       runValidators: true,
     })
@@ -99,7 +101,7 @@ export async function DELETE(
       });
     }
 
-    const deletedUser = await User.findByIdAndDelete(id).exec();
+    const deletedUser: IUser = await (User as mongoose.Model<IUser>).findByIdAndDelete(id).exec();
 
     if (!deletedUser) {
       return NextResponse.json({
