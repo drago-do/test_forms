@@ -19,6 +19,11 @@ const useResults = () => {
     return res.data;
   };
 
+  const getSummariOfTestResults = async (idPrueba) => {
+    const res = await axios.get(`${api}/api/results/summarize/=${idPrueba}`);
+    return res.data;
+  };
+
   const updateResult = async (id, data) => {
     const res = await axios.put(`${api}/api/results/${id}`, data);
     return res.data;

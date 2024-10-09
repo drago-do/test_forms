@@ -31,8 +31,12 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import * as XLSX from "xlsx";
 import PasswordIcon from "@mui/icons-material/Password";
 import { toast } from "sonner";
+import useResults from "../../../hook/useResults";
+import useTest from "../../../hook/useTest";
 
 export default function TestResults() {
+  const { getResult } = useResults();
+  const { getTestById } = useTest();
   const [test, setTest] = useState({
     _id: "testx",
     titulo: "Simulated Test Title",
@@ -71,6 +75,14 @@ export default function TestResults() {
       },
     },
   ]);
+
+  useEffect(() => {
+    first;
+
+    return () => {
+      second;
+    };
+  }, [third]);
 
   const respondentCount = results.length;
   const averageScore =
