@@ -91,15 +91,16 @@ export async function GET(
       });
     });
 
-    return NextResponse.json(
-      { secciones: seccionesResultado },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      success: true,
+      data: seccionesResultado,
+    });
   } catch (error: any) {
     console.error("Error en GET:", error);
-    return NextResponse.json(
-      { error: "Error al obtener los resultados." },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      success: false,
+      error: "Error al obtener los resultados.",
+      message: error.message,
+    });
   }
 }

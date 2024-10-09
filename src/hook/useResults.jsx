@@ -15,7 +15,7 @@ const useResults = () => {
   };
 
   const getResultById = async (id) => {
-    const res = await axios.get(`${api}/api/results/${id}`);
+    const res = await axios.get(`${api}/api/results/viewresults/${id}`);
     return res.data;
   };
 

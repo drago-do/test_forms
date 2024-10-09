@@ -20,58 +20,15 @@ import MaterialIcon from "../general/MaterialIcon";
 import LoaderPencil from "../general/LoaderPencil";
 import useResults from "./../../hook/useResults";
 
-const ReturnButonsGroup = () => {
-  const { push } = useRouter();
-
-  return (
-    <section className="w-full flex justify-end">
-      <Button variant="text" color="secondary" onClick={() => push("/")}>
-        <MaterialIcon iconName="home" className="mr-3" /> Regresar a la página
-        principal
-      </Button>
-    </section>
-  );
-};
-
 export default function Page({
   state = "success",
-  idResults = null,
+  idResults = "66ff6eb1f2f4af1adaba1489",
   info = "Error ",
 }) {
   const [showConfetti, setShowConfetti] = useState(false);
-  const { getResultsById } = useResults();
+  const { getResultById } = useResults();
   const [loading, showLoading] = useState(true);
-  const [results, setResults] = useState([
-    {
-      nombreSeccion: "Seccion1",
-      porcentaje: 32,
-      escala: "Medio",
-      enlaces: ["www.google.com", "facebook.com"],
-    },
-    {
-      nombreSeccion: "Seccion2",
-      porcentaje: 100,
-      escala: "Medio",
-      enlaces: [
-        "www.google.com",
-        "facebook.com",
-        "www.google.com",
-        "facebook.com",
-        "www.google.com",
-        "facebook.com",
-        "www.google.com",
-        "facebook.com",
-        "www.google.com",
-        "facebook.com",
-      ],
-    },
-    {
-      nombreSeccion: "Seccion3",
-      porcentaje: 84,
-      escala: "Alto",
-      enlaces: [],
-    },
-  ]);
+  const [results, setResults] = useState([]);
 
   // Manejar efecto solo cuando el estado es "success"
   useEffect(() => {
@@ -86,11 +43,11 @@ export default function Page({
     const fetchResults = async () => {
       if (idResults) {
         //TODO descomentar esto
-        // const response = await getResultsById(idResults);
-        // if (response.success) {
-        //   setResults(response.data);
-        //   showLoading(false);
-        // }
+        const response = await getResultById(idResults);
+        if (response.success) {
+          setResults(response.data);
+          showLoading(false);
+        }
       }
     };
     fetchResults();
@@ -136,7 +93,6 @@ export default function Page({
             </section>
             <Typography variant="h4">Resultados</Typography>
             <ResultsTable results={results} />
-            <ReturnButonsGroup />
           </>
         );
       case "error":
@@ -151,7 +107,6 @@ export default function Page({
                 {info}
               </Alert>
             )}
-            <ReturnButonsGroup />
           </>
         );
       case "loading":
@@ -167,7 +122,7 @@ export default function Page({
     }
   };
 
-  return <Container maxWidth="sm">{renderContent()}</Container>;
+  return <Container maxWidth="lg">{renderContent()}</Container>;
 }
 const ResultsTable = ({ results }) => {
   const [showLinks, setShowLinks] = useState({});

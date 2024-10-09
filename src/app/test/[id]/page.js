@@ -107,7 +107,7 @@ export default function TestForm({ params }) {
         respuestas: answers,
       });
       if (response.success) {
-        setResultId(response.data._id);
+        setResultId(response?.data?._id);
         setFinalScreenState("success");
       } else {
         setFinalScreenState("error");
