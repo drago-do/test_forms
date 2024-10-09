@@ -106,9 +106,15 @@ export default function TestForm({ params }) {
         id_user: user._id,
         respuestas: answers,
       });
-      console.log(response);
-      setResultId(response.data._id);
-      setFinalScreenState("success");
+      if (response.success) {
+        setResultId(response.data._id);
+        setFinalScreenState("success");
+      } else {
+        setFinalScreenState("error");
+        console.error("Error submitting test results:", response.message);
+        setError(`Error al subir el test. : \n ${response?.message || ""}`);
+        console.log(response);
+      }
     } catch (error) {
       setFinalScreenState("error");
       console.error("Error submitting test results:", error);
