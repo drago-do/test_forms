@@ -7,10 +7,10 @@ import mongoose from "mongoose";
 // Método GET: Recuperar los resultados de la prueba
 export async function GET(
   request: any,
-  { params }: { params: { idviewResults: string } }
+  { params }: { params: { idViewResults: string } }
 ) {
   try {
-    const id_resultados = params.idviewResults;
+    const id_resultados = params.idViewResults;
 
     // Validar que el ID es un ObjectId válido
     if (!mongoose.Types.ObjectId.isValid(id_resultados)) {
@@ -21,7 +21,9 @@ export async function GET(
     await mongodb();
 
     // Obtener los resultados de la prueba
-    const resultado = await (Resultados as mongoose.Model<IResultados>).findById(id_resultados).lean();
+    const resultado = await (Resultados as mongoose.Model<IResultados>)
+      .findById(id_resultados)
+      .lean();
     if (!resultado) {
       return NextResponse.json(
         { error: "No se encontraron resultados para esta prueba." },
@@ -32,7 +34,9 @@ export async function GET(
     const { id_prueba, respuestas } = resultado;
 
     // Obtener los detalles de la prueba
-    const prueba = await (Prueba as mongoose.Model<IPrueba>).findById(id_prueba).lean();
+    const prueba = await (Prueba as mongoose.Model<IPrueba>)
+      .findById(id_prueba)
+      .lean();
     if (!prueba) {
       return NextResponse.json(
         { error: "No se encontró la prueba." },
@@ -49,21 +53,33 @@ export async function GET(
       seccion.questions.forEach((pregunta: any) => {
         const respuesta = respuestas[pregunta._id.toString()];
         if (respuesta !== undefined) {
-          const opcion = pregunta.opciones.find((op: any) => op.valor === respuesta);
+          console.log("respuesta");
+          console.log(respuesta);
+
+          const opcion = pregunta.opciones.find(
+            (op: any) => op.valor === parseInt(respuesta)
+          );
           if (opcion) {
             puntajeSeccion += opcion.valor;
           }
         }
       });
 
-      const porcentajeObtenido = (puntajeSeccion / seccion.valorMax) * 100;
-      const numEscalas = prueba.escalas.nivel;
-      const brinco = seccion.valorMax / numEscalas;
-      let escala = Math.ceil(puntajeSeccion / brinco);
+      console.log(puntajeSeccion);
+      //Obtener el numero de preguntas
+      const numPreguntas = seccion.questions.length;
 
-      if (escala > numEscalas) {
-        escala = numEscalas;
-      }
+      const PuntosTotalesDeSeccion = seccion?.valorMax * numPreguntas; //Esto equivale al 100 de la prueba
+      //Obtener el porcentaje de acuerdo a los PuntosTotalesDeSeccion vs el puntuajeSeccion
+      const porcentajeObtenido =
+        (puntajeSeccion / PuntosTotalesDeSeccion) * 100;
+
+      const numEscalas = prueba.escalas.nivel;
+      //Obtener el porcentaje de crecimiento de acuerdo al numero de escalas  100 / numEscalas
+      const brinco = PuntosTotalesDeSeccion / numEscalas;
+      //Revisar en que escala entra el puntajeSeccion
+      const escala = Math.ceil(puntajeSeccion / brinco);
+
       const escalaTexto =
         prueba.escalas.escala[escala - 1] || "Error al obtener escala";
 
@@ -75,7 +91,10 @@ export async function GET(
       });
     });
 
-    return NextResponse.json({ secciones: seccionesResultado }, { status: 200 });
+    return NextResponse.json(
+      { secciones: seccionesResultado },
+      { status: 200 }
+    );
   } catch (error: any) {
     console.error("Error en GET:", error);
     return NextResponse.json(
