@@ -15,7 +15,6 @@ export async function GET(
 ) {
   try {
     await mongodb();
-    console.log("hey");
 
     // Validar que el ID es un ObjectId válido
     if (!mongoose.Types.ObjectId.isValid(params.idTest)) {
