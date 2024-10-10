@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import {
   Card,
   CardContent,
@@ -41,7 +41,7 @@ import FullPageLoader from "./../../../components/general/FullPageLoader";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import MenuAppBar from "../../../components/general/MenuAppBar";
 
-export default function TestResults() {
+function TestResults() {
   const params = useSearchParams();
   const idTestToGetInfo = params.get("id");
   const { getSummariOfTestResults } = useResults();
@@ -53,14 +53,13 @@ export default function TestResults() {
   useEffect(() => {
     const fetchTestAndResults = async () => {
       try {
-        const testData = await getTestById(idTestToGetInfo); // ID de prueba hardcodeado como ejemplo
+        const testData = await getTestById(idTestToGetInfo);
         setTest(testData?.documento);
 
         const resultsData = await getSummariOfTestResults(idTestToGetInfo);
-        if (!resultsData?.data?.length > 0) {
+        if (!resultsData?.data?.length) {
           setPageState("no_response");
         } else {
-          console.log(resultsData);
           setResults(resultsData.data);
           setPageState("Ok");
         }
@@ -102,7 +101,7 @@ export default function TestResults() {
               Aún no se han registrado respuestas para este test.
             </Alert>
             <Typography variant="h6" gutterBottom>
-              {test.nombre || "Test sin nombre"}
+              {test?.nombre || "Test sin nombre"}
             </Typography>
             <Typography variant="body1" paragraph>
               Lo sentimos, pero aún no hay respuestas disponibles para este
@@ -123,7 +122,6 @@ export default function TestResults() {
   }
 
   const respondentCount = results?.length;
-  console.log(results);
   const averageScore =
     results.length > 0
       ? results.reduce(
@@ -140,7 +138,7 @@ export default function TestResults() {
       Promedio:
         results.reduce((sum, result) => {
           const sectionScore = Object.entries(result.respuestas)
-            .filter(([key]) => test.sections[index]._id === key) // Asegurando que coincidan por ID
+            .filter(([key]) => test.sections[index]._id === key)
             .reduce((sectionSum, [, value]) => sectionSum + Number(value), 0);
           return sum + sectionScore;
         }, 0) / results.length,
@@ -149,11 +147,11 @@ export default function TestResults() {
 
   const exportToExcel = () => {
     const link = document.createElement("a");
-    link.href = `${process.env.NEXT_PUBLIC_API}/api/excel/${test?._id}`; // Enlace que descarga el archivo automáticamente
-    link.target = "_blank"; // Abre en una nueva ventana/pestaña
+    link.href = `${process.env.NEXT_PUBLIC_API}/api/excel/${test?._id}`;
+    link.target = "_blank";
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link); // Limpia el enlace del DOM
+    document.body.removeChild(link);
     toast.success("Iniciando descarga del archivo Excel");
   };
 
@@ -174,11 +172,11 @@ export default function TestResults() {
       <MenuAppBar title="Resultados" />
       <Box sx={{ maxWidth: 1200, margin: "auto", padding: 2 }}>
         <Card sx={{ marginBottom: 2 }}>
-          <CardHeader title={test.titulo} />
+          <CardHeader title={test?.titulo} />
           <CardContent>
-            <Typography variant="body1">{test.descripcion}</Typography>
+            <Typography variant="body1">{test?.descripcion}</Typography>
             <Typography variant="body1" sx={{ marginTop: 2 }}>
-              <strong>Instrucciones:</strong> {test.instrucciones}
+              <strong>Instrucciones:</strong> {test?.instrucciones}
             </Typography>
           </CardContent>
         </Card>
@@ -275,5 +273,14 @@ export default function TestResults() {
         </Card>
       </Box>
     </>
+  );
+}
+
+// Envolver el componente con Suspense
+export default function WrappedTestResults() {
+  return (
+    <Suspense fallback={<FullPageLoader open />}>
+      <TestResults />
+    </Suspense>
   );
 }

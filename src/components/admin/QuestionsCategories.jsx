@@ -43,7 +43,7 @@ function CategoryDialog({ open, onClose, initialData }) {
       onClose({ nombre: categoryName.trim(), subcategorias: subcategories });
     }
     setCategoryName("");
-    subcategories([]);
+    setSubcategories([]);
   };
 
   return (
