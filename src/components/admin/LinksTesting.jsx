@@ -42,7 +42,7 @@ export default function LinkInput({ sectionIndex }) {
       }
     };
     fetchTests();
-  }, [getAllTests]);
+  }, []);
 
   const handleDeleteLink = useCallback(
     (indexLink) => {

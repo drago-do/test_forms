@@ -38,6 +38,7 @@ function PageContent() {
           methods.setValue("descripcion", test.descripcion);
           methods.setValue("instrucciones", test.instrucciones);
           methods.setValue("tipo", test.tipo);
+          methods.setValue("editando", true);
 
           // Flatten the nested sections and questions arrays
           const flattenedSections = test.sections.flat().map((section) => ({

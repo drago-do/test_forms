@@ -45,7 +45,7 @@ const SectionWithQuestions = () => {
     control,
     name: `sections`,
   });
-  const tipoPrueba = getValues("tipo");
+  const tipoPrueba = parseInt(getValues("tipo"));
 
   const getSectionBase = () => {
     return {
@@ -56,7 +56,7 @@ const SectionWithQuestions = () => {
           id: uuidv4(),
           texto: "",
           opciones:
-            tipoPrueba === "2"
+            tipoPrueba === 2
               ? [
                   {
                     id: uuidv4(),
@@ -67,9 +67,9 @@ const SectionWithQuestions = () => {
                 ]
               : [],
           tipo:
-            tipoPrueba === "1"
+            tipoPrueba === 1
               ? "escala"
-              : tipoPrueba === "2"
+              : tipoPrueba === 2
               ? "opcion_multiple"
               : "verdadero_falso",
           validacion: false,
@@ -128,7 +128,7 @@ const SectionWithQuestions = () => {
                   sectionIndex={sectionIndex}
                   defaultValue={section?.link}
                 />
-                {tipoPrueba === "1" && (
+                {tipoPrueba === 1 && (
                   <Grid item xs={12} className="mt-4">
                     <TextField
                       error={!!errors?.sections?.[sectionIndex]?.valorMax}
@@ -181,7 +181,7 @@ const QuestionsType2 = ({ sectionIndex }) => {
     name: `sections.${sectionIndex}.questions`,
   });
 
-  const tipoPrueba = getValues("tipo");
+  const tipoPrueba = parseInt(getValues("tipo"));
 
   const addQuestionHandler = () => {
     append(getQuestionBase());
@@ -208,7 +208,7 @@ const QuestionsType2 = ({ sectionIndex }) => {
       id: uuidv4(),
       texto: "",
       opciones:
-        tipoPrueba === "2"
+        tipoPrueba === 2
           ? [
               {
                 id: uuidv4(),
@@ -326,15 +326,15 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
 
   const categorias = getValues("categorias");
 
-  const tipoPrueba = getValues("tipo");
+  const tipoPrueba = parseInt(getValues("tipo"));
   let valorMax = getValues(`sections.${sectionIndex}.valorMax`);
 
   const addQuestionOption = () => {
     console.log("valorMax");
     console.log(valorMax);
-    if (tipoPrueba === "2") {
+    if (tipoPrueba === 2) {
       append(getQuestionOptionBase());
-    } else if (tipoPrueba === "1" && valorMax > 0 && valorMax < 10) {
+    } else if (tipoPrueba === 1 && valorMax > 0 && valorMax < 10) {
       const questions = getQuestionOptionBaseScala(valorMax);
       append(questions);
     } else {
@@ -374,7 +374,7 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
       {opciones && opciones.length > 0 ? (
         opciones.map((opcion, opcionIndex) => (
           <Grid container spacing={2} alignItems="center" key={opcionIndex}>
-            <Grid item xs={tipoPrueba === "1" ? 12 : 6}>
+            <Grid item xs={tipoPrueba === 1 ? 12 : 6}>
               <TextField
                 {...register(
                   `sections.${sectionIndex}.questions.${questionIndex}.opciones.${opcionIndex}.texto`,
@@ -395,7 +395,7 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
                 variant="standard"
               />
             </Grid>
-            {tipoPrueba !== "1" && categorias && categorias.length > 0 ? (
+            {tipoPrueba !== 1 && categorias && categorias.length > 0 ? (
               <Grid item xs={5}>
                 <Controller
                   name={`sections.${sectionIndex}.questions.${questionIndex}.opciones.${opcionIndex}.subcategoria`}
@@ -425,7 +425,7 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
               </Grid>
             ) : (
               <>
-                {tipoPrueba !== "1" && (
+                {tipoPrueba !== 1 && (
                   <Grid item xs={5}>
                     <Alert severity="warning">
                       Aún no se han agregado categorías y subcategorías
@@ -434,7 +434,7 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
                 )}
               </>
             )}
-            {tipoPrueba !== "1" && (
+            {tipoPrueba !== 1 && (
               <Grid item xs={1}>
                 <IconButton
                   onClick={() => deleteQuestionOption(opcionIndex)}
@@ -454,7 +454,7 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
         </Typography>
       )}
       <Grid item xs={12} className="w-full flex justify-center my-5">
-        {tipoPrueba === "1" ? (
+        {tipoPrueba === 1 ? (
           <Collapse in={opciones.length === 0}>
             <Button
               variant="contained"
