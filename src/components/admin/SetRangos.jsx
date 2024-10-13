@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useFormContext, Controller } from "react-hook-form";
 import { Button, TextField, Typography, Grid } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
@@ -59,21 +59,32 @@ function SimpleDialog(props) {
           </Grid>
           <Grid item xs={12}>
             {Array.from({ length: getValues("escalas.nivel") || 0 }).map(
-              (_, index) => (
-                <TextField
-                  key={index}
-                  className="my-4"
-                  defaultValue={getValues(`escalas.escala.${index}`) || ""}
-                  error={!!errors?.escalas?.escala?.[index]}
-                  helperText={errors?.escalas?.escala?.[index]?.message}
-                  {...register(`escalas.escala.${index}`, {
-                    required: "Campo requerido",
-                  })}
-                  label={`Escala ${index + 1}`}
-                  fullWidth
-                  variant="standard"
-                />
-              )
+              (_, index) => {
+                const nivel = getValues("escalas.nivel") || 0;
+                const percentage = 100 / nivel;
+                const startRange = Math.round(index * percentage);
+                const endRange = Math.round((index + 1) * percentage) - 1;
+                return (
+                  <TextField
+                    key={index}
+                    className="my-4"
+                    defaultValue={getValues(`escalas.escala.${index}`) || ""}
+                    error={!!errors?.escalas?.escala?.[index]}
+                    helperText={
+                      errors?.escalas?.escala?.[index]?.message ||
+                      `De ${startRange} a ${
+                        endRange === 99 ? "100" : endRange
+                      } porciento`
+                    }
+                    {...register(`escalas.escala.${index}`, {
+                      required: "Campo requerido",
+                    })}
+                    label={`Escala ${index + 1}`}
+                    fullWidth
+                    variant="standard"
+                  />
+                );
+              }
             )}
           </Grid>
           <section className="w-full flex justify-end px-3 ">
@@ -94,7 +105,8 @@ SimpleDialog.propTypes = {
 };
 
 export default function SetRangos() {
-  const { control, handleSubmit, getValues } = useFormContext();
+  const { control, handleSubmit, getValues, watch, setValue } =
+    useFormContext();
   const [escalas, setEscalas] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState("");
@@ -106,6 +118,14 @@ export default function SetRangos() {
       setSelectedValue(value);
     }
   };
+
+  useEffect(() => {
+    const nivel = getValues("escalas.nivel") || 0;
+    const escalas = getValues("escalas.escala") || [];
+    if (escalas?.length > nivel) {
+      setValue("escalas.escala", escalas.slice(0, nivel));
+    }
+  }, [watch("escalas.nivel")]);
 
   return (
     <div>
