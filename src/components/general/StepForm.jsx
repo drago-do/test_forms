@@ -65,7 +65,6 @@ export default function Page({
   } = useFormContext();
 
   const onSubmit = (data) => {
-    console.log("submit");
     scrollTop();
     uploadToDataBase(data, formatCode)
       .then((response) => {
