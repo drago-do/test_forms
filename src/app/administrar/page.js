@@ -15,6 +15,9 @@ import {
   MenuItem,
   Dialog,
   DialogTitle,
+  Box,
+  CircularProgress,
+  Chip,
 } from "@mui/material";
 
 import Paper from "@mui/material/Paper";
@@ -114,6 +117,8 @@ export default function Page() {
                 descripcion={test.descripcion}
                 instrucciones={test.instrucciones}
                 categorias={test.categorias}
+                escalas={test?.escalas?.escala}
+                tipo={test?.tipo}
               />
             ))}
           </List>
@@ -123,7 +128,15 @@ export default function Page() {
   );
 }
 
-const ItemTest = ({ titulo, descripcion, instrucciones, categorias, _id }) => {
+const ItemTest = ({
+  titulo,
+  descripcion,
+  instrucciones,
+  categorias,
+  escalas,
+  tipo,
+  _id,
+}) => {
   const { deleteTest } = useTest();
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -151,26 +164,76 @@ const ItemTest = ({ titulo, descripcion, instrucciones, categorias, _id }) => {
   };
 
   return (
-    <Paper elevation={2} className="my-2 p-2 flex items-center justify-between">
-      <div className="flex items-center">
-        <FullPageLoader open={loading} />
-        <ListItemIcon>
-          <MaterialIcon iconName="question_mark" />
-        </ListItemIcon>
-        <ListItemText
-          primary={titulo}
-          secondary={
-            <>
-              <Typography component="span">{descripcion}</Typography>
-              <Typography component="span">{instrucciones}</Typography>
-              <Typography component="span">
-                Categorías: {categorias.map((cat) => cat.nombre).join(", ")}
-              </Typography>
-            </>
-          }
-        />
-      </div>
-      <div>
+    <Paper
+      elevation={3}
+      sx={{
+        my: 2,
+        p: 3,
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
+      {loading && <CircularProgress size={24} sx={{ mr: 2 }} />}
+      <ListItemIcon>
+        <MaterialIcon iconName="question_mark" />
+      </ListItemIcon>
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          flexWrap: "nowrap",
+          alignItems: "start",
+          overflow: "hidden",
+        }}
+      >
+        <Typography variant="h6" sx={{ fontWeight: "bold", mr: 2 }}>
+          {titulo}
+        </Typography>
+        <section className="w-full flex flex-col flex-nowrap">
+          <section className="w-full flex flex-nowrap items-center">
+            <Chip label={`Descripción:`} sx={{ mr: 1, mb: 1 }} />{" "}
+            <Typography
+              variant="body1"
+              sx={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {descripcion}
+            </Typography>
+          </section>
+          <section className="w-full flex flex-nowrap items-center">
+            <Chip label={`Instrucciones:`} sx={{ mr: 1 }} />
+            <Typography
+              variant="body1"
+              sx={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {instrucciones}
+            </Typography>
+          </section>
+        </section>
+        <section className="w-full flex flex-nowrap items-center mt-2">
+          <Typography variant="body1" className="mr-3">
+            {tipo === 1 ? "Escalas" : "Categorias"}
+          </Typography>
+          {tipo === 1
+            ? escalas.map((escala, index) => (
+                <Chip key={index} label={`${escala}`} sx={{ mr: 1 }} />
+              ))
+            : categorias.map((cat, index) => (
+                <Chip key={index} label={`${cat.nombre}`} sx={{ mr: 1 }} />
+              ))}
+        </section>
+      </Box>
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
         <IconButton onClick={handleClick}>
           <MoreVertIcon />
         </IconButton>
@@ -201,7 +264,7 @@ const ItemTest = ({ titulo, descripcion, instrucciones, categorias, _id }) => {
           handleClose={handleDeleteDialog}
           handleDeleteTest={handleDeleteTest}
         />
-      </div>
+      </Box>
     </Paper>
   );
 };

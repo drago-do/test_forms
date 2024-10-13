@@ -12,20 +12,28 @@ import {
   DialogContent,
   DialogActions,
   List,
-  ListItem,
   IconButton,
   Chip,
   Paper,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 function CategoryDialog({ open, onClose, initialData }) {
-  const [categoryName, setCategoryName] = useState(initialData?.nombre || "");
-  const [subcategories, setSubcategories] = useState(
-    initialData?.subcategorias || []
-  );
+  const [categoryName, setCategoryName] = useState("");
+  const [subcategories, setSubcategories] = useState([]);
   const [newSubcategory, setNewSubcategory] = useState("");
+
+  useEffect(() => {
+    if (initialData) {
+      setCategoryName(initialData.nombre || "");
+      setSubcategories(initialData.subcategorias || []);
+    } else {
+      setCategoryName("");
+      setSubcategories([]);
+    }
+  }, [initialData]);
 
   const handleAddSubcategory = () => {
     if (newSubcategory.trim()) {
@@ -146,9 +154,6 @@ export default function ExamCategories() {
   };
 
   const updateFormValue = () => {
-    // if (categories.length === 0) {
-    //   setCategories(getValues("categories") || []);
-    // }
     setValue("categorias", categories);
   };
 
@@ -182,7 +187,7 @@ export default function ExamCategories() {
             </Grid>
             <Grid item>
               <IconButton onClick={() => handleOpen(index)} color="secondary">
-                <AddIcon />
+                <EditIcon />
               </IconButton>
               <IconButton
                 onClick={() => handleDeleteCategory(index)}
