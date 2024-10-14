@@ -208,6 +208,7 @@ export default function TestForm({ params }) {
           state={finalScreenState}
           idResults={resultId}
           info={error || ""}
+          tipo={parseInt(testType)}
         />
       );
     } else {

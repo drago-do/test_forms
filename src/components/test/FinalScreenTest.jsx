@@ -24,6 +24,7 @@ export default function Page({
   state = "success",
   idResults = "66ff6eb1f2f4af1adaba1489",
   info = "Error ",
+  tipo = 1,
 }) {
   const [showConfetti, setShowConfetti] = useState(false);
   const { getResultById } = useResults();
@@ -42,8 +43,9 @@ export default function Page({
   useEffect(() => {
     const fetchResults = async () => {
       if (idResults) {
-        //TODO descomentar esto
         const response = await getResultById(idResults);
+        console.log(response);
+
         if (response.success) {
           setResults(response.data);
           showLoading(false);
@@ -92,7 +94,11 @@ export default function Page({
               {successImage}
             </section>
             <Typography variant="h4">Resultados</Typography>
-            <ResultsTable results={results} />
+            {tipo === 1 ? (
+              <ResultsTable results={results} />
+            ) : (
+              <ResultsType2 results={results} />
+            )}
           </>
         );
       case "error":
@@ -124,6 +130,7 @@ export default function Page({
 
   return <Container maxWidth="lg">{renderContent()}</Container>;
 }
+
 const ResultsTable = ({ results }) => {
   const [showLinks, setShowLinks] = useState({});
 
@@ -172,6 +179,87 @@ const ResultsTable = ({ results }) => {
                 )}
               </TableCell>
             </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
+
+const ResultsType2 = ({ results }) => {
+  const [showLinks, setShowLinks] = useState({});
+  console.log(results);
+
+  const handleShowLinks = (index) => {
+    setShowLinks((prev) => ({ ...prev, [index]: true }));
+  };
+
+  return (
+    <TableContainer component={Paper} className="my-5">
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>SECCIONES</TableCell>
+            <TableCell>SUBSECCIÓN</TableCell>
+            <TableCell>NO. VECES E</TableCell>
+            <TableCell>ENLACES</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {Object.entries(results).map(([category, data], index) => (
+            <React.Fragment key={index}>
+              <TableRow>
+                <TableCell rowSpan={Object.keys(data.subcategorias).length + 1}>
+                  {category}
+                </TableCell>
+              </TableRow>
+              {Object.entries(data.subcategorias).map(
+                ([subcategory, count], subIndex) => (
+                  <TableRow key={`${index}-${subIndex}`}>
+                    <TableCell>{subcategory}</TableCell>
+                    <TableCell>{count}</TableCell>
+                    <TableCell>
+                      {showLinks[index] ? (
+                        data.enlaces.map((enlace, enlaceIndex) => {
+                          const getShortLabel = (url) => {
+                            try {
+                              const { hostname, pathname } = new URL(url);
+                              const shortPath =
+                                pathname.length > 20
+                                  ? pathname.substring(0, 5) + "..."
+                                  : pathname;
+                              return `${hostname}${shortPath}`;
+                            } catch (error) {
+                              return url;
+                            }
+                          };
+
+                          return (
+                            <Chip
+                              key={enlaceIndex}
+                              className="my-2"
+                              label={getShortLabel(enlace)}
+                              component="a"
+                              href={enlace}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              clickable
+                            />
+                          );
+                        })
+                      ) : (
+                        <Button
+                          variant="contained"
+                          onClick={() => handleShowLinks(index)}
+                        >
+                          Mostrar Enlaces
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )
+              )}
+            </React.Fragment>
           ))}
         </TableBody>
       </Table>

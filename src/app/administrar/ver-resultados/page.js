@@ -64,6 +64,7 @@ function TestResults() {
           setPageState("Ok");
         }
       } catch (error) {
+        console.log(error);
         toast.error("Error al cargar los resultados");
       }
     };
@@ -101,7 +102,7 @@ function TestResults() {
               Aún no se han registrado respuestas para este test.
             </Alert>
             <Typography variant="h6" gutterBottom>
-              {test?.nombre || "Test sin nombre"}
+              {test?.titulo || "Test sin nombre"}
             </Typography>
             <Typography variant="body1" paragraph>
               Lo sentimos, pero aún no hay respuestas disponibles para este

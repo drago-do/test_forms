@@ -42,7 +42,7 @@ export async function GET(
           error: "Not Found",
           message: "No results found for this test",
         },
-        { status: 404 }
+        { status: 200 }
       );
     }
 
