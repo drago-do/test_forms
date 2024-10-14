@@ -247,19 +247,21 @@ const QuestionsType2 = ({ sectionIndex }) => {
               color="secondary"
               variant="standard"
             />
-            <FormControlLabel
-              label="¿Pregunta de validación?"
-              color="secondary"
-              control={
-                <Checkbox
-                  color="secondary"
-                  defaultChecked={question?.validacion || false}
-                  {...register(
-                    `sections.${sectionIndex}.questions.${questionIndex}.validacion`
-                  )}
-                />
-              }
-            />
+            {tipoPrueba === 1 && (
+              <FormControlLabel
+                label="¿Pregunta de validación?"
+                color="secondary"
+                control={
+                  <Checkbox
+                    color="secondary"
+                    defaultChecked={question?.validacion || false}
+                    {...register(
+                      `sections.${sectionIndex}.questions.${questionIndex}.validacion`
+                    )}
+                  />
+                }
+              />
+            )}
             <Typography variant="h6" className="mt-4">
               Opciones
             </Typography>

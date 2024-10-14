@@ -135,14 +135,22 @@ function TestResults() {
   const chartData =
     test?.sections?.map((section, index) => ({
       name: section.name,
-      Promedio:
+      Promedio: Math.floor(
         results.reduce((sum, result) => {
-          const sectionScore = Object.entries(result.respuestas)
-            .filter(([key]) => test.sections[index]._id === key)
-            .reduce((sectionSum, [, value]) => sectionSum + Number(value), 0);
+          const sectionScore = result.seccionesResultado
+            .filter(
+              (seccion) => seccion.nombreSeccion === test.sections[index].name
+            )
+            .reduce(
+              (sectionSum, seccion) =>
+                sectionSum + parseInt(seccion.porcentaje, 10),
+              0
+            );
+
           return sum + sectionScore;
-        }, 0) / results.length,
-      Máximo: section.valorMax,
+        }, 0) / results.length
+      ),
+      Máximo: 100,
     })) || [];
 
   const exportToExcel = () => {
@@ -198,15 +206,19 @@ function TestResults() {
           <Grid item xs={12} md={6}>
             <Card>
               <CardHeader title="Acciones" />
-              <CardContent className="w-full flex justify-between">
+              <CardContent className="w-full sm:flex-col md:flex-row justify-between">
                 <Button
                   variant="contained"
+                  fullWidth
+                  className="my-2"
                   startIcon={<FileDownloadIcon />}
                   onClick={exportToExcel}
                 >
                   Exportar a Excel
                 </Button>
                 <Button
+                  className="my-2"
+                  fullWidth
                   variant="contained"
                   startIcon={<PasswordIcon />}
                   onClick={copyTestCode}
@@ -262,7 +274,9 @@ function TestResults() {
                         )}
                       </TableCell>
                       {result.seccionesResultado.map((seccion, index) => (
-                        <TableCell key={index}>{seccion.porcentaje}%</TableCell>
+                        <TableCell key={index}>{`Sección ${index + 1}: ${
+                          seccion.porcentaje
+                        }%`}</TableCell>
                       ))}
                     </TableRow>
                   ))}

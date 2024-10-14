@@ -12,6 +12,7 @@ import Menu from "@mui/material/Menu";
 import FullPageLoader from "./../general/FullPageLoader";
 import Link from "next/link";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import HomeIcon from "@mui/icons-material/Home";
 
 import { useRouter, usePathname } from "next/navigation";
 
@@ -75,7 +76,12 @@ export default function MenuAppBar({ title = "Cuestionarios" }) {
             >
               <ArrowBackIcon />
             </IconButton>
-            <Link href={"/"} component="div" sx={{ flexGrow: 1 }}>
+            <Link
+              href={"/"}
+              component="div"
+              sx={{ flexGrow: 1 }}
+              className="flex items-center"
+            >
               {/* <IconButton
             size="large"
             edge="start"
@@ -85,6 +91,7 @@ export default function MenuAppBar({ title = "Cuestionarios" }) {
             >
             <MenuIcon />
             </IconButton> */}
+              {mainPage && <HomeIcon className="mr-2" />}
               <Typography variant="h6">{title}</Typography>
             </Link>
           </div>
