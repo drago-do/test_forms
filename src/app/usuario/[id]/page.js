@@ -21,6 +21,7 @@ import useUser from "./../../../hook/useUser";
 import useTest from "./../../../hook/useTest";
 import FullPageLoader from "./../../../components/general/FullPageLoader";
 import { useRouter } from "next/navigation";
+import UserRoleChange from "./../../../components/admin/UserRoleChange";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -94,6 +95,12 @@ export default function UserProfile() {
         </CardContent>
       </Card>
 
+      <StyledPaper elevation={3}>
+        <Typography variant="h6" gutterBottom>
+          Usuarios del sistema
+        </Typography>
+        <UserRoleChange />
+      </StyledPaper>
       <StyledPaper elevation={3}>
         <Typography variant="h6" gutterBottom>
           Información personal
