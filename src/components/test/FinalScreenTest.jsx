@@ -22,9 +22,9 @@ import useResults from "./../../hook/useResults";
 
 export default function Page({
   state = "success",
-  idResults = "66ff6eb1f2f4af1adaba1489",
+  idResults = "670f27e15abd1f2b01665620",
   info = "Error ",
-  tipo = 1,
+  tipo = 2,
 }) {
   const [showConfetti, setShowConfetti] = useState(false);
   const { getResultById } = useResults();
@@ -145,7 +145,7 @@ const ResultsTable = ({ results }) => {
           <TableRow>
             <TableCell style={{ width: "25%" }}>Sección</TableCell>
             <TableCell style={{ width: "25%" }}>Porcentaje</TableCell>
-            <TableCell style={{ width: "25%" }}>Escala</TableCell>
+            <TableCell style={{ width: "25%" }}>Interpretación</TableCell>
             <TableCell style={{ width: "25%" }}>Enlaces</TableCell>
           </TableRow>
         </TableHead>
@@ -201,7 +201,7 @@ const ResultsType2 = ({ results }) => {
           <TableRow>
             <TableCell>SECCIONES</TableCell>
             <TableCell>SUBSECCIÓN</TableCell>
-            <TableCell>NO. VECES E</TableCell>
+            <TableCell>NO. VECES</TableCell>
             <TableCell>ENLACES</TableCell>
           </TableRow>
         </TableHead>

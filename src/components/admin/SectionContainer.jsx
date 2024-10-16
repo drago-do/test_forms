@@ -34,6 +34,7 @@ const SectionWithQuestions = () => {
     control,
     register,
     getValues,
+    clearErrors,
     formState: { errors },
   } = useFormContext();
 
@@ -80,6 +81,7 @@ const SectionWithQuestions = () => {
 
   const addSection = () => {
     append(getSectionBase());
+    clearErrors();
   };
 
   const deleteSection = (indexSection) => {
@@ -88,6 +90,7 @@ const SectionWithQuestions = () => {
     } else {
       toast.error("No te puedes quedar sin secciones");
     }
+    clearErrors();
   };
   return (
     <>
@@ -139,7 +142,7 @@ const SectionWithQuestions = () => {
                       {...register(`sections.${sectionIndex}.valorMax`, {
                         required: "Campo requerido",
                       })}
-                      label="Valor máximo de la sección"
+                      label="Valor máximo por item de la sección actual"
                       fullWidth
                       required
                       variant="standard"
@@ -169,6 +172,7 @@ const QuestionsType2 = ({ sectionIndex }) => {
     control,
     register,
     getValues,
+    clearErrors,
     formState: { errors },
   } = useFormContext();
 
@@ -185,6 +189,7 @@ const QuestionsType2 = ({ sectionIndex }) => {
 
   const addQuestionHandler = () => {
     append(getQuestionBase());
+    clearErrors();
   };
 
   const deleteQuestionHandler = (questionIndex) => {
@@ -193,6 +198,7 @@ const QuestionsType2 = ({ sectionIndex }) => {
     } else {
       toast.error("No te puedes quedar sin preguntas en la sección.");
     }
+    clearErrors();
   };
 
   const cloneQuestionHandler = (questionIndex) => {
@@ -201,6 +207,7 @@ const QuestionsType2 = ({ sectionIndex }) => {
     );
     clonedQuestion.id = uuidv4();
     append(clonedQuestion);
+    clearErrors();
   };
 
   const getQuestionBase = () => {
@@ -314,6 +321,7 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
     control,
     register,
     getValues,
+    clearErrors,
     formState: { errors },
   } = useFormContext();
 
@@ -344,6 +352,7 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
         "No puedes agregar preguntas a la seccion sin valor maximo de seccion."
       );
     }
+    clearErrors();
   };
 
   const deleteQuestionOption = (questionOptionIndex) => {
@@ -352,6 +361,7 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
     } else {
       toast.error("No te puedes quedar sin opciones para una pregunta");
     }
+    clearErrors();
   };
 
   const getQuestionOptionBase = () => {

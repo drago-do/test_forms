@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import UserCarousel from "../../components/admin/UserRoleChange";
+import FinalScreenTest from "../../components/test/FinalScreenTest";
 
 export default function page() {
-  return <UserCarousel />;
+  return <FinalScreenTest />;
 }

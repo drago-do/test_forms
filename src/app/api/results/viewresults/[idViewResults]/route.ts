@@ -128,6 +128,13 @@ function ResultadosDePruebaTipo2(prueba: any, resultados: any) {
     categoria.subcategorias.forEach((subcategoria: any) => {
       categoriasConteo[categoria.nombre].subcategorias[subcategoria] = 0;
     });
+
+    // Añadir enlaces de todas las secciones correspondientes a la categoría
+    prueba.sections.forEach((seccion: any) => {
+      if (seccion.link) {
+        categoriasConteo[categoria.nombre].enlaces.push(...seccion.link);
+      }
+    });
   });
 
   // Contar las apariciones de cada subcategoría en las respuestas
@@ -136,16 +143,6 @@ function ResultadosDePruebaTipo2(prueba: any, resultados: any) {
       if (categoria.subcategorias.includes(subcategoria)) {
         categoriasConteo[categoria.nombre].subcategorias[subcategoria]++;
         categoriasConteo[categoria.nombre].total++;
-
-        // Añadir enlaces de la sección correspondiente a la categoría
-        const seccion = prueba.sections.find((sec: any) =>
-          sec.questions.some(
-            (pregunta: any) => pregunta._id.toString() === preguntaId
-          )
-        );
-        if (seccion && seccion.link) {
-          categoriasConteo[categoria.nombre].enlaces.push(...seccion.link);
-        }
       }
     });
   });
