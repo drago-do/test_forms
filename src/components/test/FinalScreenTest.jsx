@@ -22,7 +22,7 @@ import useResults from "./../../hook/useResults";
 
 export default function Page({
   state = "success",
-  idResults = "670f27e15abd1f2b01665620",
+  idResults = "670c762a5abd1f2b0166516d",
   info = "Error ",
   tipo = 2,
 }) {
@@ -185,81 +185,69 @@ const ResultsTable = ({ results }) => {
     </TableContainer>
   );
 };
-
 const ResultsType2 = ({ results }) => {
   const [showLinks, setShowLinks] = useState({});
-  console.log(results);
 
   const handleShowLinks = (index) => {
     setShowLinks((prev) => ({ ...prev, [index]: true }));
   };
+
+  const usuarioResults = results?.usuario || {};
 
   return (
     <TableContainer component={Paper} className="my-5">
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>SECCIONES</TableCell>
-            <TableCell>SUBSECCIÓN</TableCell>
-            <TableCell>NO. VECES</TableCell>
+            <TableCell>ÁREA ACADEMICA</TableCell>
+            <TableCell>PORCENTAJE</TableCell>
             <TableCell>ENLACES</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {Object.entries(results).map(([category, data], index) => (
-            <React.Fragment key={index}>
-              <TableRow>
-                <TableCell rowSpan={Object.keys(data.subcategorias).length + 1}>
-                  {category}
-                </TableCell>
-              </TableRow>
-              {Object.entries(data.subcategorias).map(
-                ([subcategory, count], subIndex) => (
-                  <TableRow key={`${index}-${subIndex}`}>
-                    <TableCell>{subcategory}</TableCell>
-                    <TableCell>{count}</TableCell>
-                    <TableCell>
-                      {showLinks[index] ? (
-                        data.enlaces.map((enlace, enlaceIndex) => {
-                          const getShortLabel = (url) => {
-                            try {
-                              const { hostname, pathname } = new URL(url);
-                              const shortPath =
-                                pathname.length > 20
-                                  ? pathname.substring(0, 5) + "..."
-                                  : pathname;
-                              return `${hostname}${shortPath}`;
-                            } catch (error) {
-                              return url;
-                            }
-                          };
+          {Object.entries(usuarioResults).map(([category, data], index) => (
+            <TableRow key={index}>
+              <TableCell>{category}</TableCell>
+              <TableCell>{data.promedio}%</TableCell>
+              <TableCell>
+                {showLinks[index] ? (
+                  data.enlaces.map((enlace, enlaceIndex) => {
+                    const getShortLabel = (url) => {
+                      try {
+                        const { hostname, pathname } = new URL(url);
+                        const shortPath =
+                          pathname.length > 20
+                            ? pathname.substring(0, 5) + "..."
+                            : pathname;
+                        return `${hostname}${shortPath}`;
+                      } catch (error) {
+                        return url;
+                      }
+                    };
 
-                          return (
-                            <Chip
-                              key={enlaceIndex}
-                              className="my-2"
-                              label={getShortLabel(enlace)}
-                              component="a"
-                              href={enlace}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              clickable
-                            />
-                          );
-                        })
-                      ) : (
-                        <Button
-                          variant="contained"
-                          onClick={() => handleShowLinks(index)}
-                        >
-                          Mostrar Enlaces
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                )
-              )}
-            </React.Fragment>
+                    return (
+                      <Chip
+                        key={enlaceIndex}
+                        className="my-2"
+                        label={getShortLabel(enlace)}
+                        component="a"
+                        href={`https://${enlace}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        clickable
+                      />
+                    );
+                  })
+                ) : (
+                  <Button
+                    variant="contained"
+                    onClick={() => handleShowLinks(index)}
+                  >
+                    Mostrar Enlaces
+                  </Button>
+                )}
+              </TableCell>
+            </TableRow>
           ))}
         </TableBody>
       </Table>
