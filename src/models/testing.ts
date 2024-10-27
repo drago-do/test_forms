@@ -112,6 +112,10 @@ const categoriaSchema = new Schema(
       type: [String],
       description: "Subcategorías de la categoría",
     },
+    link: {
+      type: [String],
+      description: "Enlaces a cuestionarios o contenido relevante",
+    },
   },
   { _id: false }
 ); // Evitar creación de un ID para los subdocumentos

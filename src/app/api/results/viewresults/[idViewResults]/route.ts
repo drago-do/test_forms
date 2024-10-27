@@ -24,7 +24,6 @@ export async function GET(
     const resultado = await (Resultados as mongoose.Model<IResultados>)
       .findById(id_resultados)
       .lean();
-    console.log(resultado);
 
     if (!resultado) {
       return NextResponse.json(
@@ -113,47 +112,89 @@ const ResultadosDePruebaTipo1 = (prueba, respuestas) => {
   });
   return seccionesResultado;
 };
-
 function ResultadosDePruebaTipo2(prueba: any, resultados: any) {
   let categoriasConteo: any = {};
+  let categoriasUsuario: any = {};
+  console.log(prueba);
 
-  // Inicializar las categorías y subcategorías en el objeto de resultado
-  prueba.categorias.forEach((categoria: any) => {
-    categoriasConteo[categoria.nombre] = {
-      subcategorias: {},
-      total: 0,
-      enlaces: [], // Inicializar enlaces como un array vacío
-    };
-
-    categoria.subcategorias.forEach((subcategoria: any) => {
-      categoriasConteo[categoria.nombre].subcategorias[subcategoria] = 0;
-    });
-
-    // Añadir enlaces de todas las secciones correspondientes a la categoría
-    prueba.sections.forEach((seccion: any) => {
-      if (seccion.link) {
-        categoriasConteo[categoria.nombre].enlaces.push(...seccion.link);
-      }
+  // Obtener el número total de opciones por categoría de cada pregunta con base en el objeto
+  prueba.sections.forEach((seccion: any) => {
+    seccion.questions.forEach((pregunta: any) => {
+      pregunta.opciones.forEach((opcion: any) => {
+        prueba.categorias.forEach((categoria: any) => {
+          if (categoria.subcategorias.includes(opcion.subcategoria)) {
+            if (!categoriasConteo[categoria.nombre]) {
+              categoriasConteo[categoria.nombre] = {
+                subcategorias: {},
+                total: 0,
+                enlaces: categoria.link || [],
+              };
+            }
+            if (
+              !categoriasConteo[categoria.nombre].subcategorias[
+                opcion.subcategoria
+              ]
+            ) {
+              categoriasConteo[categoria.nombre].subcategorias[
+                opcion.subcategoria
+              ] = 0;
+            }
+            categoriasConteo[categoria.nombre].subcategorias[
+              opcion.subcategoria
+            ]++;
+            categoriasConteo[categoria.nombre].total++;
+          }
+        });
+      });
     });
   });
 
-  // Contar las apariciones de cada subcategoría en las respuestas
-  Object.entries(resultados).forEach(([preguntaId, subcategoria]: any) => {
-    prueba.categorias.forEach((categoria: any) => {
+  // Realiza un conteo de cuantas preguntas se respondieron de cada categoria
+  for (const [preguntaId, subcategoria] of Object.entries(resultados)) {
+    for (const categoria of prueba.categorias) {
       if (categoria.subcategorias.includes(subcategoria)) {
-        categoriasConteo[categoria.nombre].subcategorias[subcategoria]++;
-        categoriasConteo[categoria.nombre].total++;
+        if (!categoriasUsuario[categoria.nombre]) {
+          categoriasUsuario[categoria.nombre] = {
+            subcategorias: {},
+            total: 0,
+            enlaces: categoria.link || [],
+          };
+        }
+        if (
+          !categoriasUsuario[categoria.nombre].subcategorias[
+            subcategoria as any
+          ]
+        ) {
+          categoriasUsuario[categoria.nombre].subcategorias[
+            subcategoria as any
+          ] = 0;
+        }
+        categoriasUsuario[categoria.nombre].subcategorias[
+          subcategoria as any
+        ]++;
+        categoriasUsuario[categoria.nombre].total++;
       }
-    });
-  });
+    }
+  }
 
-  // Ordenar las categorías por total de mayor a menor
-  const categoriasOrdenadas: any = Object.entries(categoriasConteo)
-    .sort(([, a]: any, [, b]: any) => b.total - a.total)
-    .reduce((acc: any, [key, value]: any) => {
-      acc[key] = value;
-      return acc;
-    }, {});
+  // Calcula el promedio de respuestas comparado con categoriasConteo
+  const categoriasPromedio: any = {};
+  for (const [nombreCategoria, conteo] of Object.entries<any>(
+    categoriasUsuario
+  )) {
+    const totalRespuestas: any = (conteo as any).total;
+    const totalOpciones: any =
+      (categoriasConteo as any)[nombreCategoria]?.total || 1;
+    const promedio: any = (totalRespuestas / totalOpciones) * 100;
+    categoriasPromedio[nombreCategoria] = {
+      promedio: (promedio as any).toFixed(2),
+      ...(conteo as any),
+    };
+  }
 
-  return categoriasOrdenadas;
+  // Retorna las categorias y el promedio de cada categoria obtenido en un json
+  return {
+    total: categoriasConteo,
+    usuario: categoriasPromedio,
+  };
 }
