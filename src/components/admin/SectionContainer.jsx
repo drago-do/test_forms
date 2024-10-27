@@ -127,10 +127,12 @@ const SectionWithQuestions = () => {
                     </IconButton>
                   </Grid>
                 </Grid>
-                <LinkInput
-                  sectionIndex={sectionIndex}
-                  defaultValue={section?.link}
-                />
+                {tipoPrueba === 1 && (
+                  <LinkInput
+                    sectionIndex={sectionIndex}
+                    defaultValue={section?.link}
+                  />
+                )}
                 {tipoPrueba === 1 && (
                   <Grid item xs={12} className="mt-4">
                     <TextField

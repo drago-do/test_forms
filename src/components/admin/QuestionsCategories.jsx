@@ -9,6 +9,7 @@ import {
   Grid,
   Dialog,
   DialogTitle,
+  Autocomplete,
   DialogContent,
   DialogActions,
   List,
@@ -19,19 +20,23 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import LinkInput from "./LinksTesting";
 
 function CategoryDialog({ open, onClose, initialData }) {
   const [categoryName, setCategoryName] = useState("");
   const [subcategories, setSubcategories] = useState([]);
   const [newSubcategory, setNewSubcategory] = useState("");
+  const [links, setLinks] = useState([]); // Add state for links
 
   useEffect(() => {
     if (initialData) {
       setCategoryName(initialData.nombre || "");
       setSubcategories(initialData.subcategorias || []);
+      setLinks(initialData.link || []); // Initialize links
     } else {
       setCategoryName("");
       setSubcategories([]);
+      setLinks([]); // Reset links
     }
   }, [initialData]);
 
@@ -48,10 +53,23 @@ function CategoryDialog({ open, onClose, initialData }) {
 
   const handleSubmit = () => {
     if (categoryName.trim()) {
-      onClose({ nombre: categoryName.trim(), subcategorias: subcategories });
+      console.log("ABEEEER");
+
+      console.log({
+        nombre: categoryName.trim(),
+        subcategorias: subcategories,
+        link: links, // Include links in the category data
+      });
+
+      onClose({
+        nombre: categoryName.trim(),
+        subcategorias: subcategories,
+        link: links, // Include links in the category data
+      });
     }
     setCategoryName("");
     setSubcategories([]);
+    setLinks([]); // Reset links
   };
 
   return (
@@ -97,6 +115,7 @@ function CategoryDialog({ open, onClose, initialData }) {
                   color="secondary"
                 />
               </Grid>
+
               <Grid item>
                 <Button
                   onClick={handleAddSubcategory}
@@ -108,6 +127,12 @@ function CategoryDialog({ open, onClose, initialData }) {
                 </Button>
               </Grid>
             </Grid>
+          </Grid>
+          <Grid item xs={12}>
+            <CategoryLinkInput
+              categoryLinks={links}
+              setCategoryLinks={setLinks} // Pass down the state and setter for links
+            />
           </Grid>
         </Grid>
       </DialogContent>
@@ -134,10 +159,20 @@ export default function ExamCategories() {
 
   const handleClose = (newCategory) => {
     setOpen(false);
+    console.log("newCategory");
+    console.log(newCategory);
+
     if (newCategory) {
+      console.log("new categori");
+
       if (editingIndex !== null) {
+        console.log("editingIndex");
+        console.log(editingIndex);
+        console.log(newCategory);
         const updatedCategories = [...categories];
         updatedCategories[editingIndex] = newCategory;
+        console.log("last");
+        console.log(updatedCategories);
         setCategories(updatedCategories);
       } else {
         setCategories([...categories, newCategory]);
@@ -154,6 +189,9 @@ export default function ExamCategories() {
   };
 
   const updateFormValue = () => {
+    console.log("Actualizaddoooooo categories");
+    console.log(categories);
+
     setValue("categorias", categories);
   };
 
@@ -235,5 +273,134 @@ export default function ExamCategories() {
         initialData={editingIndex !== null ? categories[editingIndex] : null}
       />
     </div>
+  );
+}
+
+import useTest from "../../hook/useTest";
+import { toast } from "sonner";
+
+const URLLocal = process.env.NEXT_PUBLIC_API;
+
+function CategoryLinkInput({ categoryLinks, setCategoryLinks }) {
+  const [tests, setTests] = useState([]);
+  const [newLink, setNewLink] = useState("");
+  const { getAllTests } = useTest();
+
+  useEffect(() => {
+    const fetchTests = async () => {
+      try {
+        const testList = await getAllTests();
+        setTests(testList.data);
+      } catch (error) {
+        toast.error("Error fetching tests");
+      }
+    };
+    fetchTests();
+  }, []);
+
+  const handleDeleteLink = (indexLink) => {
+    setCategoryLinks((prevLinks) =>
+      prevLinks.filter((_, index) => index !== indexLink)
+    );
+  };
+
+  const formatLink = (link) => {
+    try {
+      const url = new URL(link);
+      const domain = url.hostname;
+      const path = url.pathname;
+      const truncatedPath =
+        path.length > 10 ? `${path.slice(0, 3)}...${path.slice(-7)}` : path;
+      return domain + truncatedPath;
+    } catch (error) {
+      return link;
+    }
+  };
+
+  const handleAddLink = (newLinkTest = false) => {
+    try {
+      let formattedLink = newLinkTest ? newLinkTest : newLink.trim();
+      if (!/^https?:\/\//i.test(formattedLink)) {
+        formattedLink = "https://" + formattedLink;
+      }
+      setCategoryLinks((prevLinks) => [...prevLinks, formattedLink]);
+      setNewLink("");
+    } catch (error) {
+      toast.error("El enlace no tiene una estructura válida.");
+    }
+  };
+
+  return (
+    <Grid item xs={12} className="mt-4">
+      <section className="flex flex-col md:flex-row justify-between">
+        <Autocomplete
+          freeSolo
+          fullWidth
+          options={tests}
+          getOptionLabel={(option) => option?.titulo || option}
+          onInputChange={(event, newInputValue) => setNewLink(newInputValue)}
+          onChange={(event, newValue) => {
+            if (typeof newValue === "string") {
+              setNewLink(newValue);
+            } else if (newValue?._id) {
+              const testLink = `${URLLocal}test/${newValue._id}`;
+              handleAddLink(testLink);
+            }
+          }}
+          renderOption={(props, option) => (
+            <li {...props} key={option?._id || option}>
+              {option?.titulo || option}
+            </li>
+          )}
+          renderTags={(tagValue, getTagProps) =>
+            tagValue.map((option, index) => (
+              <Chip
+                {...getTagProps({ index })}
+                key={option?._id || option}
+                label={option?.titulo || formatLink(option)}
+              />
+            ))
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Agregar enlace de test o externo"
+              variant="standard"
+            />
+          )}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
+          onClick={() => handleAddLink()}
+          disabled={!newLink.trim()}
+          className="my-2"
+        >
+          Añadir enlace
+        </Button>
+      </section>
+      <Grid item xs={12} className="mt-4">
+        {categoryLinks.length > 0 ? (
+          categoryLinks.map((link, index) => {
+            const test = tests.find(
+              (test) => `${URLLocal}test/${test._id}` === link
+            );
+            return (
+              <Chip
+                key={index}
+                label={test ? test.titulo : link}
+                onDelete={() => handleDeleteLink(index)}
+                className="mr-2 mb-2"
+              />
+            );
+          })
+        ) : (
+          <Typography variant="body2" color="textSecondary">
+            No hay enlaces agregados.
+          </Typography>
+        )}
+      </Grid>
+    </Grid>
   );
 }

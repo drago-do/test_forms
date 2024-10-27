@@ -59,6 +59,8 @@ export async function PUT(
 
     const { idMongo } = params;
     const body = await request.json();
+    console.log("body");
+    console.log(body);
 
     // Intentar encontrar y actualizar el documento por su ID
     const documentoActualizado: IPrueba = await (
