@@ -66,7 +66,6 @@ export async function GET(
     });
   }
 }
-
 const ResultadosDePruebaTipo1 = (prueba, respuestas) => {
   const seccionesResultado: any[] = [];
 
@@ -94,14 +93,13 @@ const ResultadosDePruebaTipo1 = (prueba, respuestas) => {
     //Obtener el porcentaje de acuerdo a los PuntosTotalesDeSeccion vs el puntuajeSeccion
     const porcentajeObtenido = (puntajeSeccion / PuntosTotalesDeSeccion) * 100;
 
-    const numEscalas = prueba.escalas.nivel;
+    const numEscalas = seccion.escala.length;
     //Obtener el porcentaje de crecimiento de acuerdo al numero de escalas  100 / numEscalas
     const brinco = PuntosTotalesDeSeccion / numEscalas;
     //Revisar en que escala entra el puntajeSeccion
     const escala = Math.ceil(puntajeSeccion / brinco);
 
-    const escalaTexto =
-      prueba.escalas.escala[escala - 1] || "Error al obtener escala";
+    const escalaTexto = seccion.escala[escala - 1] || "Error al obtener escala";
 
     seccionesResultado.push({
       nombreSeccion: seccion.name,
@@ -112,6 +110,7 @@ const ResultadosDePruebaTipo1 = (prueba, respuestas) => {
   });
   return seccionesResultado;
 };
+
 function ResultadosDePruebaTipo2(prueba: any, resultados: any) {
   let categoriasConteo: any = {};
   let categoriasUsuario: any = {};
