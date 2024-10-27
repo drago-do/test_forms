@@ -117,7 +117,7 @@ export default function Page() {
                 descripcion={test.descripcion}
                 instrucciones={test.instrucciones}
                 categorias={test.categorias}
-                escalas={test?.escalas?.escala}
+                sections={test?.sections}
                 tipo={test?.tipo}
               />
             ))}
@@ -133,7 +133,7 @@ const ItemTest = ({
   descripcion,
   instrucciones,
   categorias,
-  escalas,
+  sections,
   tipo,
   _id,
 }) => {
@@ -222,11 +222,11 @@ const ItemTest = ({
         </section>
         <section className="w-full flex flex-nowrap items-center mt-2">
           <Typography variant="body1" className="mr-3">
-            {tipo === 1 ? "Escalas" : "Categorias"}
+            {tipo === 1 ? "Secciones" : "Categorias"}
           </Typography>
           {tipo === 1
-            ? escalas.map((escala, index) => (
-                <Chip key={index} label={`${escala}`} sx={{ mr: 1 }} />
+            ? sections.map((section, index) => (
+                <Chip key={index} label={`${section?.name}`} sx={{ mr: 1 }} />
               ))
             : categorias.map((cat, index) => (
                 <Chip key={index} label={`${cat.nombre}`} sx={{ mr: 1 }} />

@@ -17,6 +17,8 @@ import {
   Select,
   MenuItem,
   Alert,
+  Dialog,
+  DialogTitle,
 } from "@mui/material";
 import { useFormContext, useFieldArray, Controller } from "react-hook-form";
 import {
@@ -132,6 +134,9 @@ const SectionWithQuestions = () => {
                     sectionIndex={sectionIndex}
                     defaultValue={section?.link}
                   />
+                )}
+                {tipoPrueba === 1 && (
+                  <EscalaPorSeccion sectionIndex={sectionIndex} />
                 )}
                 {tipoPrueba === 1 && (
                   <Grid item xs={12} className="mt-4">
@@ -490,6 +495,87 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
           </Button>
         )}
       </Grid>
+    </>
+  );
+};
+
+const EscalaPorSeccion = ({ sectionIndex }) => {
+  // `sections.${sectionIndex}.valorMax`;
+  const {
+    getValues,
+    setValue,
+    register,
+    watch,
+    unregister,
+    formState: { errors },
+  } = useFormContext();
+
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = () => setOpen(true);
+
+  const handleClose = (value) => {
+    setOpen(false);
+  };
+
+  useEffect(() => {
+    const nivel = getValues("escalas.nivel") || 0;
+    const escalas = getValues(`sections.${sectionIndex}.escala`) || [];
+    if (escalas?.length > nivel) {
+      setValue(`sections.${sectionIndex}.escala`, escalas.slice(0, nivel));
+      unregister(`sections.${sectionIndex}.escala`);
+    }
+  }, [watch("escalas.nivel")]);
+
+  return (
+    <>
+      <Button variant="contained" color="primary" onClick={handleOpen}>
+        Definir escalas
+      </Button>
+      <Dialog onClose={handleClose} open={open}>
+        <section className="p-6">
+          <DialogTitle>Define las escalas para esta prueba</DialogTitle>
+          <Grid item xs={12}>
+            {Array.from({ length: getValues(`escalas.nivel`) || 0 }).map(
+              (_, index) => {
+                const nivel = getValues("escalas.nivel") || 0;
+                const percentage = 100 / nivel;
+                const startRange = Math.round(index * percentage);
+                const endRange = Math.round((index + 1) * percentage) - 1;
+                return (
+                  <TextField
+                    key={index}
+                    className="my-4"
+                    defaultValue={
+                      getValues(`sections.${sectionIndex}.escala.${index}`) ||
+                      ""
+                    }
+                    error={!!errors?.sections?.[sectionIndex]?.escala?.[index]}
+                    helperText={
+                      errors?.sections?.[sectionIndex]?.escala?.[index]
+                        ?.message ||
+                      `De ${startRange} a ${
+                        endRange === 99 ? "100" : endRange
+                      } porciento`
+                    }
+                    {...register(`sections.${sectionIndex}.escala.${index}`, {
+                      required: "Campo requerido",
+                    })}
+                    label={`Escala ${index + 1}`}
+                    fullWidth
+                    variant="standard"
+                  />
+                );
+              }
+            )}
+            <section className="w-full flex justify-end px-3 ">
+              <Button variant="text" color="primary" onClick={handleClose}>
+                Guardar
+              </Button>
+            </section>
+          </Grid>
+        </section>
+      </Dialog>
     </>
   );
 };
