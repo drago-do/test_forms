@@ -4,7 +4,6 @@ import mongodb from "../../../../../lib/mongodb";
 import Resultados, { IResultados } from "../../../../../models/results";
 import Prueba from "../../../../../models/testing";
 
-
 // Obtener los tests resueltos por el usuario
 export async function GET(
   request: Request,
@@ -15,6 +14,7 @@ export async function GET(
     await mongodb();
 
     const { idUser } = params;
+    console.log(idUser);
 
     // Intentar buscar los documentos resueltos por el usuario
     const documentos: IResultados[] = await (

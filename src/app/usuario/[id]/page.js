@@ -44,6 +44,7 @@ export default function UserProfile() {
     const fetchCompletedTests = async () => {
       try {
         const response = await getUserCompletedTest(userInfo._id);
+        console.log(response);
         if (response.success) {
           setCompletedTests(response.data);
         }
@@ -60,6 +61,10 @@ export default function UserProfile() {
     setLoading(true);
     logout();
     push("/");
+  };
+
+  const handleRetakeTest = (testId) => {
+    push(`/test/${testId}`);
   };
 
   if (!user || loading) {
@@ -197,15 +202,17 @@ export default function UserProfile() {
                           Completado el:{" "}
                           {new Date(test.createdAt).toLocaleDateString()}
                         </Typography>
-                        <Chip
-                          label={`Nivel: ${test.id_prueba.escalas.nivel}`}
-                          color="primary"
-                          size="small"
-                          style={{ marginTop: "5px" }}
-                        />
                       </>
                     }
                   />
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    style={{ marginLeft: "auto" }}
+                    onClick={() => handleRetakeTest(test?.id_prueba?._id)}
+                  >
+                    Responder de nuevo
+                  </Button>
                 </ListItem>
                 {index < completedTests.length - 1 && (
                   <Divider component="li" />
