@@ -197,9 +197,22 @@ function ResultadosDePruebaTipo2(prueba: any, resultados: any) {
     };
   }
 
+  // Ordena las categorías del usuario de mayor a menor promedio
+  const categoriasPromedioOrdenadas: any = Object.entries(
+    categoriasPromedio as any
+  )
+    .sort(
+      ([, a]: any, [, b]: any) =>
+        parseFloat((b as any).promedio) - parseFloat((a as any).promedio)
+    )
+    .reduce((acc: any, [key, value]: any) => {
+      acc[key] = value;
+      return acc;
+    }, {});
+
   // Retorna las categorias y el promedio de cada categoria obtenido en un json
   return {
     total: categoriasConteo,
-    usuario: categoriasPromedio,
+    usuario: categoriasPromedioOrdenadas,
   };
 }
