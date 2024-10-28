@@ -108,6 +108,12 @@ const ResultadosDePruebaTipo1 = (prueba, respuestas) => {
       enlaces: seccion.link,
     });
   });
+
+  // Ordenar por porcentaje de mayor a menor
+  seccionesResultado.sort(
+    (a, b) => parseFloat(b.porcentaje) - parseFloat(a.porcentaje)
+  );
+
   return seccionesResultado;
 };
 

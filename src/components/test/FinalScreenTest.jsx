@@ -22,7 +22,7 @@ import useResults from "./../../hook/useResults";
 
 export default function Page({
   state = "success",
-  idResults = "670c762a5abd1f2b0166516d",
+  idResults = "671eed0b24e931a9cb9f332c",
   info = "Error ",
   tipo = 2,
 }) {
@@ -231,7 +231,7 @@ const ResultsType2 = ({ results }) => {
                         className="my-2"
                         label={getShortLabel(enlace)}
                         component="a"
-                        href={`https://${enlace}`}
+                        href={`${enlace}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         clickable
