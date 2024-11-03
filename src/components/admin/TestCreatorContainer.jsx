@@ -13,9 +13,9 @@ export default function Page({ maxValue }) {
   const tipoPrueba = parseInt(methods?.getValues("tipo"));
 
   return (
-    <>
+    <Container maxWidth="md">
       {tipoPrueba === 1 ? <SetRangos /> : <QuestionsCategories />}
       <SectionContainer />
-    </>
+    </Container>
   );
 }

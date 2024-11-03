@@ -294,54 +294,62 @@ const QuestionsType2 = ({ sectionIndex, unfold, setUnfold }) => {
                   : ""
               }`}
             >
-              {questionIndex === activeQuestion ? (
-                <TextField
-                  defaultValue={question?.texto || ""}
-                  {...register(
-                    `sections.${sectionIndex}.questions.${questionIndex}.texto`,
-                    {
-                      required: {
-                        message: `Debes ingresar un texto para la pregunta ${
-                          questionIndex + 1
-                        } de la seccion ${sectionIndex + 1}`,
-                        value: true,
-                      },
-                    }
+              <Grid container spacing={2}>
+                <Grid item xs={11}>
+                  {questionIndex === activeQuestion ? (
+                    <TextField
+                      defaultValue={question?.texto || ""}
+                      {...register(
+                        `sections.${sectionIndex}.questions.${questionIndex}.texto`,
+                        {
+                          required: {
+                            message: `Debes ingresar un texto para la pregunta ${
+                              questionIndex + 1
+                            } de la seccion ${sectionIndex + 1}`,
+                            value: true,
+                          },
+                        }
+                      )}
+                      error={
+                        !!errors?.sections?.[sectionIndex]?.questions?.[
+                          questionIndex
+                        ]?.texto
+                      }
+                      helperText={
+                        errors?.sections?.[sectionIndex]?.questions?.[
+                          questionIndex
+                        ]?.texto?.message
+                      }
+                      placeholder={`Texto de la pregunta ${questionIndex + 1}`}
+                      fullWidth
+                      required
+                      color="secondary"
+                      variant="filled"
+                      size="small"
+                      hiddenLabel
+                      className="mb-3"
+                    />
+                  ) : (
+                    <Typography
+                      variant="body1"
+                      color={
+                        getValues(
+                          `sections.${sectionIndex}.questions.${questionIndex}.texto`
+                        ) !== ""
+                          ? "default"
+                          : "error"
+                      }
+                    >
+                      {getValues(
+                        `sections.${sectionIndex}.questions.${questionIndex}.texto`
+                      ) || "No hay texto definido para la pregunta"}
+                    </Typography>
                   )}
-                  error={
-                    !!errors?.sections?.[sectionIndex]?.questions?.[
-                      questionIndex
-                    ]?.texto
-                  }
-                  helperText={
-                    errors?.sections?.[sectionIndex]?.questions?.[questionIndex]
-                      ?.texto?.message
-                  }
-                  placeholder={`Texto de la pregunta ${questionIndex + 1}`}
-                  fullWidth
-                  required
-                  color="secondary"
-                  variant="filled"
-                  size="small"
-                  hiddenLabel
-                  className="mb-3"
-                />
-              ) : (
-                <Typography
-                  variant="body1"
-                  color={
-                    getValues(
-                      `sections.${sectionIndex}.questions.${questionIndex}.texto`
-                    ) !== ""
-                      ? "default"
-                      : "error"
-                  }
-                >
-                  {getValues(
-                    `sections.${sectionIndex}.questions.${questionIndex}.texto`
-                  ) || "No hay texto definido para la pregunta"}
-                </Typography>
-              )}
+                </Grid>
+                <Grid item xs={1} className="flex justify-end">
+                  <Typography variant="body1">#{questionIndex + 1}</Typography>
+                </Grid>
+              </Grid>
               <Collapse in={unfold}>
                 {tipoPrueba === 1 && (
                   <FormControlLabel

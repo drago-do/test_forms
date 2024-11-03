@@ -14,6 +14,7 @@ import {
   DialogActions,
   List,
   IconButton,
+  Collapse,
   Chip,
   Paper,
 } from "@mui/material";
@@ -21,6 +22,8 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import LinkInput from "./LinksTesting";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
 function CategoryDialog({ open, onClose, initialData }) {
   const [categoryName, setCategoryName] = useState("");
@@ -151,6 +154,7 @@ export default function ExamCategories() {
   const [open, setOpen] = useState(false);
   const [categories, setCategories] = useState(getValues("categorias") || []);
   const [editingIndex, setEditingIndex] = useState(null);
+  const [show, setShow] = useState(false);
 
   const handleOpen = (index = null) => {
     setEditingIndex(index);
@@ -201,13 +205,88 @@ export default function ExamCategories() {
 
   return (
     <div>
-      <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
-        <Grid item xs>
-          <Typography variant="h6">Categorías del Examen</Typography>
+      <Paper className="p-5 mb-3">
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={10}>
+            <Typography variant="h6">Categorías del Examen</Typography>
+          </Grid>
+          <Grid item xs={2} className="flex justify-end">
+            <Button
+              variant="text"
+              color="secondary"
+              onClick={() => setShow(!show)}
+            >
+              {show ? (
+                <>
+                  <VisibilityOffIcon className="mr-3" />
+                  Ocultar
+                </>
+              ) : (
+                <>
+                  <VisibilityIcon className="mr-3" />
+                  Mostrar
+                </>
+              )}
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item>
+      </Paper>
+
+      <Collapse in={show}>
+        {categories.map((category, index) => (
+          <Paper key={index} elevation={3} sx={{ p: 2, mb: 2 }}>
+            <Grid container alignItems="center" spacing={2}>
+              <Grid item xs>
+                <Typography variant="subtitle1">{category.nombre}</Typography>
+              </Grid>
+              <Grid item>
+                <IconButton onClick={() => handleOpen(index)} color="secondary">
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  onClick={() => handleDeleteCategory(index)}
+                  color="error"
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Grid>
+            </Grid>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "8px",
+                marginTop: "8px",
+              }}
+            >
+              {category.subcategorias.map((subcategory, subIndex) => (
+                <Chip
+                  key={subIndex}
+                  label={subcategory}
+                  onDelete={() => {
+                    const updatedCategory = {
+                      ...category,
+                      subcategorias: category.subcategorias.filter(
+                        (_, i) => i !== subIndex
+                      ),
+                    };
+                    const updatedCategories = [...categories];
+                    updatedCategories[index] = updatedCategory;
+                    setCategories(updatedCategories);
+                    updateFormValue();
+                  }}
+                  color="secondary"
+                  variant="outlined"
+                />
+              ))}
+            </div>
+          </Paper>
+        ))}
+        <Grid item xs={12} md={3} lg={3}>
           <Button
+            fullWidth
             variant="contained"
+            className="mb-5"
             color="primary"
             onClick={() => handleOpen()}
             startIcon={<AddIcon />}
@@ -215,58 +294,7 @@ export default function ExamCategories() {
             Agregar Categoría
           </Button>
         </Grid>
-      </Grid>
-
-      {categories.map((category, index) => (
-        <Paper key={index} elevation={3} sx={{ p: 2, mb: 2 }}>
-          <Grid container alignItems="center" spacing={2}>
-            <Grid item xs>
-              <Typography variant="subtitle1">{category.nombre}</Typography>
-            </Grid>
-            <Grid item>
-              <IconButton onClick={() => handleOpen(index)} color="secondary">
-                <EditIcon />
-              </IconButton>
-              <IconButton
-                onClick={() => handleDeleteCategory(index)}
-                color="error"
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Grid>
-          </Grid>
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "8px",
-              marginTop: "8px",
-            }}
-          >
-            {category.subcategorias.map((subcategory, subIndex) => (
-              <Chip
-                key={subIndex}
-                label={subcategory}
-                onDelete={() => {
-                  const updatedCategory = {
-                    ...category,
-                    subcategorias: category.subcategorias.filter(
-                      (_, i) => i !== subIndex
-                    ),
-                  };
-                  const updatedCategories = [...categories];
-                  updatedCategories[index] = updatedCategory;
-                  setCategories(updatedCategories);
-                  updateFormValue();
-                }}
-                color="secondary"
-                variant="outlined"
-              />
-            ))}
-          </div>
-        </Paper>
-      ))}
-
+      </Collapse>
       <CategoryDialog
         open={open}
         onClose={handleClose}
