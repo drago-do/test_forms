@@ -31,6 +31,9 @@ import LinkInput from "./LinksTesting";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 
+import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
+import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
+
 const SectionWithQuestions = () => {
   const {
     control,
@@ -49,6 +52,8 @@ const SectionWithQuestions = () => {
     name: `sections`,
   });
   const tipoPrueba = parseInt(getValues("tipo"));
+
+  const [unfold, setUnfold] = useState(true);
 
   const getSectionBase = () => {
     return {
@@ -99,65 +104,76 @@ const SectionWithQuestions = () => {
       {sections && sections.length > 0 ? (
         sections.map((section, sectionIndex) => (
           <div key={sectionIndex}>
-            <Container maxWidth="lg" className="my-5">
-              <Paper elevation={3} className="p-3">
-                <Grid container spacing={1} alignItems={"center"}>
-                  <Grid item xs={10}>
-                    <TextField
-                      error={!!errors?.sections?.[sectionIndex]?.name}
-                      defaultValue={section?.name}
-                      helperText={
-                        errors?.sections?.[sectionIndex]?.name?.message
-                      }
-                      {...register(`sections.${sectionIndex}.name`, {
-                        required: "Campo requerido",
-                      })}
-                      label="Nombre de la sección"
-                      color="secondary"
-                      fullWidth
-                      required
-                      variant="standard"
-                    />
-                  </Grid>
-                  <Grid item xs={2} display={"flex"} justifyContent={"end"}>
-                    <IconButton
-                      onClick={() => deleteSection(sectionIndex)}
-                      aria-label="delete"
-                      color="error"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Grid>
-                </Grid>
-                {tipoPrueba === 1 && (
-                  <LinkInput
-                    sectionIndex={sectionIndex}
-                    defaultValue={section?.link}
+            <section className="p-3 bg-amber-300 text-black inline-block  rounded-t-lg font-bold">
+              Seccion {sectionIndex + 1} de {sections?.length}
+            </section>
+            <Paper
+              elevation={3}
+              square
+              className=" p-3 border-t-4 border-amber-300 mb-6 py-6"
+            >
+              <Grid container spacing={1} alignItems={"center"}>
+                <Grid item xs={10}>
+                  <TextField
+                    error={!!errors?.sections?.[sectionIndex]?.name}
+                    defaultValue={section?.name}
+                    helperText={errors?.sections?.[sectionIndex]?.name?.message}
+                    {...register(`sections.${sectionIndex}.name`, {
+                      required: "Campo requerido",
+                    })}
+                    color="secondary"
+                    fullWidth
+                    required
+                    variant="standard"
+                    InputProps={{
+                      style: { fontSize: "2rem" }, // Increase font size
+                    }}
                   />
-                )}
-                {tipoPrueba === 1 && (
-                  <EscalaPorSeccion sectionIndex={sectionIndex} />
-                )}
-                {tipoPrueba === 1 && (
-                  <Grid item xs={12} className="mt-4">
-                    <TextField
-                      error={!!errors?.sections?.[sectionIndex]?.valorMax}
-                      defaultValue={section.valorMax}
-                      helperText={
-                        errors?.sections?.[sectionIndex]?.valorMax?.message
-                      }
-                      {...register(`sections.${sectionIndex}.valorMax`, {
-                        required: "Campo requerido",
-                      })}
-                      label="Valor máximo por item de la sección actual"
-                      fullWidth
-                      required
-                      variant="standard"
-                    />
-                  </Grid>
-                )}
-              </Paper>
-            </Container>
+                </Grid>
+                <Grid item xs={2} display={"flex"} justifyContent={"end"}>
+                  <IconButton
+                    onClick={() => setUnfold(!unfold)}
+                    aria-label="delete"
+                  >
+                    {unfold ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
+                  </IconButton>
+                  <IconButton
+                    onClick={() => deleteSection(sectionIndex)}
+                    aria-label="delete"
+                    color="error"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Grid>
+              </Grid>
+              {tipoPrueba === 1 && (
+                <LinkInput
+                  sectionIndex={sectionIndex}
+                  defaultValue={section?.link}
+                />
+              )}
+              {tipoPrueba === 1 && (
+                <EscalaPorSeccion sectionIndex={sectionIndex} />
+              )}
+              {tipoPrueba === 1 && (
+                <Grid item xs={12} className="mt-4">
+                  <TextField
+                    error={!!errors?.sections?.[sectionIndex]?.valorMax}
+                    defaultValue={section.valorMax}
+                    helperText={
+                      errors?.sections?.[sectionIndex]?.valorMax?.message
+                    }
+                    {...register(`sections.${sectionIndex}.valorMax`, {
+                      required: "Campo requerido",
+                    })}
+                    label="Valor máximo por item de la sección actual"
+                    fullWidth
+                    required
+                    variant="standard"
+                  />
+                </Grid>
+              )}
+            </Paper>
             <QuestionsType2 section={section} sectionIndex={sectionIndex} />
           </div>
         ))
