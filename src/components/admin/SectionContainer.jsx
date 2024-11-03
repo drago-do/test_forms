@@ -19,6 +19,7 @@ import {
   Alert,
   Dialog,
   DialogTitle,
+  Chip,
 } from "@mui/material";
 import { useFormContext, useFieldArray, Controller } from "react-hook-form";
 import {
@@ -33,6 +34,7 @@ import { toast } from "sonner";
 
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
+import ClearIcon from "@mui/icons-material/Clear";
 
 const SectionWithQuestions = () => {
   const {
@@ -119,9 +121,12 @@ const SectionWithQuestions = () => {
                     defaultValue={section?.name}
                     helperText={errors?.sections?.[sectionIndex]?.name?.message}
                     {...register(`sections.${sectionIndex}.name`, {
-                      required: "Campo requerido",
+                      required: `Titulo de la seccion ${
+                        sectionIndex + 1
+                      } requerido.`,
                     })}
                     color="secondary"
+                    placeholder="Coloca un titulo a la sección"
                     fullWidth
                     required
                     variant="standard"
@@ -174,7 +179,12 @@ const SectionWithQuestions = () => {
                 </Grid>
               )}
             </Paper>
-            <QuestionsType2 section={section} sectionIndex={sectionIndex} />
+            <QuestionsType2
+              section={section}
+              sectionIndex={sectionIndex}
+              unfold={unfold}
+              setUnfold={setUnfold}
+            />
           </div>
         ))
       ) : (
@@ -190,7 +200,7 @@ const SectionWithQuestions = () => {
   );
 };
 
-const QuestionsType2 = ({ sectionIndex }) => {
+const QuestionsType2 = ({ sectionIndex, unfold, setUnfold }) => {
   const {
     control,
     register,
@@ -208,10 +218,14 @@ const QuestionsType2 = ({ sectionIndex }) => {
     name: `sections.${sectionIndex}.questions`,
   });
 
+  const [activeQuestion, setActiveQuestion] = useState(null);
+
   const tipoPrueba = parseInt(getValues("tipo"));
 
   const addQuestionHandler = () => {
+    const newQuestionIndex = questions.length;
     append(getQuestionBase());
+    setActiveQuestion(newQuestionIndex);
     clearErrors();
   };
 
@@ -253,74 +267,129 @@ const QuestionsType2 = ({ sectionIndex }) => {
     };
   };
 
+  useEffect(() => {
+    if (!unfold) {
+      setActiveQuestion(null);
+    }
+  }, [unfold]);
+
+  const onClickOnQuestion = (questionIndex) => {
+    setUnfold(true);
+    setActiveQuestion(questionIndex);
+  };
+
   return (
-    <Container maxWidth="lg">
+    <>
       {questions && questions.length > 0 ? (
         questions.map((question, questionIndex) => (
-          <Container maxWidth="lg" key={questionIndex}>
-            <TextField
-              defaultValue={question?.texto || ""}
-              {...register(
-                `sections.${sectionIndex}.questions.${questionIndex}.texto`,
-                {
-                  required: {
-                    message: `Debes ingresar un texto para la pregunta ${
-                      questionIndex + 1
-                    } de la seccion ${sectionIndex + 1}`,
-                    value: true,
-                  },
-                }
-              )}
-              label="Texto de la pregunta"
-              fullWidth
-              required
-              color="secondary"
-              variant="standard"
-            />
-            {tipoPrueba === 1 && (
-              <FormControlLabel
-                label="¿Pregunta de validación?"
-                color="secondary"
-                control={
-                  <Checkbox
-                    color="secondary"
-                    defaultChecked={question?.validacion || false}
-                    {...register(
-                      `sections.${sectionIndex}.questions.${questionIndex}.validacion`
-                    )}
-                  />
-                }
-              />
-            )}
-            <Typography variant="h6" className="mt-4">
-              Opciones
-            </Typography>
-            <QuestionOptionsType2
-              sectionIndex={sectionIndex}
-              questionIndex={questionIndex}
-            />
-            <Grid
-              item
-              xs={12}
-              display="flex"
-              justifyContent="end"
-              className="mt-4"
+          <section
+            key={questionIndex}
+            onClick={() => onClickOnQuestion(questionIndex)}
+          >
+            <Paper
+              elevation={3}
+              className={`my-6 p-8 ${
+                questionIndex === activeQuestion
+                  ? "border-l-4 border-l-amber-300"
+                  : ""
+              }`}
             >
-              <IconButton
-                onClick={() => cloneQuestionHandler(questionIndex)}
-                aria-label="clone"
-              >
-                <ContentCopyIcon />
-              </IconButton>
-              <IconButton
-                onClick={() => deleteQuestionHandler(questionIndex)}
-                aria-label="delete"
-                color="error"
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Grid>
-          </Container>
+              {questionIndex === activeQuestion ? (
+                <TextField
+                  defaultValue={question?.texto || ""}
+                  {...register(
+                    `sections.${sectionIndex}.questions.${questionIndex}.texto`,
+                    {
+                      required: {
+                        message: `Debes ingresar un texto para la pregunta ${
+                          questionIndex + 1
+                        } de la seccion ${sectionIndex + 1}`,
+                        value: true,
+                      },
+                    }
+                  )}
+                  error={
+                    !!errors?.sections?.[sectionIndex]?.questions?.[
+                      questionIndex
+                    ]?.texto
+                  }
+                  helperText={
+                    errors?.sections?.[sectionIndex]?.questions?.[questionIndex]
+                      ?.texto?.message
+                  }
+                  placeholder={`Texto de la pregunta ${questionIndex + 1}`}
+                  fullWidth
+                  required
+                  color="secondary"
+                  variant="filled"
+                  size="small"
+                  hiddenLabel
+                  className="mb-3"
+                />
+              ) : (
+                <Typography
+                  variant="body1"
+                  color={
+                    getValues(
+                      `sections.${sectionIndex}.questions.${questionIndex}.texto`
+                    ) !== ""
+                      ? "default"
+                      : "error"
+                  }
+                >
+                  {getValues(
+                    `sections.${sectionIndex}.questions.${questionIndex}.texto`
+                  ) || "No hay texto definido para la pregunta"}
+                </Typography>
+              )}
+              <Collapse in={unfold}>
+                {tipoPrueba === 1 && (
+                  <FormControlLabel
+                    label="¿Pregunta de validación?"
+                    color="secondary"
+                    control={
+                      <Checkbox
+                        color="secondary"
+                        defaultChecked={question?.validacion || false}
+                        {...register(
+                          `sections.${sectionIndex}.questions.${questionIndex}.validacion`
+                        )}
+                      />
+                    }
+                  />
+                )}
+                <QuestionOptionsType2
+                  sectionIndex={sectionIndex}
+                  questionIndex={questionIndex}
+                  activeQuestion={questionIndex === activeQuestion}
+                />
+                <Collapse in={questionIndex === activeQuestion}>
+                  <div className="border rounded-full border-neutral-600	"></div>
+                  <Grid
+                    item
+                    xs={12}
+                    display="flex"
+                    justifyContent="end"
+                    className="mt-4"
+                  >
+                    <IconButton
+                      onClick={() => cloneQuestionHandler(questionIndex)}
+                      aria-label="clone"
+                    >
+                      <ContentCopyIcon />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => deleteQuestionHandler(questionIndex)}
+                      aria-label="delete"
+                      color="error"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Grid>
+                </Collapse>
+              </Collapse>
+            </Paper>
+          </section>
         ))
       ) : (
         <Typography variant="body1">No hay preguntas</Typography>
@@ -335,11 +404,15 @@ const QuestionsType2 = ({ sectionIndex }) => {
           Agregar pregunta
         </Button>
       </Grid>
-    </Container>
+    </>
   );
 };
 
-const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
+const QuestionOptionsType2 = ({
+  sectionIndex,
+  questionIndex,
+  activeQuestion,
+}) => {
   const {
     control,
     register,
@@ -409,54 +482,117 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
       {opciones && opciones.length > 0 ? (
         opciones.map((opcion, opcionIndex) => (
           <Grid container spacing={2} alignItems="center" key={opcionIndex}>
-            <Grid item xs={tipoPrueba === 1 ? 12 : 6}>
-              <TextField
-                {...register(
-                  `sections.${sectionIndex}.questions.${questionIndex}.opciones.${opcionIndex}.texto`,
-                  {
-                    required: {
-                      message: `El valor de la opción ${
-                        opcionIndex + 1
-                      } de la pregunta ${questionIndex + 1} de la seccion ${
-                        sectionIndex + 1
-                      } es obligatorio`,
-                      value: true,
-                    },
+            <Grid
+              item
+              xs={tipoPrueba === 1 ? 12 : 6}
+              className="flex items-center"
+            >
+              <div className="rounded-full w-4 h-4 border-2 mr-3"></div>
+              {activeQuestion ? (
+                <TextField
+                  {...register(
+                    `sections.${sectionIndex}.questions.${questionIndex}.opciones.${opcionIndex}.texto`,
+                    {
+                      required: {
+                        message: `El valor de la opción ${
+                          opcionIndex + 1
+                        } de la pregunta ${questionIndex + 1} de la seccion ${
+                          sectionIndex + 1
+                        } es obligatorio`,
+                        value: true,
+                      },
+                    }
+                  )}
+                  size="small"
+                  fullWidth
+                  error={
+                    !!errors?.sections?.[sectionIndex]?.questions?.[
+                      questionIndex
+                    ]?.opciones?.[opcionIndex]?.texto
                   }
-                )}
-                fullWidth
-                placeholder={`Ingrese el texto de la opción ${opcionIndex + 1}`}
-                required
-                variant="standard"
-              />
+                  helperText={
+                    errors?.sections?.[sectionIndex]?.questions?.[questionIndex]
+                      ?.opciones?.[opcionIndex]?.texto?.message
+                  }
+                  placeholder={`Ingrese el texto de la opción ${
+                    opcionIndex + 1
+                  }`}
+                  required
+                  color="secondary"
+                  variant="standard"
+                  sx={{
+                    "& .MuiInput-underline:before": {
+                      borderBottom: "none",
+                    },
+
+                    "& .MuiInput-underline:focus:before": {
+                      borderBottom: "1px solid",
+                    },
+                  }}
+                />
+              ) : (
+                <Typography
+                  variant="body1"
+                  className="my-3"
+                  color={
+                    getValues(
+                      `sections.${sectionIndex}.questions.${questionIndex}.opciones.${opcionIndex}.texto`
+                    ) !== ""
+                      ? "default"
+                      : "error"
+                  }
+                >
+                  {getValues(
+                    `sections.${sectionIndex}.questions.${questionIndex}.opciones.${opcionIndex}.texto`
+                  ) || "Error, debes definir texto de la opcion"}
+                </Typography>
+              )}
             </Grid>
             {tipoPrueba !== 1 && categorias && categorias.length > 0 ? (
               <Grid item xs={5}>
-                <Controller
-                  name={`sections.${sectionIndex}.questions.${questionIndex}.opciones.${opcionIndex}.subcategoria`}
-                  control={control}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: `Es necesario seleccionar una subcategoria para la opcion ${
-                        opcionIndex + 1
-                      } de la pregunta ${questionIndex + 1} de la seccion ${
-                        sectionIndex + 1
-                      }`,
-                    },
-                  }}
-                  render={({ field }) => (
-                    <Select {...field} fullWidth>
-                      {categorias.map((categoria) =>
-                        categoria.subcategorias.map((subcat, index) => (
-                          <MenuItem key={subcat} value={subcat}>
-                            {`${categoria?.nombre} - ${subcat}`}
-                          </MenuItem>
-                        ))
-                      )}
-                    </Select>
-                  )}
-                />
+                {activeQuestion ? (
+                  <Controller
+                    name={`sections.${sectionIndex}.questions.${questionIndex}.opciones.${opcionIndex}.subcategoria`}
+                    control={control}
+                    rules={{
+                      required: {
+                        value: true,
+                        message: `Es necesario seleccionar una subcategoria para la opcion ${
+                          opcionIndex + 1
+                        } de la pregunta ${questionIndex + 1} de la seccion ${
+                          sectionIndex + 1
+                        }`,
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Select {...field} fullWidth>
+                        {categorias.map((categoria) =>
+                          categoria.subcategorias.map((subcat, index) => (
+                            <MenuItem key={subcat} value={subcat}>
+                              {`${categoria?.nombre} - ${subcat}`}
+                            </MenuItem>
+                          ))
+                        )}
+                      </Select>
+                    )}
+                  />
+                ) : (
+                  <Chip
+                    label={
+                      getValues(
+                        `sections.${sectionIndex}.questions.${questionIndex}.opciones.${opcionIndex}.subcategoria`
+                      ) || "Error, debes definir la subcategoria"
+                    }
+                    color={
+                      getValues(
+                        `sections.${sectionIndex}.questions.${questionIndex}.opciones.${opcionIndex}.subcategoria`
+                      ) !== ""
+                        ? "default"
+                        : "error"
+                    }
+                    variant="outlined"
+                  />
+                )}
               </Grid>
             ) : (
               <>
@@ -469,14 +605,14 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
                 )}
               </>
             )}
-            {tipoPrueba !== 1 && (
+            {tipoPrueba !== 1 && activeQuestion && (
               <Grid item xs={1}>
                 <IconButton
                   onClick={() => deleteQuestionOption(opcionIndex)}
                   aria-label="delete"
                   color="error"
                 >
-                  <DeleteIcon />
+                  <ClearIcon />
                 </IconButton>
               </Grid>
             )}
@@ -488,7 +624,7 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
           boton
         </Typography>
       )}
-      <Grid item xs={12} className="w-full flex justify-center my-5">
+      <Grid item xs={12} className="w-full flex my-3">
         {tipoPrueba === 1 ? (
           <Collapse in={opciones.length === 0}>
             <Button
@@ -501,14 +637,27 @@ const QuestionOptionsType2 = ({ sectionIndex, questionIndex }) => {
             </Button>
           </Collapse>
         ) : (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => addQuestionOption()}
-          >
-            <MaterialIcon iconName="add" className="mr-2" />
-            Agregar opcion
-          </Button>
+          <Collapse in={activeQuestion}>
+            <div className="flex items-center">
+              <div className="rounded-full w-4 h-4 border-2 mr-3"></div>
+              <TextField
+                size="small"
+                placeholder={`Agregar nueva opcion`}
+                required
+                onFocus={() => addQuestionOption()}
+                variant="standard"
+                sx={{
+                  "& .MuiInput-underline:before": {
+                    borderBottom: "none",
+                  },
+
+                  "& .MuiInput-underline:focus:before": {
+                    borderBottom: "1px solid",
+                  },
+                }}
+              />
+            </div>
+          </Collapse>
         )}
       </Grid>
     </>
