@@ -86,11 +86,11 @@ export default function Page({
       });
   };
 
-  useEffect(() => {
-    if (debug) {
-      console.log(getValues());
-    }
-  }, [watch()]);
+  // useEffect(() => {
+  //   if (debug) {
+  //     console.log(getValues());
+  //   }
+  // }, [watch()]);
 
   // const getErrorMessages = (errorObj) => {
   //   let messages = [];

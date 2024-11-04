@@ -42,6 +42,7 @@ const SectionWithQuestions = () => {
     register,
     getValues,
     clearErrors,
+    watch,
     formState: { errors },
   } = useFormContext();
 
@@ -55,7 +56,7 @@ const SectionWithQuestions = () => {
   });
   const tipoPrueba = parseInt(getValues("tipo"));
 
-  const [unfold, setUnfold] = useState(true);
+  const [unfold, setUnfold] = useState([]);
 
   const getSectionBase = () => {
     return {
@@ -101,6 +102,17 @@ const SectionWithQuestions = () => {
     }
     clearErrors();
   };
+
+  const addDeleteOfUnfold = (sectionIndex) => {
+    setUnfold((prevUnfold) => {
+      if (prevUnfold.includes(sectionIndex)) {
+        return prevUnfold.filter((index) => index !== sectionIndex);
+      } else {
+        return [...prevUnfold, sectionIndex];
+      }
+    });
+  };
+
   return (
     <>
       {sections && sections.length > 0 ? (
@@ -137,10 +149,14 @@ const SectionWithQuestions = () => {
                 </Grid>
                 <Grid item xs={2} display={"flex"} justifyContent={"end"}>
                   <IconButton
-                    onClick={() => setUnfold(!unfold)}
-                    aria-label="delete"
+                    onClick={() => addDeleteOfUnfold(sectionIndex)}
+                    aria-label="unfold"
                   >
-                    {unfold ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
+                    {unfold.includes(sectionIndex) ? (
+                      <UnfoldLessIcon />
+                    ) : (
+                      <UnfoldMoreIcon />
+                    )}
                   </IconButton>
                   <IconButton
                     onClick={() => deleteSection(sectionIndex)}
@@ -160,7 +176,10 @@ const SectionWithQuestions = () => {
               {tipoPrueba === 1 && (
                 <EscalaPorSeccion sectionIndex={sectionIndex} />
               )}
-              {tipoPrueba === 1 && (
+              {(tipoPrueba === 1 &&
+                getValues(`sections.${sectionIndex}.questions[0].opciones`)
+                  ?.length === 0) ||
+              getValues(`sections.${sectionIndex}.questions`)?.length === 0 ? (
                 <Grid item xs={12} className="mt-4">
                   <TextField
                     error={!!errors?.sections?.[sectionIndex]?.valorMax}
@@ -177,13 +196,24 @@ const SectionWithQuestions = () => {
                     variant="standard"
                   />
                 </Grid>
+              ) : (
+                <>
+                  <Typography variant="subtitle1" className="mt-3">
+                    Valor máximo por item de la sección actual:{" "}
+                    {getValues(`sections.${sectionIndex}.valorMax`)}
+                  </Typography>
+                  <Typography variant="caption">
+                    Si desea cambiar este valor, elimine todas las preguntas de
+                    la sección
+                  </Typography>
+                </>
               )}
             </Paper>
             <QuestionsType2
               section={section}
               sectionIndex={sectionIndex}
-              unfold={unfold}
-              setUnfold={setUnfold}
+              unfold={unfold.includes(sectionIndex)}
+              addDeleteOfUnfold={addDeleteOfUnfold}
             />
           </div>
         ))
@@ -200,7 +230,7 @@ const SectionWithQuestions = () => {
   );
 };
 
-const QuestionsType2 = ({ sectionIndex, unfold, setUnfold }) => {
+const QuestionsType2 = ({ sectionIndex, unfold, addDeleteOfUnfold }) => {
   const {
     control,
     register,
@@ -230,11 +260,7 @@ const QuestionsType2 = ({ sectionIndex, unfold, setUnfold }) => {
   };
 
   const deleteQuestionHandler = (questionIndex) => {
-    if (questions.length > 1) {
-      remove(questionIndex);
-    } else {
-      toast.error("No te puedes quedar sin preguntas en la sección.");
-    }
+    remove(questionIndex);
     clearErrors();
   };
 
@@ -274,7 +300,9 @@ const QuestionsType2 = ({ sectionIndex, unfold, setUnfold }) => {
   }, [unfold]);
 
   const onClickOnQuestion = (questionIndex) => {
-    setUnfold(true);
+    if (!unfold) {
+      addDeleteOfUnfold(sectionIndex);
+    }
     setActiveQuestion(questionIndex);
   };
 
@@ -351,7 +379,7 @@ const QuestionsType2 = ({ sectionIndex, unfold, setUnfold }) => {
                 </Grid>
               </Grid>
               <Collapse in={unfold}>
-                {tipoPrueba === 1 && (
+                {tipoPrueba === 1 && questionIndex === activeQuestion && (
                   <FormControlLabel
                     label="¿Pregunta de validación?"
                     color="secondary"

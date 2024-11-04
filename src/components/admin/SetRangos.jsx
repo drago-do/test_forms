@@ -33,8 +33,12 @@ export default function SetRangos() {
     });
   }, [watch("escalas.nivel")]);
   return (
-    <div>
+    <Paper className="p-5 flex items-center mb-3">
+      <Typography variant="h6" className="w-1/3">
+        Escalas de valoración
+      </Typography>
       <TextField
+        className="w-2/3"
         defaultValue={getValues("escalas.nivel") || 0}
         error={!!errors?.escalas?.nivel}
         helperText={errors?.escalas?.nivel?.message}
@@ -50,6 +54,6 @@ export default function SetRangos() {
         required
         variant="outlined"
       />
-    </div>
+    </Paper>
   );
 }
