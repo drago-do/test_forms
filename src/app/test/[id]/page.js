@@ -241,17 +241,17 @@ export default function TestForm({ params }) {
   };
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="sm">
       <Box sx={{ mt: 2, mb: 1 }}>{renderStepContent(activeStep)}</Box>
       <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-        <Button
+        {/* <Button
           color="inherit"
           disabled={activeStep === 0 || activeStep === steps.length - 1}
           onClick={handleBack}
           sx={{ mr: 1 }}
         >
           Regresar
-        </Button>
+        </Button> */}
         <Box sx={{ flex: "1 1 auto" }} />
         {activeStep === steps.length - 1 ? (
           <>
