@@ -253,10 +253,12 @@ const ItemTest = ({
           <MenuItem
             onClick={() => {
               setLoading(true);
-              push(`/administrar/ver-resultados?id=${_id}`);
+              push(`/api/excel/${_id}`);
+              setLoading(false);
+              handleClose();
             }}
           >
-            Ver Resultados
+            Descargar Resultados
           </MenuItem>
         </Menu>
         <DeleteDialog
