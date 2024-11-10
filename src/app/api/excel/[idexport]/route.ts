@@ -6,7 +6,7 @@ import Prueba, { ISeccion, IPrueba } from "../../../../models/testing";
 import User from "./../../../../models/user";
 import mongoose from "mongoose";
 
-
+//=========================================================================================================================================================
 // Organizes data without calculating percentages
 const organizeDataWithoutPercentages = (preguntas, categorias, resultados) => {
   const encabezadosCategorias = [];
@@ -75,6 +75,7 @@ const organizeDataWithoutPercentages = (preguntas, categorias, resultados) => {
   return { encabezadosFinales, dataRows, merges };
 };
 
+//=========================================================================================================================================================
 // Function to handle GET request for exporting results
 export async function GET(request, { params }) {
   console.log("Iniciando la exportación de resultados...");
@@ -92,8 +93,10 @@ export async function GET(request, { params }) {
   }
 
   try {
-    await mongodb(); // Conexión a MongoDB
+    await mongodb(); // Connect to MongoDB
     console.log("Conexión a MongoDB exitosa");
+
+//=========================================================================================================================================================
 
     // Fetch results associated with the test ID, populating user data
     const resultados = await (Resultados as mongoose.Model<IResultados>)
@@ -107,7 +110,7 @@ export async function GET(request, { params }) {
 
     console.log(`Resultados encontrados: ${resultados.length}`);
 
-    // Find the test document by ID
+    // Find the test document
     const documento = await (Prueba as mongoose.Model<IPrueba>).findById(
       id_prueba
     );
@@ -121,189 +124,252 @@ export async function GET(request, { params }) {
       );
     }
 
-       // Logic for test type 1
-       if (documento.tipo === 1) {
-        const preguntas =
-          (documento?.sections as unknown as ISeccion[])?.flatMap(
-            (section) => section.questions
-          ) || [];
-  
-        // Format data for Excel export
-        const data = await Promise.all(
+//=========================================================================================================================================================
+//=========================================================================================================================================================
+//=========================================================================================================================================================
+
+    // Logic for test type 1
+    if (documento.tipo === 1) {
+      const preguntas = (documento?.sections as unknown as ISeccion[])?.flatMap(
+        (section) => section.questions
+      ) || [];
+
+      // Format data for Excel export
+      const data = await Promise.all(
+        resultados.map(async (resultado) => {
+          const user: any = resultado.id_user;
+          const userInfo = {
+            Nombre: user.firstName || "",
+            Apellido: user.lastName || "",
+            Email: user.email || "",
+            Rol: user.role || "",
+            Fecha_de_Aplicativo: user.creationDate
+              ? new Date(user.creationDate).toLocaleDateString()
+              : "",
+            Celular: user.phone || "",
+            Escuela_Actual: user.currentSchool || "",
+            Nivel_Educativo: user.educationLevel || "",
+            Generacion: user.generation || "",
+            Grado: user.grade || "",
+            Grupo: user.group || "",
+          };
+
+          const respuestasFormateadas =
+            resultado.respuestas && typeof resultado.respuestas === "object"
+              ? Object.fromEntries(
+                  Object.entries(resultado.respuestas).map(
+                    ([idPregunta, respuesta]) => {
+                      const pregunta: any =
+                        preguntas.find((p: any) => p?._id.toString() === idPregunta) || {};
+                      const textoPregunta: any = pregunta?.texto || `Pregunta ${idPregunta}`;
+                      console.log(`Procesando respuesta para la pregunta: ${textoPregunta}, respuesta: ${respuesta}`);
+                      return [textoPregunta, respuesta];
+                    }
+                  )
+                )
+              : {};
+
+         // Crear propiedades aplanadas para cada sección con el nombre y el porcentaje, incluyendo el símbolo de porcentaje
+          const seccionesResultado = documento.sections.reduce((acc, seccion: any) => {
+            let puntajeSeccion = 0;
+            seccion.questions.forEach((pregunta: any) => {
+              const respuesta = resultado.respuestas[pregunta._id.toString()];
+              if (respuesta !== undefined) {
+                const opcion = pregunta.opciones.find(
+                  (op: any) => op.valor === parseInt(respuesta)
+                );
+                if (opcion) {
+                  puntajeSeccion += opcion.valor;
+                }
+              }
+            });
+
+            const numPreguntas = seccion.questions.length;
+            const PuntosTotalesDeSeccion = seccion?.valorMax * numPreguntas; // Representa el 100%
+            const porcentajeObtenido = ((puntajeSeccion / PuntosTotalesDeSeccion) * 100).toFixed(0) + "%";
+
+            // Agregar el nombre de la sección y el porcentaje al objeto final, incluyendo el símbolo de porcentaje
+            acc[seccion.name] = porcentajeObtenido;
+            return acc;
+          }, {});
+
+          return {
+            ...userInfo,
+            ...respuestasFormateadas,
+            ...seccionesResultado, // Add section results and scale names
+          };
+        })
+      );
+
+      console.log("Datos formateados para Excel:", JSON.stringify(data, null, 2));
+
+      // Create Excel workbook and sheet
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Resultados");
+
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "buffer",
+      });
+      console.log("Archivo Excel creado.");
+
+      // Set document title
+      const titulo = documento?.titulo || "Resultado";
+      console.log("Título del documento:", titulo);
+
+      return new NextResponse(excelBuffer, {
+        status: 200,
+        headers: {
+          "Content-Disposition": `attachment; filename=Resultado_Tests_${titulo}.xlsx`,
+          "Content-Type":
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        },
+      });
+    }
+
+
+//=========================================================================================================================================================
+//=========================================================================================================================================================
+//=========================================================================================================================================================
+//=========================================================================================================================================================
+//=========================================================================================================================================================
+
+    // Logic for test type 2
+    if (documento.tipo === 2) {
+      const preguntas =
+        (documento?.sections || []).flatMap(
+          (section: any) => section.questions
+        ) || [];
+      const categorias = documento.categorias || [];
+
+      if (!resultados.length) {
+        console.error(
+          `No se encontraron resultados para el ID de prueba: ${id_prueba}`
+        );
+        return NextResponse.json(
+          {
+            error: `No se encontraron resultados para el ID de prueba: ${id_prueba}`,
+          },
+          { status: 404 }
+        );
+      }
+
+      const { encabezadosFinales, dataRows, merges } =
+        organizeDataWithoutPercentages(preguntas, categorias, resultados);
+      console.log(`Encabezados finales: ${JSON.stringify(encabezadosFinales)}`);
+      console.log(`Filas de datos: ${JSON.stringify(dataRows, null, 2)}`);
+
+      const workbook = XLSX.utils.book_new();
+      const hojaResultados = XLSX.utils.aoa_to_sheet([
+        ...encabezadosFinales,
+        ...dataRows,
+      ]);
+      hojaResultados["!merges"] = merges;
+      XLSX.utils.book_append_sheet(workbook, hojaResultados, "Datos Generales");
+
+//=========================================================================================================================================================
+//=========================================================================================================================================================
+
+      // Lógica para la hoja de datos individuales
+      const hojaDatosIndividuales = XLSX.utils.json_to_sheet(
+        await Promise.all(
           resultados.map(async (resultado) => {
-            const user: any = resultado.id_user;
+            const { id_user: user, respuestas } = resultado;
+            // Información básica del usuario
             const userInfo = {
-              Nombre: user.firstName || "",
-              Apellido: user.lastName || "",
-              Email: user.email || "",
-              Rol: user.role || "",
-              Fecha_de_Aplicativo: user.creationDate
-                ? new Date(user.creationDate).toLocaleDateString()
+              Nombre: (user as any).firstName || "",
+              Apellido: (user as any).lastName || "",
+              Email: (user as any).email || "",
+              Rol: (user as any).role || "",
+              Fecha_de_Aplicativo: (user as any).creationDate
+                ? new Date((user as any).creationDate).toLocaleDateString()
                 : "",
-              Celular: user.phone || "",
-              Escuela_Actual: user.currentSchool || "",
-              Nivel_Educativo: user.educationLevel || "",
-              Generacion: user.generation || "",
-              Grado: user.grade || "",
-              Grupo: user.group || "",
+              Celular: (user as any).phone || "",
+              Escuela_Actual: (user as any).currentSchool || "",
+              Nivel_Educativo: (user as any).educationLevel || "",
+              Generacion: (user as any).generation || "",
+              Grado: (user as any).grade || "",
+              Grupo: (user as any).group || "",
             };
-  
+
+            // Respuestas formateadas para cada pregunta
             const respuestasFormateadas =
-              resultado.respuestas && typeof resultado.respuestas === "object"
+              respuestas && typeof respuestas === "object"
                 ? Object.fromEntries(
-                    Array.from(resultado.respuestas.entries()).map(
-                      ([idPregunta, respuesta]) => {
-                        const pregunta: any =
-                          preguntas.find(
-                            (p: any) => p?._id.toString() === idPregunta
-                          ) || {};
-                        const textoPregunta: any =
-                          pregunta?.texto || `Pregunta ${idPregunta}`;
-                        console.log(
-                          `Procesando respuesta para la pregunta: ${textoPregunta}, respuesta: ${respuesta}`
-                        );
-                        return [textoPregunta, respuesta];
-                      }
-                    )
+                    Object.entries(respuestas).map(([idPregunta, respuesta]) => {
+                      const pregunta = preguntas.find(
+                        (p) => p?._id.toString() === idPregunta
+                      );
+                      return [pregunta?.texto || idPregunta, respuesta];
+                    })
                   )
                 : {};
-  
-            return {
-              ...userInfo,
-              ...respuestasFormateadas,
-            };
-          })
-        );
-  
-        console.log(
-          "Datos formateados para Excel:",
-          JSON.stringify(data, null, 2)
-        );
-  
-        // Create Excel workbook and sheet
-        const workbook = XLSX.utils.book_new();
-        const worksheet = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Resultados");
-  
-        const excelBuffer = XLSX.write(workbook, {
-          bookType: "xlsx",
-          type: "buffer",
-        });
-        console.log("Archivo Excel creado.");
-  
-        // Set document title
-        const titulo = documento?.titulo || "Resultado";
-        console.log("Título del documento:", titulo);
-  
-        return new NextResponse(excelBuffer, {
-          status: 200,
-          headers: {
-            "Content-Disposition": `attachment; filename=Resultado_Tests_${titulo}.xlsx`,
-            "Content-Type":
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          },
-        });
-      }
-  
-      // Logic for test type 2
-      if (documento.tipo === 2) {
-        const preguntas =
-          (documento?.sections || []).flatMap(
-            (section: any) => section.questions
-          ) || [];
-        const categorias = documento.categorias || [];
-  
-        if (!resultados.length) {
-          console.error(
-            `No se encontraron resultados para el ID de prueba: ${id_prueba}`
-          );
-          return NextResponse.json(
-            {
-              error: `No se encontraron resultados para el ID de prueba: ${id_prueba}`,
-            },
-            { status: 404 }
-          );
-        }
-  
-        const { encabezadosFinales, dataRows, merges } =
-          organizeDataWithoutPercentages(preguntas, categorias, resultados);
-        console.log(`Encabezados finales: ${JSON.stringify(encabezadosFinales)}`);
-        console.log(`Filas de datos: ${JSON.stringify(dataRows, null, 2)}`);
-  
-        const workbook = XLSX.utils.book_new();
-        const hojaResultados = XLSX.utils.aoa_to_sheet([
-          ...encabezadosFinales,
-          ...dataRows,
-        ]);
-        hojaResultados["!merges"] = merges;
-        XLSX.utils.book_append_sheet(workbook, hojaResultados, "Datos Generales");
-  
-        const hojaDatosIndividuales = XLSX.utils.json_to_sheet(
-          await Promise.all(
-            resultados.map(async (resultado) => {
-              const { id_user: user, respuestas } = resultado;
-              const userInfo = {
-                Nombre: (user as any).firstName || "",
-                Apellido: (user as any).lastName || "",
-                Email: (user as any).email || "",
-                Rol: (user as any).role || "",
-                Fecha_de_Aplicativo: (user as any).creationDate
-                  ? new Date((user as any).creationDate).toLocaleDateString()
-                  : "",
-                Celular: (user as any).phone || "",
-                Escuela_Actual: (user as any).currentSchool || "",
-                Nivel_Educativo: (user as any).educationLevel || "",
-                Generacion: (user as any).generation || "",
-                Grado: (user as any).grade || "",
-                Grupo: (user as any).group || "",
-              };
-              const respuestasFormateadas = Object.fromEntries(
-                Array.from(respuestas).map(([idPregunta, respuesta]) => {
-                  const pregunta = preguntas.find(
-                    (p) => p?._id.toString() === idPregunta
-                  );
-                  return [pregunta?.texto || idPregunta, respuesta];
-                })
-              );
-                const categoriasConNombres = {};
-                   categorias.forEach((categoria: any) => {
-                  categoriasConNombres[categoria.nombre] = ""; 
+
+            // Organizar categorías y subcategorías
+            const categoriasConNombres = {};
+            categorias.forEach((categoria: any) => {
+              categoria.subcategorias.forEach((subcategoria: any) => {
+                categoriasConNombres[`${categoria.nombre} - ${subcategoria}`] = 0;
               });
-              return {
-                ...userInfo,
-                ...respuestasFormateadas,
-                ...categoriasConNombres,
-              };
-            })
-          )
-        );
-        console.log(hojaDatosIndividuales)
-        XLSX.utils.book_append_sheet(
-          workbook,
-          hojaDatosIndividuales,
-          "Resultados Individuales"
-        );
-        const excelBuffer = XLSX.write(workbook, {
-          bookType: "xlsx",
-          type: "buffer",
-        });
-  
-        return new NextResponse(excelBuffer, {
-          status: 200,
-          headers: {
-            "Content-Disposition": `attachment; filename=Resultados_${documento.titulo}.xlsx`,
-            "Content-Type":
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          },
-        });
-      }
-  
-      return NextResponse.json({ error: "Tipo de prueba no soportado" }, { status: 400 });
-    } catch (error) {
-      console.error("Error al exportar resultados:", error);
-      return NextResponse.json(
-        { error: "Error al exportar resultados" },
-        { status: 500 }
+            });
+
+            // Sumamos las respuestas para cada subcategoría
+            preguntas.forEach((pregunta: any) => {
+              categorias.forEach((categoria: any) => {
+                categoria.subcategorias.forEach((subcategoria: any) => {
+                  const respuestaTexto = respuestas[pregunta._id.toString()];
+                  if (
+                    respuestaTexto &&
+                    pregunta.opciones.some(
+                      (opcion) => opcion.subcategoria === subcategoria
+                    )
+                  ) {
+                    const respuestaCodigo =
+                      respuestaTexto.match(/\(([^)]+)\)/)?.[1] || "";
+                    if (respuestaCodigo) {
+                      categoriasConNombres[`${categoria.nombre} - ${subcategoria}`] += 1;
+                    }
+                  }
+                });
+              });
+            });
+
+            return { ...userInfo, 
+                     ...respuestasFormateadas, 
+                    ...categoriasConNombres };
+          })
+        )
       );
+
+      console.log("hojaDatosIndividuales", hojaDatosIndividuales);
+      XLSX.utils.book_append_sheet(
+        workbook,
+        hojaDatosIndividuales,
+        "Resultados Detallados"
+      );
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "buffer",
+      });
+
+      console.log("Archivo Excel creado para tipo 2.");
+      const titulo = documento?.titulo || "Resultado";
+
+      return new NextResponse(excelBuffer, {
+        status: 200,
+        headers: {
+          "Content-Disposition": `attachment; filename=Resultados_${titulo}.xlsx`,
+          "Content-Type":
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        },
+      });
     }
+  } catch (error) {
+    console.error("Error durante la exportación de resultados:", error);
+    return NextResponse.json(
+      { error: "Ocurrió un error al generar los resultados" },
+      { status: 500 }
+    );
+  }
 }
