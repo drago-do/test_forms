@@ -4,7 +4,7 @@ import mongoose, { Schema, Document, model, models } from "mongoose";
 export interface IResultados extends Document {
   id_prueba: mongoose.Schema.Types.ObjectId;
   id_user: mongoose.Schema.Types.ObjectId;
-  respuestas: Map<string, string>;
+  respuestas: any;
 }
 
 //Definir el esquema de Mongoose
@@ -20,14 +20,7 @@ const ResultadosSchema: Schema<IResultados> = new Schema(
       ref: "User",
       required: true,
     },
-    respuestas: {
-      type: Map,
-      of: {
-        type: String,
-        required: true,
-      },
-      default: {},
-    },
+    respuestas: Schema.Types.Mixed,
   },
   {
     timestamps: true,

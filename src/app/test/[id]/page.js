@@ -106,9 +106,15 @@ export default function TestForm({ params }) {
         id_user: user._id,
         respuestas: answers,
       });
-      console.log(response);
-      setResultId(response.data._id);
-      setFinalScreenState("success");
+      if (response.success) {
+        setResultId(response?.data?._id);
+        setFinalScreenState("success");
+      } else {
+        setFinalScreenState("error");
+        console.error("Error submitting test results:", response.message);
+        setError(`Error al subir el test. : \n ${response?.message || ""}`);
+        console.log(response);
+      }
     } catch (error) {
       setFinalScreenState("error");
       console.error("Error submitting test results:", error);
@@ -202,6 +208,7 @@ export default function TestForm({ params }) {
           state={finalScreenState}
           idResults={resultId}
           info={error || ""}
+          tipo={parseInt(testType)}
         />
       );
     } else {
@@ -234,17 +241,17 @@ export default function TestForm({ params }) {
   };
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="sm">
       <Box sx={{ mt: 2, mb: 1 }}>{renderStepContent(activeStep)}</Box>
       <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-        <Button
+        {/* <Button
           color="inherit"
           disabled={activeStep === 0 || activeStep === steps.length - 1}
           onClick={handleBack}
           sx={{ mr: 1 }}
         >
           Regresar
-        </Button>
+        </Button> */}
         <Box sx={{ flex: "1 1 auto" }} />
         {activeStep === steps.length - 1 ? (
           <>

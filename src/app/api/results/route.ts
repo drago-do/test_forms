@@ -15,6 +15,13 @@ export async function POST(request: Request) {
     const data = await request.json();
     console.log(data);
 
+    // Validate and convert the 'respuestas' field to a Map if necessary
+    if (data.respuestas && typeof data.respuestas === "object") {
+      data.respuestas = new Map(Object.entries(data.respuestas));
+    } else {
+      throw new Error("Invalid 'respuestas' format");
+    }
+
     const newResultado = new Resultados(data);
     const savedResultado = await newResultado.save();
 

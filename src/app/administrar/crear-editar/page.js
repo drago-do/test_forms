@@ -20,7 +20,7 @@ const SectionsForStepForm = [
 function PageContent() {
   const methods = useForm({ mode: "all" });
   const { control } = methods;
-  const stepDebug = 0;
+  const stepDebug = false;
   const { createTest, updateTest, getTestById } = useTest();
   const params = useSearchParams();
   const idDocument = params.get("id");
@@ -38,6 +38,7 @@ function PageContent() {
           methods.setValue("descripcion", test.descripcion);
           methods.setValue("instrucciones", test.instrucciones);
           methods.setValue("tipo", test.tipo);
+          methods.setValue("editando", true);
 
           // Flatten the nested sections and questions arrays
           const flattenedSections = test.sections.flat().map((section) => ({

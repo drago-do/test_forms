@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Grid,
   Container,
@@ -23,8 +23,17 @@ export default function MetadataTest() {
     watch,
     handleSubmit,
     trigger,
+    getValues,
     formState: { errors },
   } = useFormContext();
+
+  const [estaEditando, setEstaEditando] = useState(
+    getValues("editando") ? true : false
+  );
+
+  useEffect(() => {
+    setEstaEditando(getValues("editando") ? true : false);
+  }, [watch("editando")]);
 
   register("creado_por", {
     value: Cookies.get("_id") || null,
@@ -91,11 +100,13 @@ export default function MetadataTest() {
                   <RadioGroup {...field} row>
                     <FormControlLabel
                       value={"1"}
+                      disabled={estaEditando}
                       control={<Radio color="secondary" />}
                       label="Interpretacion de Rangos (TEST 1)"
                       defaultChecked
                     />
                     <FormControlLabel
+                      disabled={estaEditando}
                       value={"2"}
                       control={<Radio color="secondary" />}
                       label="Areas academicas (Test 2)"
@@ -107,6 +118,12 @@ export default function MetadataTest() {
                     /> */}
                   </RadioGroup>
                   <FormHelperText>{errors?.tipo?.message}</FormHelperText>
+                  {estaEditando && (
+                    <FormHelperText>
+                      No puedes modificar el tipo de test en el momento de
+                      edición
+                    </FormHelperText>
+                  )}
                 </FormControl>
               )}
             />

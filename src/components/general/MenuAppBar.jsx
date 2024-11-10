@@ -12,6 +12,7 @@ import Menu from "@mui/material/Menu";
 import FullPageLoader from "./../general/FullPageLoader";
 import Link from "next/link";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import HomeIcon from "@mui/icons-material/Home";
 
 import { useRouter, usePathname } from "next/navigation";
 
@@ -75,16 +76,13 @@ export default function MenuAppBar({ title = "Cuestionarios" }) {
             >
               <ArrowBackIcon />
             </IconButton>
-            <Link href={"/"} component="div" sx={{ flexGrow: 1 }}>
-              {/* <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
+            <Link
+              href={"/"}
+              component="div"
+              sx={{ flexGrow: 1 }}
+              className="flex items-center"
             >
-            <MenuIcon />
-            </IconButton> */}
+              {mainPage && <HomeIcon className="mr-2" />}
               <Typography variant="h6">{title}</Typography>
             </Link>
           </div>
@@ -122,16 +120,20 @@ export default function MenuAppBar({ title = "Cuestionarios" }) {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem
-                  onClick={() => handleRedirect(`/usuario/${userInfo._id}`)}
-                >
-                  Mi perfil
-                </MenuItem>
-                {userInfo && userInfo.role === "Admin" && (
-                  <MenuItem onClick={() => handleRedirect("/administrar")}>
-                    Adminstrar
+                {pathname !== `/usuario/${userInfo?._id}` && (
+                  <MenuItem
+                    onClick={() => handleRedirect(`/usuario/${userInfo._id}`)}
+                  >
+                    Mi perfil
                   </MenuItem>
                 )}
+                {userInfo &&
+                  userInfo.role === "Admin" &&
+                  pathname !== "/administrar" && (
+                    <MenuItem onClick={() => handleRedirect("/administrar")}>
+                      Adminstrar
+                    </MenuItem>
+                  )}
                 <MenuItem onClick={handleLogOut}>Cerrar sesión</MenuItem>
               </Menu>
             </div>

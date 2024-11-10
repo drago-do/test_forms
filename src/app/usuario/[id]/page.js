@@ -21,6 +21,7 @@ import useUser from "./../../../hook/useUser";
 import useTest from "./../../../hook/useTest";
 import FullPageLoader from "./../../../components/general/FullPageLoader";
 import { useRouter } from "next/navigation";
+import UserRoleChange from "./../../../components/admin/UserRoleChange";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -43,6 +44,7 @@ export default function UserProfile() {
     const fetchCompletedTests = async () => {
       try {
         const response = await getUserCompletedTest(userInfo._id);
+        console.log(response);
         if (response.success) {
           setCompletedTests(response.data);
         }
@@ -59,6 +61,10 @@ export default function UserProfile() {
     setLoading(true);
     logout();
     push("/");
+  };
+
+  const handleRetakeTest = (testId) => {
+    push(`/test/${testId}`);
   };
 
   if (!user || loading) {
@@ -94,6 +100,12 @@ export default function UserProfile() {
         </CardContent>
       </Card>
 
+      <StyledPaper elevation={3}>
+        <Typography variant="h6" gutterBottom>
+          Usuarios del sistema
+        </Typography>
+        <UserRoleChange />
+      </StyledPaper>
       <StyledPaper elevation={3}>
         <Typography variant="h6" gutterBottom>
           Información personal
@@ -190,15 +202,17 @@ export default function UserProfile() {
                           Completado el:{" "}
                           {new Date(test.createdAt).toLocaleDateString()}
                         </Typography>
-                        <Chip
-                          label={`Nivel: ${test.id_prueba.escalas.nivel}`}
-                          color="primary"
-                          size="small"
-                          style={{ marginTop: "5px" }}
-                        />
                       </>
                     }
                   />
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    style={{ marginLeft: "auto" }}
+                    onClick={() => handleRetakeTest(test?.id_prueba?._id)}
+                  >
+                    Responder de nuevo
+                  </Button>
                 </ListItem>
                 {index < completedTests.length - 1 && (
                   <Divider component="li" />

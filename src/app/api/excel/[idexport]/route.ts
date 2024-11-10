@@ -5,6 +5,7 @@ import Resultados, { IResultados } from "../../../../models/results";
 import Prueba, { ISeccion, IPrueba } from "../../../../models/testing";
 import User from "./../../../../models/user";
 import mongoose from "mongoose";
+import { IPregunta } from "../../../../models/testing";
 
 // Organizes data without calculating percentages
 const organizeDataWithoutPercentages = (preguntas, categorias, resultados) => {
@@ -13,7 +14,9 @@ const organizeDataWithoutPercentages = (preguntas, categorias, resultados) => {
   const merges = [];
   let currentColumn = 1;
 
-  categorias.forEach((categoria) => {encabezadosCategorias.push(categoria.nombre,
+  categorias.forEach((categoria) => {
+    encabezadosCategorias.push(
+      categoria.nombre,
       ...Array(categoria.subcategorias.length - 1).fill(null)
     );
     merges.push({
@@ -33,7 +36,7 @@ const organizeDataWithoutPercentages = (preguntas, categorias, resultados) => {
     categorias.forEach((categoria) => {
       categoria.subcategorias.forEach((subcategoria) => {
         const frecuencias = resultados.reduce((acc, resultado) => {
-          const respuestaTexto = resultado.respuestas.get(pregunta._id.toString());
+          const respuestaTexto = resultado.respuestas[pregunta._id.toString()];
           if (
             respuestaTexto &&
             pregunta.opciones.some(
@@ -50,7 +53,8 @@ const organizeDataWithoutPercentages = (preguntas, categorias, resultados) => {
         }, {});
         fila.push(
           Object.values(frecuencias).reduce(
-            (acc: number, curr: unknown) => acc + (curr as number),0
+            (acc: number, curr) => acc + (curr as number),
+            0
           )
         );
       });
@@ -74,12 +78,13 @@ const organizeDataWithoutPercentages = (preguntas, categorias, resultados) => {
 // Function to handle GET request for exporting results
 export async function GET(request, { params }) {
   console.log("Iniciando la exportación de resultados...");
+  console.log("ID de prueba recibido:", params.idexport);
 
-  const idPrueba = params.idExport || "";
-  console.log(`ID de prueba recibido: ${idPrueba}`);
-
-  // Validate 'idPrueba' 
-  if (!idPrueba || !mongoose.Types.ObjectId.isValid(idPrueba)) {
+  const id_prueba = params.idexport; // Se cambia el nombre del parámetro a minúsculas
+  console.log(`ID de prueba recibido: ${id_prueba}`);
+  
+  // Verificar si el id es un ObjectId válido
+  if (!id_prueba || !mongoose.Types.ObjectId.isValid(id_prueba)) {
     return NextResponse.json(
       { error: "El parámetro 'id' es requerido y debe ser un ObjectId válido" },
       { status: 400 }
@@ -87,12 +92,12 @@ export async function GET(request, { params }) {
   }
 
   try {
-    await mongodb(); 
+    await mongodb(); // Conexión a MongoDB
     console.log("Conexión a MongoDB exitosa");
 
-    // Refrescar resultados associated with the test ID, populating user data
+    // Fetch results associated with the test ID, populating user data
     const resultados = await (Resultados as mongoose.Model<IResultados>)
-      .find({ id_prueba: idPrueba })
+      .find({ id_prueba: id_prueba })
       .populate({
         path: "id_user",
         model: User,
@@ -102,183 +107,203 @@ export async function GET(request, { params }) {
 
     console.log(`Resultados encontrados: ${resultados.length}`);
 
-    // Find the test document
-    const documento = await (Prueba as mongoose.Model<IPrueba>).findById(idPrueba);if (!documento) {
-      console.error(`No se encontró un documento para el ID de prueba: ${idPrueba}`);
-      return NextResponse.json({ error: `No se encontró documento para el ID de prueba: ${idPrueba}` },
-        { status: 404 });}
-
-    // Logic for test type 1
-    if (documento.tipo === 1) 
-      {const preguntas =(documento?.sections as unknown as ISeccion[])?.
-        flatMap((section) => section.questions) || [];
-
-      // Format data for Excel export
-      const data = await Promise.all(
-        resultados.map(async (resultado) => {
-          const user: any = resultado.id_user;
-          const userInfo = {
-            Nombre: user.firstName || "",
-            Apellido: user.lastName || "",
-            Email: user.email || "",
-            Rol: user.role || "",
-            Fecha_de_Aplicativo: user.creationDate
-              ? new Date(user.creationDate).toLocaleDateString()
-              : "",
-            Celular: user.phone || "",
-            Escuela_Actual: user.currentSchool || "",
-            Nivel_Educativo: user.educationLevel || "",
-            Generacion: user.generation || "",
-            Grado: user.grade || "",
-            Grupo: user.group || "",
-          };
-
-          const respuestasFormateadas =
-            resultado.respuestas && typeof resultado.respuestas === "object"? Object.fromEntries(
-                  Array.from(resultado.respuestas.entries()).map(([idPregunta, respuesta]) => {
-                      const pregunta: any = preguntas.find((p: any) => p?._id.toString() === idPregunta) || {};
-                      const textoPregunta: any = pregunta?.texto || `Pregunta ${idPregunta}`;
-                      console.log(`Procesando respuesta para la pregunta: ${textoPregunta}, respuesta: ${respuesta}`);
-                      return [textoPregunta, respuesta];})): {};
-
-          return {
-            ...userInfo,
-            ...respuestasFormateadas,
-          };
-        })
+    // Find the test document by ID
+    const documento = await (Prueba as mongoose.Model<IPrueba>).findById(
+      id_prueba
+    );
+    if (!documento) {
+      console.error(
+        `No se encontró un documento para el ID de prueba: ${id_prueba}`
       );
-
-      console.log(
-        "Datos formateados para Excel:",
-        JSON.stringify(data, null, 2)
+      return NextResponse.json(
+        { error: `No se encontró documento para el ID de prueba: ${id_prueba}` },
+        { status: 404 }
       );
-
-      // Create Excel workbook and sheet
-      const workbook = XLSX.utils.book_new();
-      const worksheet = XLSX.utils.json_to_sheet(data);
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Resultados");
-
-      const excelBuffer = XLSX.write(workbook, {
-        bookType: "xlsx",
-        type: "buffer",
-      });
-      console.log("Archivo Excel creado.");
-
-      // Set document title
-      const titulo = documento?.titulo || "Resultado";
-      console.log("Título del documento:", titulo);
-
-      return new NextResponse(excelBuffer, {
-        status: 200,
-        headers: {
-          "Content-Disposition": `attachment; filename=Resultado_Tests_${titulo}.xlsx`,
-          "Content-Type":
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        },
-      });
     }
 
-    // Logic for test type 2
-    if (documento.tipo === 2) {
-      const preguntas =
-        (documento?.sections || []).flatMap(
-          (section: any) => section.questions
-        ) || [];
-      const categorias = documento.categorias || [];
-
-      if (!resultados.length) {
-        console.error(
-          `No se encontraron resultados para el ID de prueba: ${idPrueba}`
-        );
-        return NextResponse.json(
-          {
-            error: `No se encontraron resultados para el ID de prueba: ${idPrueba}`,
-          },
-          { status: 404 }
-        );
-      }
-
-      const { encabezadosFinales, dataRows, merges } =
-        organizeDataWithoutPercentages(preguntas, categorias, resultados);
-      console.log(`Encabezados finales: ${JSON.stringify(encabezadosFinales)}`);
-      console.log(`Filas de datos: ${JSON.stringify(dataRows, null, 2)}`);
-
-      const workbook = XLSX.utils.book_new();
-      const hojaResultados = XLSX.utils.aoa_to_sheet([
-        ...encabezadosFinales,
-        ...dataRows,
-      ]);
-      hojaResultados["!merges"] = merges;
-      XLSX.utils.book_append_sheet(workbook, hojaResultados, "Datos Generales");
-
-      const hojaDatosIndividuales = XLSX.utils.json_to_sheet(
-        await Promise.all(
+       // Logic for test type 1
+       if (documento.tipo === 1) {
+        const preguntas =
+          (documento?.sections as unknown as ISeccion[])?.flatMap(
+            (section) => section.questions
+          ) || [];
+  
+        // Format data for Excel export
+        const data = await Promise.all(
           resultados.map(async (resultado) => {
-            const { id_user: user, respuestas } = resultado;
+            const user: any = resultado.id_user;
             const userInfo = {
-              Nombre: (user as any).firstName || "",
-              Apellido: (user as any).lastName || "",
-              Email: (user as any).email || "",
-              Rol: (user as any).role || "",
-              Fecha_de_Aplicativo: (user as any).creationDate
-                ? new Date((user as any).creationDate).toLocaleDateString()
+              Nombre: user.firstName || "",
+              Apellido: user.lastName || "",
+              Email: user.email || "",
+              Rol: user.role || "",
+              Fecha_de_Aplicativo: user.creationDate
+                ? new Date(user.creationDate).toLocaleDateString()
                 : "",
-              Celular: (user as any).phone || "",
-              Escuela_Actual: (user as any).currentSchool || "",
-              Nivel_Educativo: (user as any).educationLevel || "",
-              Generacion: (user as any).generation || "",
-              Grado: (user as any).grade || "",
-              Grupo: (user as any).group || "",
+              Celular: user.phone || "",
+              Escuela_Actual: user.currentSchool || "",
+              Nivel_Educativo: user.educationLevel || "",
+              Generacion: user.generation || "",
+              Grado: user.grade || "",
+              Grupo: user.group || "",
             };
-            const respuestasFormateadas = Object.fromEntries(
-              Array.from(respuestas).map(([idPregunta, respuesta]) => {
-                const pregunta = preguntas.find(
-                  (p) => p?._id.toString() === idPregunta
-                );
-                return [pregunta?.texto || idPregunta, respuesta];
-              })
-            );
-            
-              const categoriasConNombres = {};
-                 categorias.forEach((categoria: any) => {
-                categoriasConNombres[categoria.nombre] = "0"; 
-            });
-
+  
+            const respuestasFormateadas =
+              resultado.respuestas && typeof resultado.respuestas === "object"
+                ? Object.fromEntries(
+                    Array.from(resultado.respuestas.entries()).map(
+                      ([idPregunta, respuesta]) => {
+                        const pregunta: any =
+                          preguntas.find(
+                            (p: any) => p?._id.toString() === idPregunta
+                          ) || {};
+                        const textoPregunta: any =
+                          pregunta?.texto || `Pregunta ${idPregunta}`;
+                        console.log(
+                          `Procesando respuesta para la pregunta: ${textoPregunta}, respuesta: ${respuesta}`
+                        );
+                        return [textoPregunta, respuesta];
+                      }
+                    )
+                  )
+                : {};
+  
             return {
               ...userInfo,
               ...respuestasFormateadas,
-              ...categoriasConNombres,
             };
           })
-        )
+        );
+  
+        console.log(
+          "Datos formateados para Excel:",
+          JSON.stringify(data, null, 2)
+        );
+  
+        // Create Excel workbook and sheet
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Resultados");
+  
+        const excelBuffer = XLSX.write(workbook, {
+          bookType: "xlsx",
+          type: "buffer",
+        });
+        console.log("Archivo Excel creado.");
+  
+        // Set document title
+        const titulo = documento?.titulo || "Resultado";
+        console.log("Título del documento:", titulo);
+  
+        return new NextResponse(excelBuffer, {
+          status: 200,
+          headers: {
+            "Content-Disposition": `attachment; filename=Resultado_Tests_${titulo}.xlsx`,
+            "Content-Type":
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          },
+        });
+      }
+  
+      // Logic for test type 2
+      if (documento.tipo === 2) {
+        const preguntas =
+          (documento?.sections || []).flatMap(
+            (section: any) => section.questions
+          ) || [];
+        const categorias = documento.categorias || [];
+  
+        if (!resultados.length) {
+          console.error(
+            `No se encontraron resultados para el ID de prueba: ${id_prueba}`
+          );
+          return NextResponse.json(
+            {
+              error: `No se encontraron resultados para el ID de prueba: ${id_prueba}`,
+            },
+            { status: 404 }
+          );
+        }
+  
+        const { encabezadosFinales, dataRows, merges } =
+          organizeDataWithoutPercentages(preguntas, categorias, resultados);
+        console.log(`Encabezados finales: ${JSON.stringify(encabezadosFinales)}`);
+        console.log(`Filas de datos: ${JSON.stringify(dataRows, null, 2)}`);
+  
+        const workbook = XLSX.utils.book_new();
+        const hojaResultados = XLSX.utils.aoa_to_sheet([
+          ...encabezadosFinales,
+          ...dataRows,
+        ]);
+        hojaResultados["!merges"] = merges;
+        XLSX.utils.book_append_sheet(workbook, hojaResultados, "Datos Generales");
+  
+        const hojaDatosIndividuales = XLSX.utils.json_to_sheet(
+          await Promise.all(
+            resultados.map(async (resultado) => {
+              const { id_user: user, respuestas } = resultado;
+              const userInfo = {
+                Nombre: (user as any).firstName || "",
+                Apellido: (user as any).lastName || "",
+                Email: (user as any).email || "",
+                Rol: (user as any).role || "",
+                Fecha_de_Aplicativo: (user as any).creationDate
+                  ? new Date((user as any).creationDate).toLocaleDateString()
+                  : "",
+                Celular: (user as any).phone || "",
+                Escuela_Actual: (user as any).currentSchool || "",
+                Nivel_Educativo: (user as any).educationLevel || "",
+                Generacion: (user as any).generation || "",
+                Grado: (user as any).grade || "",
+                Grupo: (user as any).group || "",
+              };
+              const respuestasFormateadas = Object.fromEntries(
+                Array.from(respuestas).map(([idPregunta, respuesta]) => {
+                  const pregunta = preguntas.find(
+                    (p) => p?._id.toString() === idPregunta
+                  );
+                  return [pregunta?.texto || idPregunta, respuesta];
+                })
+              );
+                const categoriasConNombres = {};
+                   categorias.forEach((categoria: any) => {
+                  categoriasConNombres[categoria.nombre] = ""; 
+              });
+              return {
+                ...userInfo,
+                ...respuestasFormateadas,
+                ...categoriasConNombres,
+              };
+            })
+          )
+        );
+        console.log(hojaDatosIndividuales)
+        XLSX.utils.book_append_sheet(
+          workbook,
+          hojaDatosIndividuales,
+          "Resultados Individuales"
+        );
+        const excelBuffer = XLSX.write(workbook, {
+          bookType: "xlsx",
+          type: "buffer",
+        });
+  
+        return new NextResponse(excelBuffer, {
+          status: 200,
+          headers: {
+            "Content-Disposition": `attachment; filename=Resultados_${documento.titulo}.xlsx`,
+            "Content-Type":
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          },
+        });
+      }
+  
+      return NextResponse.json({ error: "Tipo de prueba no soportado" }, { status: 400 });
+    } catch (error) {
+      console.error("Error al exportar resultados:", error);
+      return NextResponse.json(
+        { error: "Error al exportar resultados" },
+        { status: 500 }
       );
-      console.log(hojaDatosIndividuales)
-      XLSX.utils.book_append_sheet(
-        workbook,
-        hojaDatosIndividuales,
-        "Resultados Individuales"
-      );
-      const excelBuffer = XLSX.write(workbook, {
-        bookType: "xlsx",
-        type: "buffer",
-      });
-
-      return new NextResponse(excelBuffer, {
-        status: 200,
-        headers: {
-          "Content-Disposition": `attachment; filename=Resultados_${documento.titulo}.xlsx`,
-          "Content-Type":
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        },
-      });
     }
-
-    return NextResponse.json({ error: "Tipo de prueba no soportado" }, { status: 400 });
-  } catch (error) {
-    console.error("Error al exportar resultados:", error);
-    return NextResponse.json(
-      { error: "Error al exportar resultados" },
-      { status: 500 }
-    );
-  }
 }

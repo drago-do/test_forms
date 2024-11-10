@@ -59,6 +59,8 @@ export async function PUT(
 
     const { idMongo } = params;
     const body = await request.json();
+    console.log("body");
+    console.log(body);
 
     // Intentar encontrar y actualizar el documento por su ID
     const documentoActualizado: IPrueba = await (
@@ -74,16 +76,21 @@ export async function PUT(
     // Si no encuentra el documento, devolver error
     if (!documentoActualizado) {
       return NextResponse.json({
+        success: false,
         error: "Not Found",
         message: "Document not found",
       });
     }
 
     // Devolver el documento actualizado
-    return NextResponse.json({ documento: documentoActualizado });
+    return NextResponse.json({
+      success: true,
+      data: documentoActualizado,
+    });
   } catch (error: any) {
     console.log(error);
     return NextResponse.json({
+      success: false,
       error: "Internal Server Error",
       message: error.message,
     });
@@ -116,6 +123,7 @@ export async function DELETE(
     // Si no encuentra el documento, devolver error
     if (!documentoEliminado) {
       return NextResponse.json({
+        success: false,
         error: "Not Found",
         message: "Document not found",
       });
@@ -123,12 +131,14 @@ export async function DELETE(
 
     // Devolver confirmación de eliminación
     return NextResponse.json({
+      success: true,
       message: "Document deleted successfully",
       documento: documentoEliminado,
     });
   } catch (error: any) {
     console.log(error);
     return NextResponse.json({
+      success: false,
       error: "Internal Server Error",
       message: error.message,
     });

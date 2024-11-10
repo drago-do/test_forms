@@ -20,58 +20,16 @@ import MaterialIcon from "../general/MaterialIcon";
 import LoaderPencil from "../general/LoaderPencil";
 import useResults from "./../../hook/useResults";
 
-const ReturnButonsGroup = () => {
-  const { push } = useRouter();
-
-  return (
-    <section className="w-full flex justify-end">
-      <Button variant="text" color="secondary" onClick={() => push("/")}>
-        <MaterialIcon iconName="home" className="mr-3" /> Regresar a la página
-        principal
-      </Button>
-    </section>
-  );
-};
-
 export default function Page({
   state = "success",
-  idResults = null,
+  idResults = "671eed0b24e931a9cb9f332c",
   info = "Error ",
+  tipo = 2,
 }) {
   const [showConfetti, setShowConfetti] = useState(false);
-  const { getResultsById } = useResults();
+  const { getResultById } = useResults();
   const [loading, showLoading] = useState(true);
-  const [results, setResults] = useState([
-    {
-      nombreSeccion: "Seccion1",
-      porcentaje: 32,
-      escala: "Medio",
-      enlaces: ["www.google.com", "facebook.com"],
-    },
-    {
-      nombreSeccion: "Seccion2",
-      porcentaje: 100,
-      escala: "Medio",
-      enlaces: [
-        "www.google.com",
-        "facebook.com",
-        "www.google.com",
-        "facebook.com",
-        "www.google.com",
-        "facebook.com",
-        "www.google.com",
-        "facebook.com",
-        "www.google.com",
-        "facebook.com",
-      ],
-    },
-    {
-      nombreSeccion: "Seccion3",
-      porcentaje: 84,
-      escala: "Alto",
-      enlaces: [],
-    },
-  ]);
+  const [results, setResults] = useState([]);
 
   // Manejar efecto solo cuando el estado es "success"
   useEffect(() => {
@@ -85,12 +43,13 @@ export default function Page({
   useEffect(() => {
     const fetchResults = async () => {
       if (idResults) {
-        //TODO descomentar esto
-        // const response = await getResultsById(idResults);
-        // if (response.success) {
-        //   setResults(response.data);
-        //   showLoading(false);
-        // }
+        const response = await getResultById(idResults);
+        console.log(response);
+
+        if (response.success) {
+          setResults(response.data);
+          showLoading(false);
+        }
       }
     };
     fetchResults();
@@ -135,8 +94,11 @@ export default function Page({
               {successImage}
             </section>
             <Typography variant="h4">Resultados</Typography>
-            <ResultsTable results={results} />
-            <ReturnButonsGroup />
+            {tipo === 1 ? (
+              <ResultsTable results={results} />
+            ) : (
+              <ResultsType2 results={results} />
+            )}
           </>
         );
       case "error":
@@ -151,7 +113,6 @@ export default function Page({
                 {info}
               </Alert>
             )}
-            <ReturnButonsGroup />
           </>
         );
       case "loading":
@@ -167,8 +128,9 @@ export default function Page({
     }
   };
 
-  return <Container maxWidth="sm">{renderContent()}</Container>;
+  return <Container maxWidth="lg">{renderContent()}</Container>;
 }
+
 const ResultsTable = ({ results }) => {
   const [showLinks, setShowLinks] = useState({});
 
@@ -183,7 +145,7 @@ const ResultsTable = ({ results }) => {
           <TableRow>
             <TableCell style={{ width: "25%" }}>Sección</TableCell>
             <TableCell style={{ width: "25%" }}>Porcentaje</TableCell>
-            <TableCell style={{ width: "25%" }}>Escala</TableCell>
+            <TableCell style={{ width: "25%" }}>Interpretación</TableCell>
             <TableCell style={{ width: "25%" }}>Enlaces</TableCell>
           </TableRow>
         </TableHead>
@@ -207,6 +169,75 @@ const ResultsTable = ({ results }) => {
                       clickable
                     />
                   ))
+                ) : (
+                  <Button
+                    variant="contained"
+                    onClick={() => handleShowLinks(index)}
+                  >
+                    Mostrar Enlaces
+                  </Button>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
+const ResultsType2 = ({ results }) => {
+  const [showLinks, setShowLinks] = useState({});
+
+  const handleShowLinks = (index) => {
+    setShowLinks((prev) => ({ ...prev, [index]: true }));
+  };
+
+  const usuarioResults = results?.usuario || {};
+
+  return (
+    <TableContainer component={Paper} className="my-5">
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>ÁREA ACADEMICA</TableCell>
+            <TableCell>PORCENTAJE</TableCell>
+            <TableCell>ENLACES</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {Object.entries(usuarioResults).map(([category, data], index) => (
+            <TableRow key={index}>
+              <TableCell>{category}</TableCell>
+              <TableCell>{data.promedio}%</TableCell>
+              <TableCell>
+                {showLinks[index] ? (
+                  data.enlaces.map((enlace, enlaceIndex) => {
+                    const getShortLabel = (url) => {
+                      try {
+                        const { hostname, pathname } = new URL(url);
+                        const shortPath =
+                          pathname.length > 20
+                            ? pathname.substring(0, 5) + "..."
+                            : pathname;
+                        return `${hostname}${shortPath}`;
+                      } catch (error) {
+                        return url;
+                      }
+                    };
+
+                    return (
+                      <Chip
+                        key={enlaceIndex}
+                        className="my-2"
+                        label={getShortLabel(enlace)}
+                        component="a"
+                        href={`${enlace}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        clickable
+                      />
+                    );
+                  })
                 ) : (
                   <Button
                     variant="contained"

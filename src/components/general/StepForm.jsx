@@ -65,7 +65,6 @@ export default function Page({
   } = useFormContext();
 
   const onSubmit = (data) => {
-    console.log("submit");
     scrollTop();
     uploadToDataBase(data, formatCode)
       .then((response) => {
@@ -87,43 +86,43 @@ export default function Page({
       });
   };
 
-  useEffect(() => {
-    if (debug) {
-      console.log(getValues());
-    }
-  }, [watch()]);
+  // useEffect(() => {
+  //   if (debug) {
+  //     console.log(getValues());
+  //   }
+  // }, [watch()]);
 
-  const getErrorMessages = (errorObj) => {
-    let messages = [];
-    const traverseErrors = (obj) => {
-      for (const key in obj) {
-        if (obj[key]?.message) {
-          messages.push({
-            path: camelCaseToCapitalizedSpaces(key),
-            message: obj[key].message,
-            ref: obj[key].ref,
-          });
-        } else if (typeof obj[key] === "object") {
-          traverseErrors(obj[key]);
-        }
-      }
-    };
-    traverseErrors(errorObj);
-    return messages;
-  };
+  // const getErrorMessages = (errorObj) => {
+  //   let messages = [];
+  //   const traverseErrors = (obj) => {
+  //     for (const key in obj) {
+  //       if (obj[key]?.message) {
+  //         messages.push({
+  //           path: camelCaseToCapitalizedSpaces(key),
+  //           message: obj[key].message,
+  //           ref: obj[key].ref,
+  //         });
+  //       } else if (typeof obj[key] === "object") {
+  //         traverseErrors(obj[key]);
+  //       }
+  //     }
+  //   };
+  //   traverseErrors(errorObj);
+  //   return messages;
+  // };
 
-  useEffect(() => {
-    const handleClick = () => {
-      setTimeout(() => {
-        setErrorMessages(getErrorMessages(errors));
-      }, 200);
-    };
+  // useEffect(() => {
+  //   const handleClick = () => {
+  //     setTimeout(() => {
+  //       setErrorMessages(getErrorMessages(errors));
+  //     }, 200);
+  //   };
 
-    document.addEventListener("click", handleClick);
-    return () => {
-      document.removeEventListener("click", handleClick);
-    };
-  }, [errors]);
+  //   document.addEventListener("click", handleClick);
+  //   return () => {
+  //     document.removeEventListener("click", handleClick);
+  //   };
+  // }, [errors]);
 
   function camelCaseToCapitalizedSpaces(camelCaseString) {
     const result = camelCaseString

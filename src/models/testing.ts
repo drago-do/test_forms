@@ -65,6 +65,7 @@ export interface ISeccion extends Document {
   descripcion?: string;
   link: string[];
   valorMax: number;
+  escala: string[];
   questions: (typeof preguntaSchema)[]; // Referencia a preguntas
 }
 
@@ -87,6 +88,10 @@ const seccionSchema: Schema<ISeccion> = new Schema(
     valorMax: {
       type: Number,
       description: "Valor máximo para TESTS_RANGO",
+    },
+    escala: {
+      type: [String],
+      description: "Escalas disponibles para la prueba",
     },
     questions: [
       {
@@ -111,6 +116,10 @@ const categoriaSchema = new Schema(
     subcategorias: {
       type: [String],
       description: "Subcategorías de la categoría",
+    },
+    link: {
+      type: [String],
+      description: "Enlaces a cuestionarios o contenido relevante",
     },
   },
   { _id: false }
@@ -159,10 +168,6 @@ const pruebaSchema: Schema<IPrueba> = new Schema(
         type: Number,
         min: 0,
         description: "Nivel de la escala",
-      },
-      escala: {
-        type: [String],
-        description: "Escalas disponibles para la prueba",
       },
     },
     categorias: [categoriaSchema], // Usar el esquema de categoría aquí
