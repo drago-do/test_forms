@@ -5,7 +5,7 @@ import Resultados, { IResultados } from "../../../../models/results";
 import Prueba, { ISeccion, IPrueba } from "../../../../models/testing";
 import User from "./../../../../models/user";
 import mongoose from "mongoose";
-import { IPregunta } from "../../../../models/testing";
+
 
 // Organizes data without calculating percentages
 const organizeDataWithoutPercentages = (preguntas, categorias, resultados) => {
