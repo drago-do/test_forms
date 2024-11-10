@@ -13,9 +13,7 @@ const organizeDataWithoutPercentages = (preguntas, categorias, resultados) => {
   const merges = [];
   let currentColumn = 1;
 
-  categorias.forEach((categoria) => {
-    encabezadosCategorias.push(
-      categoria.nombre,
+  categorias.forEach((categoria) => {encabezadosCategorias.push(categoria.nombre,
       ...Array(categoria.subcategorias.length - 1).fill(null)
     );
     merges.push({
@@ -52,8 +50,7 @@ const organizeDataWithoutPercentages = (preguntas, categorias, resultados) => {
         }, {});
         fila.push(
           Object.values(frecuencias).reduce(
-            (acc: number, curr: unknown) => acc + (curr as number),
-            0
+            (acc: number, curr: unknown) => acc + (curr as number),0
           )
         );
       });
@@ -81,7 +78,7 @@ export async function GET(request, { params }) {
   const idPrueba = params.idExport || "";
   console.log(`ID de prueba recibido: ${idPrueba}`);
 
-  // Validate 'idPrueba' parameter
+  // Validate 'idPrueba' 
   if (!idPrueba || !mongoose.Types.ObjectId.isValid(idPrueba)) {
     return NextResponse.json(
       { error: "El parámetro 'id' es requerido y debe ser un ObjectId válido" },
@@ -90,10 +87,10 @@ export async function GET(request, { params }) {
   }
 
   try {
-    await mongodb(); // Connect to MongoDB
+    await mongodb(); 
     console.log("Conexión a MongoDB exitosa");
 
-    // Fetch results associated with the test ID, populating user data
+    // Refrescar resultados associated with the test ID, populating user data
     const resultados = await (Resultados as mongoose.Model<IResultados>)
       .find({ id_prueba: idPrueba })
       .populate({
@@ -106,25 +103,15 @@ export async function GET(request, { params }) {
     console.log(`Resultados encontrados: ${resultados.length}`);
 
     // Find the test document
-    const documento = await (Prueba as mongoose.Model<IPrueba>).findById(
-      idPrueba
-    );
-    if (!documento) {
-      console.error(
-        `No se encontró un documento para el ID de prueba: ${idPrueba}`
-      );
-      return NextResponse.json(
-        { error: `No se encontró documento para el ID de prueba: ${idPrueba}` },
-        { status: 404 }
-      );
-    }
+    const documento = await (Prueba as mongoose.Model<IPrueba>).findById(idPrueba);if (!documento) {
+      console.error(`No se encontró un documento para el ID de prueba: ${idPrueba}`);
+      return NextResponse.json({ error: `No se encontró documento para el ID de prueba: ${idPrueba}` },
+        { status: 404 });}
 
     // Logic for test type 1
-    if (documento.tipo === 1) {
-      const preguntas =
-        (documento?.sections as unknown as ISeccion[])?.flatMap(
-          (section) => section.questions
-        ) || [];
+    if (documento.tipo === 1) 
+      {const preguntas =(documento?.sections as unknown as ISeccion[])?.
+        flatMap((section) => section.questions) || [];
 
       // Format data for Excel export
       const data = await Promise.all(
@@ -147,24 +134,12 @@ export async function GET(request, { params }) {
           };
 
           const respuestasFormateadas =
-            resultado.respuestas && typeof resultado.respuestas === "object"
-              ? Object.fromEntries(
-                  Array.from(resultado.respuestas.entries()).map(
-                    ([idPregunta, respuesta]) => {
-                      const pregunta: any =
-                        preguntas.find(
-                          (p: any) => p?._id.toString() === idPregunta
-                        ) || {};
-                      const textoPregunta: any =
-                        pregunta?.texto || `Pregunta ${idPregunta}`;
-                      console.log(
-                        `Procesando respuesta para la pregunta: ${textoPregunta}, respuesta: ${respuesta}`
-                      );
-                      return [textoPregunta, respuesta];
-                    }
-                  )
-                )
-              : {};
+            resultado.respuestas && typeof resultado.respuestas === "object"? Object.fromEntries(
+                  Array.from(resultado.respuestas.entries()).map(([idPregunta, respuesta]) => {
+                      const pregunta: any = preguntas.find((p: any) => p?._id.toString() === idPregunta) || {};
+                      const textoPregunta: any = pregunta?.texto || `Pregunta ${idPregunta}`;
+                      console.log(`Procesando respuesta para la pregunta: ${textoPregunta}, respuesta: ${respuesta}`);
+                      return [textoPregunta, respuesta];})): {};
 
           return {
             ...userInfo,
@@ -255,7 +230,6 @@ export async function GET(request, { params }) {
               Grado: (user as any).grade || "",
               Grupo: (user as any).group || "",
             };
-
             const respuestasFormateadas = Object.fromEntries(
               Array.from(respuestas).map(([idPregunta, respuesta]) => {
                 const pregunta = preguntas.find(
@@ -264,10 +238,10 @@ export async function GET(request, { params }) {
                 return [pregunta?.texto || idPregunta, respuesta];
               })
             );
-
+            
               const categoriasConNombres = {};
                  categorias.forEach((categoria: any) => {
-                categoriasConNombres[categoria.nombre] = ""; 
+                categoriasConNombres[categoria.nombre] = "0"; 
             });
 
             return {
@@ -278,15 +252,12 @@ export async function GET(request, { params }) {
           })
         )
       );
-
       console.log(hojaDatosIndividuales)
-
       XLSX.utils.book_append_sheet(
         workbook,
         hojaDatosIndividuales,
         "Resultados Individuales"
       );
-
       const excelBuffer = XLSX.write(workbook, {
         bookType: "xlsx",
         type: "buffer",
