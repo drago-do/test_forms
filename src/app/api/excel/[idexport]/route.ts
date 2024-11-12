@@ -271,76 +271,123 @@ export async function GET(request, { params }) {
 //=========================================================================================================================================================
 //=========================================================================================================================================================
 
-      // Lógica para la hoja de datos individuales
-      const hojaDatosIndividuales = XLSX.utils.json_to_sheet(
-        await Promise.all(
-          resultados.map(async (resultado) => {
-            const { id_user: user, respuestas } = resultado;
-            // Información básica del usuario
-            const userInfo = {
-              Nombre: (user as any).firstName || "",
-              Apellido: (user as any).lastName || "",
-              Email: (user as any).email || "",
-              Rol: (user as any).role || "",
-              Fecha_de_Aplicativo: (user as any).creationDate
-                ? new Date((user as any).creationDate).toLocaleDateString()
-                : "",
-              Celular: (user as any).phone || "",
-              Escuela_Actual: (user as any).currentSchool || "",
-              Nivel_Educativo: (user as any).educationLevel || "",
-              Generacion: (user as any).generation || "",
-              Grado: (user as any).grade || "",
-              Grupo: (user as any).group || "",
-            };
+    // Lógica para la hoja de datos individuales
+    // Lógica para la hoja de datos individuales
+// Lógica para la hoja de datos individuales
+const hojaDatosIndividuales = XLSX.utils.json_to_sheet(
+  await Promise.all(
+    resultados.map(async (resultado) => {
+      const { id_user: user, respuestas } = resultado;
 
-            // Respuestas formateadas para cada pregunta
-            const respuestasFormateadas =
-              respuestas && typeof respuestas === "object"
-                ? Object.fromEntries(
-                    Object.entries(respuestas).map(([idPregunta, respuesta]) => {
-                      const pregunta = preguntas.find(
-                        (p) => p?._id.toString() === idPregunta
-                      );
-                      return [pregunta?.texto || idPregunta, respuesta];
-                    })
-                  )
-                : {};
+      // Información básica del usuario
+      const userInfo = {
+        Nombre: (user as any).firstName || "",
+        Apellido: (user as any).lastName || "",
+        Email: (user as any).email || "",
+        Rol: (user as any).role || "",
+        Fecha_de_Aplicativo: (user as any).creationDate
+          ? new Date((user as any).creationDate).toLocaleDateString()
+          : "",
+        Celular: (user as any).phone || "",
+        Escuela_Actual: (user as any).currentSchool || "",
+        Nivel_Educativo: (user as any).educationLevel || "",
+        Generacion: (user as any).generation || "",
+        Grado: (user as any).grade || "",
+        Grupo: (user as any).group || "",
+      };
 
-            // Organizar categorías y subcategorías
-            const categoriasConNombres = {};
-            categorias.forEach((categoria: any) => {
-              categoria.subcategorias.forEach((subcategoria: any) => {
-                categoriasConNombres[`${categoria.nombre} - ${subcategoria}`] = 0;
-              });
+      // Respuestas formateadas para cada pregunta
+      const respuestasFormateadas =
+        respuestas && typeof respuestas === "object"
+          ? Object.fromEntries(
+              Object.entries(respuestas).map(([idPregunta, respuesta]) => {
+                const pregunta = preguntas.find(
+                  (p) => p?._id.toString() === idPregunta
+                );
+                return [pregunta?.texto || idPregunta, respuesta];
+              })
+            )
+          : {};
+
+      // Contador de opciones totales por categoría y subcategoría
+      const categoriasConteo: any = {};
+      preguntas.forEach((pregunta: any) => {
+        pregunta.opciones.forEach((opcion: any) => {
+          categorias.forEach((categoria: any) => {
+            if (categoria.subcategorias.includes(opcion.subcategoria)) {
+              if (!categoriasConteo[categoria.nombre]) {
+                categoriasConteo[categoria.nombre] = {
+                  subcategorias: {},
+                  total: 0,
+                  enlaces: categoria.link || [],
+                };
+              }
+              if (!categoriasConteo[categoria.nombre].subcategorias[opcion.subcategoria]) {
+                categoriasConteo[categoria.nombre].subcategorias[opcion.subcategoria] = 0;
+              }
+              categoriasConteo[categoria.nombre].subcategorias[opcion.subcategoria]++;
+              categoriasConteo[categoria.nombre].total++;
+            }
+          });
+        });
+      });
+
+      // Contador de respuestas del usuario por categoría y subcategoría
+      const categoriasUsuario: any = {};
+      preguntas.forEach((pregunta: any) => {
+        const respuestaTexto = respuestas[pregunta._id.toString()];
+        if (respuestaTexto) {
+          categorias.forEach((categoria: any) => {
+            categoria.subcategorias.forEach((subcategoria: any) => {
+              if (pregunta.opciones.some((opcion) => opcion.subcategoria === subcategoria)) {
+                if (!categoriasUsuario[categoria.nombre]) {
+                  categoriasUsuario[categoria.nombre] = {
+                    subcategorias: {},
+                    total: 0,
+                    enlaces: categoria.link || [],
+                  };
+                }
+                if (!categoriasUsuario[categoria.nombre].subcategorias[subcategoria]) {
+                  categoriasUsuario[categoria.nombre].subcategorias[subcategoria] = 0;
+                }
+                categoriasUsuario[categoria.nombre].subcategorias[subcategoria]++;
+                categoriasUsuario[categoria.nombre].total++;
+              }
             });
+          });
+        }
+      });
 
-            // Sumamos las respuestas para cada subcategoría
-            preguntas.forEach((pregunta: any) => {
-              categorias.forEach((categoria: any) => {
-                categoria.subcategorias.forEach((subcategoria: any) => {
-                  const respuestaTexto = respuestas[pregunta._id.toString()];
-                  if (
-                    respuestaTexto &&
-                    pregunta.opciones.some(
-                      (opcion) => opcion.subcategoria === subcategoria
-                    )
-                  ) {
-                    const respuestaCodigo =
-                      respuestaTexto.match(/\(([^)]+)\)/)?.[1] || "";
-                    if (respuestaCodigo) {
-                      categoriasConNombres[`${categoria.nombre} - ${subcategoria}`] += 1;
-                    }
-                  }
-                });
-              });
-            });
+      // Cálculo de conteos y promedios
+      const categoriasConConteo: any = {};
+      const categoriasConPorcentaje: any = {};
+      for (const [nombreCategoria, conteo] of Object.entries<any>(categoriasUsuario)) {
+        const totalRespuestas = conteo.total;
+        const totalOpciones = categoriasConteo[nombreCategoria]?.total || 1; // Total de opciones posibles para la categoría
+        const promedio = (totalRespuestas / totalOpciones) * 100; // Porcentaje basado en el total de opciones
 
-            return { ...userInfo, 
-                     ...respuestasFormateadas, 
-                    ...categoriasConNombres };
-          })
-        )
-      );
+        // Asignar conteos
+        Object.entries(conteo.subcategorias).forEach(([subcat, count]) => {
+          categoriasConConteo[`${nombreCategoria} - ${subcat} - Conteo`] = count;
+        });
+
+        // Asignar porcentajes
+        categoriasConPorcentaje[`${nombreCategoria} - Porcentaje`] = `${promedio.toFixed(2)}%`;
+      }
+
+      // Devolvemos los resultados organizados
+      return {
+        ...userInfo,
+        ...respuestasFormateadas,
+        ...categoriasConConteo,    // Primero los conteos
+        ...categoriasConPorcentaje // Luego los porcentajes
+      };
+    })
+  )
+);
+
+
+
 
       console.log("hojaDatosIndividuales", hojaDatosIndividuales);
       XLSX.utils.book_append_sheet(
