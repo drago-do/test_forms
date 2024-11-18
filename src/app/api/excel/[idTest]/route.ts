@@ -76,7 +76,7 @@ export async function GET(
   // });
 
   try {
-    if (testType === 1) {
+    if (true) {
       const { headers, data } = formatResultsForExcelTypeOne(
         PruebaDocument,
         ResultadosArrayDocument

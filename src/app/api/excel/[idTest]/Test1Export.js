@@ -11,6 +11,7 @@ function formatResultsForExcelTypeOne(testDocument, results) {
     "FechaDeAplicativo",
     ...questions.map((q) => q.texto),
     ...testDocument.sections.map((section) => `Promedio ${section.name}`),
+    ...testDocument.sections.map((section) => `Interpretacion ${section.name}`),
   ];
 
   const data = results.map((result) => {
@@ -27,17 +28,60 @@ function formatResultsForExcelTypeOne(testDocument, results) {
     );
 
     const sectionAverages = testDocument.sections.map((section) => {
-      const sectionQuestions = section.questions.map((q) => q._id.toString());
-      const sectionAnswers = sectionQuestions.map(
-        (id) => result.respuestas[id] || 0
-      );
-      const average =
-        sectionAnswers.reduce((sum, val) => sum + val, 0) /
-        sectionAnswers.length;
-      return average.toFixed(2);
+      let puntajeSeccion = 0;
+
+      section.questions.forEach((pregunta) => {
+        const respuesta = result.respuestas[pregunta._id.toString()];
+        if (respuesta !== undefined) {
+          const opcion = pregunta.opciones.find(
+            (op) => op.valor === parseInt(respuesta)
+          );
+          if (opcion) {
+            puntajeSeccion += opcion.valor;
+          }
+        }
+      });
+
+      const numPreguntas = section.questions.length;
+      const PuntosTotalesDeSeccion = section?.valorMax * numPreguntas;
+      const porcentajeObtenido =
+        (puntajeSeccion / PuntosTotalesDeSeccion) * 100;
+
+      return porcentajeObtenido.toFixed(2);
     });
 
-    return [...userInfo, ...answers, ...sectionAverages];
+    const sectionInterpretations = testDocument.sections.map((section) => {
+      let puntajeSeccion = 0;
+
+      section.questions.forEach((pregunta) => {
+        const respuesta = result.respuestas[pregunta._id.toString()];
+        if (respuesta !== undefined) {
+          const opcion = pregunta.opciones.find(
+            (op) => op.valor === parseInt(respuesta)
+          );
+          if (opcion) {
+            puntajeSeccion += opcion.valor;
+          }
+        }
+      });
+
+      const numPreguntas = section.questions.length;
+      const PuntosTotalesDeSeccion = section?.valorMax * numPreguntas;
+      const numEscalas = section.escala.length;
+      const brinco = PuntosTotalesDeSeccion / numEscalas;
+      const escala = Math.ceil(puntajeSeccion / brinco);
+      const escalaTexto =
+        section.escala[escala - 1] || "Error al obtener escala";
+
+      return escalaTexto;
+    });
+
+    return [
+      ...userInfo,
+      ...answers,
+      ...sectionAverages,
+      ...sectionInterpretations,
+    ];
   });
 
   return { headers, data };
