@@ -5,7 +5,11 @@ import Resultados, { IResultados } from "../../../../models/results";
 import Prueba, { ISeccion, IPrueba } from "../../../../models/testing";
 import User from "../../../../models/user";
 import mongoose from "mongoose";
-import { formatResultsForExcelTypeOne, createExcel } from "./Test1Export";
+import {
+  formatResultsForExcelTypeOne,
+  formatResultsForExcelTypeTwo,
+  createExcel,
+} from "./Test1Export";
 
 export async function GET(
   request: Request,
@@ -76,14 +80,30 @@ export async function GET(
   // });
 
   try {
-    if (true) {
+    if (testType === 1) {
       const { headers, data } = formatResultsForExcelTypeOne(
         PruebaDocument,
         ResultadosArrayDocument
       );
-
       // console.log(headers);
-      console.log(data);
+      // console.log(data);
+      const excelBuffer = createExcel(headers, data);
+
+      return new NextResponse(excelBuffer, {
+        status: 200,
+        headers: {
+          "Content-Disposition": `attachment; filename=Resultados_Tests_${PruebaDocument?.titulo}.xlsx`,
+          "Content-Type":
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        },
+      });
+    } else if (testType === 2) {
+      const { headers, data } = formatResultsForExcelTypeTwo(
+        PruebaDocument,
+        ResultadosArrayDocument
+      );
+      // console.log(headers);
+      // console.log(data);
       const excelBuffer = createExcel(headers, data);
 
       return new NextResponse(excelBuffer, {
