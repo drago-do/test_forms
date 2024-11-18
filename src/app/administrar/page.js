@@ -27,6 +27,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import FullPageLoader from "./../../components/general/FullPageLoader";
 import InfiniteScroll from "react-infinite-scroll-component";
 import useTest from "./../../hook/useTest";
+import { toast } from "sonner";
+import axios from "axios";
 
 import { useRouter } from "next/navigation";
 
@@ -162,6 +164,47 @@ const ItemTest = ({
     window.location.reload();
     setLoading(false);
   };
+  const downloadExcel = async (idTest) => {
+    toast.info("Descargando resumen");
+    setLoading(true);
+    try {
+      const response = await axios.get(`/api/excel/${idTest}`, {
+        responseType: "arraybuffer",
+      });
+
+      if (response.headers["content-type"] === "application/json") {
+        const jsonResponse = JSON.parse(
+          new TextDecoder().decode(response.data)
+        );
+        if (!jsonResponse.success) {
+          toast.error(jsonResponse.message);
+          setLoading(false);
+          return;
+        }
+      }
+
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Resultados_Tests_${titulo}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success("Archivo Excel descargado exitosamente");
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error.response?.data?.message ||
+          "Hubo un error al descargar el archivo Excel"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Paper
@@ -252,10 +295,7 @@ const ItemTest = ({
           <MenuItem onClick={handleDeleteDialog}>Eliminar</MenuItem>
           <MenuItem
             onClick={() => {
-              setLoading(true);
-              push(`/api/excel/${_id}`);
-              setLoading(false);
-              handleClose();
+              downloadExcel(_id);
             }}
           >
             Descargar Resultados

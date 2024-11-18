@@ -9,7 +9,7 @@ import {
   formatResultsForExcelTypeOne,
   formatResultsForExcelTypeTwo,
   createExcel,
-} from "./Test1Export";
+} from "./TestExport";
 
 export async function GET(
   request: Request,
