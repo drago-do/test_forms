@@ -22,6 +22,22 @@ export async function POST(request: Request) {
       throw new Error("Invalid 'respuestas' format");
     }
 
+    // Check if a result already exists for the given id_prueba and id_user
+    const existingResultado = await (
+      Resultados as mongoose.Model<IResultados>
+    ).findOne({
+      id_prueba: data.id_prueba,
+      id_user: data.id_user,
+    });
+
+    // If an existing result is found, delete it
+    if (existingResultado) {
+      await (Resultados as mongoose.Model<IResultados>).deleteOne({
+        _id: existingResultado._id,
+      });
+    }
+
+    // Create a new result
     const newResultado = new Resultados(data);
     const savedResultado = await newResultado.save();
 
