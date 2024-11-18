@@ -175,50 +175,57 @@ export default function UserProfile() {
         </Typography>
         {completedTests.length > 0 ? (
           <List>
-            {completedTests.map((test, index) => (
-              <React.Fragment key={test._id}>
-                <ListItem
-                  style={{
-                    borderRadius: "8px",
-                    margin: "10px 0",
-                    padding: "15px",
-                  }}
-                  className="dark:bg-slate-800 bg-slate-400"
-                >
-                  <ListItemText
-                    primary={
-                      <Typography variant="h6" style={{ fontWeight: "bold" }}>
-                        {test.id_prueba.titulo}
-                      </Typography>
-                    }
-                    secondary={
-                      <>
-                        <Typography
-                          component="span"
-                          variant="body2"
-                          color="textSecondary"
-                          style={{ display: "block", marginBottom: "5px" }}
-                        >
-                          Completado el:{" "}
-                          {new Date(test.createdAt).toLocaleDateString()}
-                        </Typography>
-                      </>
-                    }
-                  />
-                  <Button
-                    variant="outlined"
-                    color="secondary"
-                    style={{ marginLeft: "auto" }}
-                    onClick={() => handleRetakeTest(test?.id_prueba?._id)}
-                  >
-                    Responder de nuevo
-                  </Button>
-                </ListItem>
-                {index < completedTests.length - 1 && (
-                  <Divider component="li" />
-                )}
-              </React.Fragment>
-            ))}
+            {completedTests.map((test, index) => {
+              if (test?.id_prueba?.titulo) {
+                return (
+                  <React.Fragment key={test._id}>
+                    <ListItem
+                      style={{
+                        borderRadius: "8px",
+                        margin: "10px 0",
+                        padding: "15px",
+                      }}
+                      className="dark:bg-slate-800 bg-slate-400"
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography
+                            variant="h6"
+                            style={{ fontWeight: "bold" }}
+                          >
+                            {test?.id_prueba?.titulo}
+                          </Typography>
+                        }
+                        secondary={
+                          <>
+                            <Typography
+                              component="span"
+                              variant="body2"
+                              color="textSecondary"
+                              style={{ display: "block", marginBottom: "5px" }}
+                            >
+                              Completado el:{" "}
+                              {new Date(test.createdAt).toLocaleDateString()}
+                            </Typography>
+                          </>
+                        }
+                      />
+                      <Button
+                        variant="outlined"
+                        color="secondary"
+                        style={{ marginLeft: "auto" }}
+                        onClick={() => handleRetakeTest(test?.id_prueba?._id)}
+                      >
+                        Responder de nuevo
+                      </Button>
+                    </ListItem>
+                    {index < completedTests?.length - 1 && (
+                      <Divider component="li" />
+                    )}
+                  </React.Fragment>
+                );
+              }
+            })}
           </List>
         ) : (
           <Typography variant="body1">
