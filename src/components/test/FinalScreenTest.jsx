@@ -128,7 +128,7 @@ export default function Page({
     }
   };
 
-  return <Container maxWidth="lg">{renderContent()}</Container>;
+  return <Container maxWidth="xl">{renderContent()}</Container>;
 }
 
 const ResultsTable = ({ results }) => {

@@ -85,6 +85,25 @@ export default function TestForm({ params }) {
     }
   }, [id]);
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.code === "Space" && answers[questions[activeStep - 1]?._id]) {
+        if (activeStep < questions.length) {
+          if (activeStep === steps?.length - 2) {
+            handleSubmit();
+          } else {
+            handleNext();
+          }
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [activeStep, answers, questions]);
+
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
