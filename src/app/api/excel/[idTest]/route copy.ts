@@ -6,6 +6,7 @@ import Prueba, { ISeccion, IPrueba } from "../../../../models/testing";
 import User from "../../../../models/user";
 import mongoose from "mongoose"; // Import mongoose for ObjectId validation
 
+//=========================================================================================================================================================
 // Organizes data without calculating percentages
 const organizeDataWithoutPercentages = (preguntas, categorias, resultados) => {
   const encabezadosCategorias = [];
@@ -52,7 +53,7 @@ const organizeDataWithoutPercentages = (preguntas, categorias, resultados) => {
         }, {});
         fila.push(
           Object.values(frecuencias).reduce(
-            (acc: number, curr: unknown) => acc + (curr as number),
+            (acc: number, curr) => acc + (curr as number),
             0
           )
         );
@@ -74,15 +75,17 @@ const organizeDataWithoutPercentages = (preguntas, categorias, resultados) => {
   return { encabezadosFinales, dataRows, merges };
 };
 
+//=========================================================================================================================================================
 // Function to handle GET request for exporting results
 export async function GET(request, { params }) {
   console.log("Iniciando la exportación de resultados...");
+  console.log("ID de prueba recibido:", params.idexport);
 
-  const idPrueba = params.idExport || "";
-  console.log(`ID de prueba recibido: ${idPrueba}`);
+  const id_prueba = params.idexport; // Se cambia el nombre del parámetro a minúsculas
+  console.log(`ID de prueba recibido: ${id_prueba}`);
 
-  // Validate 'idPrueba' parameter
-  if (!idPrueba || !mongoose.Types.ObjectId.isValid(idPrueba)) {
+  // Verificar si el id es un ObjectId válido
+  if (!id_prueba || !mongoose.Types.ObjectId.isValid(id_prueba)) {
     return NextResponse.json(
       { error: "El parámetro 'id' es requerido y debe ser un ObjectId válido" },
       { status: 400 }
@@ -93,9 +96,11 @@ export async function GET(request, { params }) {
     await mongodb(); // Connect to MongoDB
     console.log("Conexión a MongoDB exitosa");
 
+    //=========================================================================================================================================================
+
     // Fetch results associated with the test ID, populating user data
     const resultados = await (Resultados as mongoose.Model<IResultados>)
-      .find({ id_prueba: idPrueba })
+      .find({ id_prueba: id_prueba })
       .populate({
         path: "id_user",
         model: User,
@@ -107,21 +112,26 @@ export async function GET(request, { params }) {
 
     // Find the test document
     const documento = await (Prueba as mongoose.Model<IPrueba>).findById(
-      idPrueba
+      id_prueba
     );
     if (!documento) {
       console.error(
-        `No se encontró un documento para el ID de prueba: ${idPrueba}`
+        `No se encontró un documento para el ID de prueba: ${id_prueba}`
       );
       return NextResponse.json(
-        { error: `No se encontró documento para el ID de prueba: ${idPrueba}` },
+        {
+          error: `No se encontró documento para el ID de prueba: ${id_prueba}`,
+        },
         { status: 404 }
       );
     }
 
+    //=========================================================================================================================================================
+    //=========================================================================================================================================================
+    //=========================================================================================================================================================
+
     // Logic for test type 1
     if (documento.tipo === 1) {
-      // Prepare questions from the test document
       const preguntas =
         (documento?.sections as unknown as ISeccion[])?.flatMap(
           (section) => section.questions
@@ -167,9 +177,39 @@ export async function GET(request, { params }) {
                 )
               : {};
 
+          // Crear propiedades aplanadas para cada sección con el nombre y el porcentaje, incluyendo el símbolo de porcentaje
+          const seccionesResultado = documento.sections.reduce(
+            (acc, seccion: any) => {
+              let puntajeSeccion = 0;
+              seccion.questions.forEach((pregunta: any) => {
+                const respuesta = resultado.respuestas[pregunta._id.toString()];
+                if (respuesta !== undefined) {
+                  const opcion = pregunta.opciones.find(
+                    (op: any) => op.valor === parseInt(respuesta)
+                  );
+                  if (opcion) {
+                    puntajeSeccion += opcion.valor;
+                  }
+                }
+              });
+
+              const numPreguntas = seccion.questions.length;
+              const PuntosTotalesDeSeccion = seccion?.valorMax * numPreguntas; // Representa el 100%
+              const porcentajeObtenido =
+                ((puntajeSeccion / PuntosTotalesDeSeccion) * 100).toFixed(0) +
+                "%";
+
+              // Agregar el nombre de la sección y el porcentaje al objeto final, incluyendo el símbolo de porcentaje
+              acc[seccion.name] = porcentajeObtenido;
+              return acc;
+            },
+            {}
+          );
+
           return {
             ...userInfo,
             ...respuestasFormateadas,
+            ...seccionesResultado, // Add section results and scale names
           };
         })
       );
@@ -204,6 +244,12 @@ export async function GET(request, { params }) {
       });
     }
 
+    //=========================================================================================================================================================
+    //=========================================================================================================================================================
+    //=========================================================================================================================================================
+    //=========================================================================================================================================================
+    //=========================================================================================================================================================
+
     // Logic for test type 2
     if (documento.tipo === 2) {
       const preguntas =
@@ -214,11 +260,11 @@ export async function GET(request, { params }) {
 
       if (!resultados.length) {
         console.error(
-          `No se encontraron resultados para el ID de prueba: ${idPrueba}`
+          `No se encontraron resultados para el ID de prueba: ${id_prueba}`
         );
         return NextResponse.json(
           {
-            error: `No se encontraron resultados para el ID de prueba: ${idPrueba}`,
+            error: `No se encontraron resultados para el ID de prueba: ${id_prueba}`,
           },
           { status: 404 }
         );
@@ -237,10 +283,18 @@ export async function GET(request, { params }) {
       hojaResultados["!merges"] = merges;
       XLSX.utils.book_append_sheet(workbook, hojaResultados, "Datos Generales");
 
+      //=========================================================================================================================================================
+      //=========================================================================================================================================================
+
+      // Lógica para la hoja de datos individuales
+      // Lógica para la hoja de datos individuales
+      // Lógica para la hoja de datos individuales
       const hojaDatosIndividuales = XLSX.utils.json_to_sheet(
         await Promise.all(
           resultados.map(async (resultado) => {
-            const { id_user: user, respuestas = {} } = resultado;
+            const { id_user: user, respuestas } = resultado;
+
+            // Información básica del usuario
             const userInfo = {
               Nombre: (user as any).firstName || "",
               Apellido: (user as any).lastName || "",
@@ -257,89 +311,154 @@ export async function GET(request, { params }) {
               Grupo: (user as any).group || "",
             };
 
-            const respuestasFormateadas = Object.fromEntries(
-              Object.entries(respuestas).map(([idPregunta, respuesta]) => {
-                const pregunta = preguntas.find(
-                  (p) => p?._id.toString() === idPregunta
-                );
-                return [pregunta?.texto || `Pregunta ${idPregunta}`, respuesta]; // Solo guardamos el texto de la pregunta
-              })
-            );
+            // Respuestas formateadas para cada pregunta
+            const respuestasFormateadas =
+              respuestas && typeof respuestas === "object"
+                ? Object.fromEntries(
+                    Object.entries(respuestas).map(
+                      ([idPregunta, respuesta]) => {
+                        const pregunta = preguntas.find(
+                          (p) => p?._id.toString() === idPregunta
+                        );
+                        return [pregunta?.texto || idPregunta, respuesta];
+                      }
+                    )
+                  )
+                : {};
 
-            const categoriasConNombres = {};
-            categorias.forEach((categoria: any) => {
-              categoriasConNombres[categoria.nombre] = ""; // Aquí solo se agrega el nombre de la categoría
+            // Contador de opciones totales por categoría y subcategoría
+            const categoriasConteo: any = {};
+            preguntas.forEach((pregunta: any) => {
+              pregunta.opciones.forEach((opcion: any) => {
+                categorias.forEach((categoria: any) => {
+                  if (categoria.subcategorias.includes(opcion.subcategoria)) {
+                    if (!categoriasConteo[categoria.nombre]) {
+                      categoriasConteo[categoria.nombre] = {
+                        subcategorias: {},
+                        total: 0,
+                        enlaces: categoria.link || [],
+                      };
+                    }
+                    if (
+                      !categoriasConteo[categoria.nombre].subcategorias[
+                        opcion.subcategoria
+                      ]
+                    ) {
+                      categoriasConteo[categoria.nombre].subcategorias[
+                        opcion.subcategoria
+                      ] = 0;
+                    }
+                    categoriasConteo[categoria.nombre].subcategorias[
+                      opcion.subcategoria
+                    ]++;
+                    categoriasConteo[categoria.nombre].total++;
+                  }
+                });
+              });
             });
 
+            // Contador de respuestas del usuario por categoría y subcategoría
+            const categoriasUsuario: any = {};
+            preguntas.forEach((pregunta: any) => {
+              const respuestaTexto = respuestas[pregunta._id.toString()];
+              if (respuestaTexto) {
+                categorias.forEach((categoria: any) => {
+                  categoria.subcategorias.forEach((subcategoria: any) => {
+                    if (
+                      pregunta.opciones.some(
+                        (opcion) => opcion.subcategoria === subcategoria
+                      )
+                    ) {
+                      if (!categoriasUsuario[categoria.nombre]) {
+                        categoriasUsuario[categoria.nombre] = {
+                          subcategorias: {},
+                          total: 0,
+                          enlaces: categoria.link || [],
+                        };
+                      }
+                      if (
+                        !categoriasUsuario[categoria.nombre].subcategorias[
+                          subcategoria
+                        ]
+                      ) {
+                        categoriasUsuario[categoria.nombre].subcategorias[
+                          subcategoria
+                        ] = 0;
+                      }
+                      categoriasUsuario[categoria.nombre].subcategorias[
+                        subcategoria
+                      ]++;
+                      categoriasUsuario[categoria.nombre].total++;
+                    }
+                  });
+                });
+              }
+            });
+
+            // Cálculo de conteos y promedios
+            const categoriasConConteo: any = {};
+            const categoriasConPorcentaje: any = {};
+            for (const [nombreCategoria, conteo] of Object.entries<any>(
+              categoriasUsuario
+            )) {
+              const totalRespuestas = conteo.total;
+              const totalOpciones =
+                categoriasConteo[nombreCategoria]?.total || 1; // Total de opciones posibles para la categoría
+              const promedio = (totalRespuestas / totalOpciones) * 100; // Porcentaje basado en el total de opciones
+
+              // Asignar conteos
+              Object.entries(conteo.subcategorias).forEach(
+                ([subcat, count]) => {
+                  categoriasConConteo[
+                    `${nombreCategoria} - ${subcat} - Conteo`
+                  ] = count;
+                }
+              );
+
+              // Asignar porcentajes
+              categoriasConPorcentaje[
+                `${nombreCategoria} - Porcentaje`
+              ] = `${promedio.toFixed(2)}%`;
+            }
+
+            // Devolvemos los resultados organizados
             return {
               ...userInfo,
               ...respuestasFormateadas,
-              ...categoriasConNombres,
+              ...categoriasConConteo, // Primero los conteos
+              ...categoriasConPorcentaje, // Luego los porcentajes
             };
           })
         )
       );
 
-      console.log(hojaDatosIndividuales);
-
-      // Modificar encabezados para incluir categorías
-      const encabezadosIndividuales = [
-        "Nombre",
-        "Apellido",
-        "Email",
-        "Rol",
-        "Fecha_de_Aplicativo",
-        "Celular",
-        "Escuela_Actual",
-        "Nivel_Educativo",
-        "Generacion",
-        "Grado",
-        "Grupo",
-        ...preguntas.map((p) => p.texto), // Encabezados de preguntas
-        ...categorias.map((c: any) => c.nombre), // Agregar encabezados de categorías al final
-      ];
-
-      hojaDatosIndividuales["!ref"] = XLSX.utils.encode_range({
-        s: { r: 0, c: 0 },
-        e: { r: resultados.length, c: encabezadosIndividuales.length - 1 },
-      });
-      XLSX.utils.sheet_add_aoa(
-        hojaDatosIndividuales,
-        [encabezadosIndividuales],
-        { origin: "A1" }
-      );
+      console.log("hojaDatosIndividuales", hojaDatosIndividuales);
       XLSX.utils.book_append_sheet(
         workbook,
         hojaDatosIndividuales,
-        "Datos Individuales"
+        "Resultados Detallados"
       );
-
       const excelBuffer = XLSX.write(workbook, {
         bookType: "xlsx",
         type: "buffer",
       });
-      console.log("Archivo Excel creado para test tipo 2.");
+
+      console.log("Archivo Excel creado para tipo 2.");
+      const titulo = documento?.titulo || "Resultado";
 
       return new NextResponse(excelBuffer, {
         status: 200,
         headers: {
-          "Content-Disposition": `attachment; filename=Resultados_Tipo_2.xlsx`,
+          "Content-Disposition": `attachment; filename=Resultados_${titulo}.xlsx`,
           "Content-Type":
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         },
       });
     }
-
-    // If no valid test type, respond with an error
-    console.error(`Tipo de prueba no soportado: ${documento.tipo}`);
-    return NextResponse.json(
-      { error: `Tipo de prueba no soportado: ${documento.tipo}` },
-      { status: 400 }
-    );
   } catch (error) {
-    console.error("Error al exportar resultados:", error);
+    console.error("Error durante la exportación de resultados:", error);
     return NextResponse.json(
-      { error: "Error al exportar resultados" },
+      { error: "Ocurrió un error al generar los resultados" },
       { status: 500 }
     );
   }
