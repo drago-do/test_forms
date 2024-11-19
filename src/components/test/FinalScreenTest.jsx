@@ -22,7 +22,7 @@ import useResults from "./../../hook/useResults";
 
 export default function Page({
   state = "success",
-  idResults = "671eed0b24e931a9cb9f332c",
+  idResults = "673aafb235872d126d3b915d",
   info = "Error ",
   tipo = 2,
 }) {
@@ -194,6 +194,8 @@ const ResultsType2 = ({ results }) => {
 
   const usuarioResults = results?.usuario || {};
 
+  const totalResults = results?.total || {};
+
   return (
     <TableContainer component={Paper} className="my-5">
       <Table>
@@ -201,6 +203,7 @@ const ResultsType2 = ({ results }) => {
           <TableRow>
             <TableCell>ÁREA ACADEMICA</TableCell>
             <TableCell>PORCENTAJE</TableCell>
+            <TableCell>CARRERAS</TableCell>
             <TableCell>ENLACES</TableCell>
           </TableRow>
         </TableHead>
@@ -209,6 +212,15 @@ const ResultsType2 = ({ results }) => {
             <TableRow key={index}>
               <TableCell>{category}</TableCell>
               <TableCell>{data.promedio}%</TableCell>
+              <TableCell>
+                {Object.entries(
+                  totalResults[category]?.subcategorias || {}
+                ).map(([subcategoria, count], subIndex) => (
+                  <Typography key={subIndex} variant="body2">
+                    {subcategoria} ({count})
+                  </Typography>
+                ))}
+              </TableCell>
               <TableCell>
                 {showLinks[index] ? (
                   data.enlaces.map((enlace, enlaceIndex) => {

@@ -3,7 +3,7 @@ import * as XLSX from "xlsx";
 import mongodb from "../../../../lib/mongodb";
 import Resultados, { IResultados } from "../../../../models/results";
 import Prueba, { ISeccion, IPrueba } from "../../../../models/testing";
-import User from "./../../../../models/user";
+import User from "../../../../models/user";
 import mongoose from "mongoose"; // Import mongoose for ObjectId validation
 
 // Organizes data without calculating percentages
