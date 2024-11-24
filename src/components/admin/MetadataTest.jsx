@@ -110,12 +110,13 @@ export default function MetadataTest() {
                       value={"2"}
                       control={<Radio color="secondary" />}
                       label="Areas academicas (Test 2)"
-                    />
-                    {/* <FormControlLabel
+                      />
+                    <FormControlLabel
+                      disabled={estaEditando}
                       value={"3"}
                       control={<Radio color="secondary" />}
-                      label="Porcentaje por carreras (Test 3)"
-                    /> */}
+                      label="Carreras (Test 3)"
+                    />
                   </RadioGroup>
                   <FormHelperText>{errors?.tipo?.message}</FormHelperText>
                   {estaEditando && (

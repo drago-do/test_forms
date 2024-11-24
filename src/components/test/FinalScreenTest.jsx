@@ -22,7 +22,7 @@ import useResults from "./../../hook/useResults";
 
 export default function Page({
   state = "success",
-  idResults = "673aafb235872d126d3b915d",
+  idResults = "673cc65c37dc6c7e01592e15",
   info = "Error ",
   tipo = 2,
 }) {
@@ -97,7 +97,7 @@ export default function Page({
             {tipo === 1 ? (
               <ResultsTable results={results} />
             ) : (
-              <ResultsType2 results={results} />
+              <ResultsType2 results={results} tipo={tipo} />
             )}
           </>
         );
@@ -185,7 +185,7 @@ const ResultsTable = ({ results }) => {
     </TableContainer>
   );
 };
-const ResultsType2 = ({ results }) => {
+const ResultsType2 = ({ results, tipo }) => {
   const [showLinks, setShowLinks] = useState({});
 
   const handleShowLinks = (index) => {
@@ -203,7 +203,7 @@ const ResultsType2 = ({ results }) => {
           <TableRow>
             <TableCell>ÁREA ACADEMICA</TableCell>
             <TableCell>PORCENTAJE</TableCell>
-            <TableCell>CARRERAS</TableCell>
+            {tipo === 3 && <TableCell>CARRERAS</TableCell>}
             <TableCell>ENLACES</TableCell>
           </TableRow>
         </TableHead>
@@ -212,15 +212,17 @@ const ResultsType2 = ({ results }) => {
             <TableRow key={index}>
               <TableCell>{category}</TableCell>
               <TableCell>{data.promedio}%</TableCell>
-              <TableCell>
-                {Object.entries(
-                  totalResults[category]?.subcategorias || {}
-                ).map(([subcategoria, count], subIndex) => (
-                  <Typography key={subIndex} variant="body2">
-                    {subcategoria} ({count})
-                  </Typography>
-                ))}
-              </TableCell>
+              {tipo === 3 && (
+                <TableCell>
+                  {Object.entries(
+                    totalResults[category]?.subcategorias || {}
+                  ).map(([subcategoria, count], subIndex) => (
+                    <Typography key={subIndex} variant="body2">
+                      {subcategoria}
+                    </Typography>
+                  ))}
+                </TableCell>
+              )}
               <TableCell>
                 {showLinks[index] ? (
                   data.enlaces.map((enlace, enlaceIndex) => {

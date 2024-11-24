@@ -67,7 +67,7 @@ const SectionWithQuestions = () => {
           id: uuidv4(),
           texto: "",
           opciones:
-            tipoPrueba === 2
+            tipoPrueba === 2 || tipoPrueba === 3
               ? [
                   {
                     id: uuidv4(),
@@ -80,7 +80,7 @@ const SectionWithQuestions = () => {
           tipo:
             tipoPrueba === 1
               ? "escala"
-              : tipoPrueba === 2
+              : tipoPrueba === 2 || tipoPrueba === 3
               ? "opcion_multiple"
               : "verdadero_falso",
           validacion: false,
@@ -176,38 +176,40 @@ const SectionWithQuestions = () => {
               {tipoPrueba === 1 && (
                 <EscalaPorSeccion sectionIndex={sectionIndex} />
               )}
-              {(tipoPrueba === 1 &&
+              {tipoPrueba === 1 ? (
                 getValues(`sections.${sectionIndex}.questions[0].opciones`)
-                  ?.length === 0) ||
-              getValues(`sections.${sectionIndex}.questions`)?.length === 0 ? (
-                <Grid item xs={12} className="mt-4">
-                  <TextField
-                    error={!!errors?.sections?.[sectionIndex]?.valorMax}
-                    defaultValue={section.valorMax}
-                    helperText={
-                      errors?.sections?.[sectionIndex]?.valorMax?.message
-                    }
-                    {...register(`sections.${sectionIndex}.valorMax`, {
-                      required: "Campo requerido",
-                    })}
-                    label="Valor máximo por item de la sección actual"
-                    fullWidth
-                    required
-                    variant="standard"
-                  />
-                </Grid>
-              ) : (
-                <>
-                  <Typography variant="subtitle1" className="mt-3">
-                    Valor máximo por item de la sección actual:{" "}
-                    {getValues(`sections.${sectionIndex}.valorMax`)}
-                  </Typography>
-                  <Typography variant="caption">
-                    Si desea cambiar este valor, elimine todas las preguntas de
-                    la sección
-                  </Typography>
-                </>
-              )}
+                  ?.length === 0 ||
+                getValues(`sections.${sectionIndex}.questions`)?.length ===
+                  0 ? (
+                  <Grid item xs={12} className="mt-4">
+                    <TextField
+                      error={!!errors?.sections?.[sectionIndex]?.valorMax}
+                      defaultValue={section.valorMax}
+                      helperText={
+                        errors?.sections?.[sectionIndex]?.valorMax?.message
+                      }
+                      {...register(`sections.${sectionIndex}.valorMax`, {
+                        required: "Campo requerido",
+                      })}
+                      label="Valor máximo por item de la sección actual"
+                      fullWidth
+                      required
+                      variant="standard"
+                    />
+                  </Grid>
+                ) : (
+                  <>
+                    <Typography variant="subtitle1" className="mt-3">
+                      Valor máximo por item de la sección actual:{" "}
+                      {getValues(`sections.${sectionIndex}.valorMax`)}
+                    </Typography>
+                    <Typography variant="caption">
+                      Si desea cambiar este valor, elimine todas las preguntas
+                      de la sección
+                    </Typography>
+                  </>
+                )
+              ) : null}
             </Paper>
             <QuestionsType2
               section={section}
@@ -278,7 +280,7 @@ const QuestionsType2 = ({ sectionIndex, unfold, addDeleteOfUnfold }) => {
       id: uuidv4(),
       texto: "",
       opciones:
-        tipoPrueba === 2
+        tipoPrueba === 2 || tipoPrueba === 3
           ? [
               {
                 id: uuidv4(),
@@ -472,9 +474,7 @@ const QuestionOptionsType2 = ({
   let valorMax = getValues(`sections.${sectionIndex}.valorMax`);
 
   const addQuestionOption = () => {
-    console.log("valorMax");
-    console.log(valorMax);
-    if (tipoPrueba === 2) {
+    if (tipoPrueba === 2 || tipoPrueba === 3) {
       append(getQuestionOptionBase());
     } else if (tipoPrueba === 1 && valorMax > 0 && valorMax < 10) {
       const questions = getQuestionOptionBaseScala(valorMax);
