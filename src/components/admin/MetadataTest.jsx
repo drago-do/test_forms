@@ -61,6 +61,19 @@ export default function MetadataTest() {
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
+              error={!!errors?.pregunta}
+              helperText={errors?.pregunta?.message}
+              {...register("pregunta", {
+                required: "Nececitas colocar a que pregunta responde este test",
+              })}
+              label="Pregunta a la que responde (PDF)"
+              fullWidth
+              required
+              variant="standard"
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
               error={!!errors?.descripcion}
               helperText={errors?.descripcion?.message}
               {...register("descripcion", {
@@ -110,7 +123,7 @@ export default function MetadataTest() {
                       value={"2"}
                       control={<Radio color="secondary" />}
                       label="Areas academicas (Test 2)"
-                      />
+                    />
                     <FormControlLabel
                       disabled={estaEditando}
                       value={"3"}
