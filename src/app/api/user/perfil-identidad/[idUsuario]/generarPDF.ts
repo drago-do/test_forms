@@ -33,10 +33,12 @@ async function generarHTML(user: IUser): Promise<string> {
 
 async function generarPDF(HTMLBase: string): Promise<Buffer> {
   console.debug("Launching browser with Puppeteer...");
+  console.log(chromium.executablePath());
   const browser = await puppeteer.launch({
     args: chromium.args,
     defaultViewport: chromium.defaultViewport,
-    executablePath: await chromium.executablePath(),
+    // executablePath: await chromium.executablePath(),
+    executablePath: "/tmp/chromium",
     headless: chromium.headless,
   });
 
