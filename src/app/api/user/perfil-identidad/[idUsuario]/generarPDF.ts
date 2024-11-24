@@ -38,7 +38,10 @@ async function generarPDF(HTMLBase: string): Promise<Buffer> {
     args: chromium.args,
     defaultViewport: chromium.defaultViewport,
     // executablePath: await chromium.executablePath(),
-    executablePath: "/tmp/chromium",
+    // executablePath: "/tmp/chromium",
+    executablePath: await chromium.executablePath(
+      `https://github.com/Sparticuz/chromium/releases/download/v129.0.0/chromium-v129.0.0-pack.tar`
+    ),
     headless: chromium.headless,
   });
 
