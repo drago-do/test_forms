@@ -1,9 +1,10 @@
-import { inyectarDatosUsuario } from "./inyeccionHTML";
+import { inyectarDatosUsuario, inyectarDatosPruebas } from "./inyeccionHTML";
 import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium";
 import fs from "fs";
 
 import { IUser } from "./../../../../../models/user";
+import { IResultados } from "./../../../../../models/results";
 import path from "path";
 import { promises as fsPromises } from "fs";
 
@@ -15,14 +16,18 @@ const rutaHTMLPlantilla = path.resolve(
   "Plantilla.html"
 );
 
-async function generarHTML(user: IUser): Promise<string> {
+async function generarHTML(
+  user: IUser,
+  results: IResultados[]
+): Promise<string> {
   try {
     const plantillaHTML: string = await fsPromises.readFile(
       rutaHTMLPlantilla,
       "utf8"
     );
     //* Inyectar datos del usuario
-    const htmlConDatos: string = inyectarDatosUsuario(plantillaHTML, user);
+    let htmlConDatos: string = inyectarDatosUsuario(plantillaHTML, user);
+    htmlConDatos = inyectarDatosPruebas(htmlConDatos, results);
     return htmlConDatos;
   } catch (error) {
     throw new Error(

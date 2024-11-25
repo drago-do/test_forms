@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import User, { IUser } from "../../../../../models/user";
+import Prueba, { IPrueba } from "./../../../../../models/testing";
+import Resultados, { IResultados } from "./../../../../../models/results";
 import mongodb from "../../../../../lib/mongodb";
 import mongoose from "mongoose";
 import { generarHTML, generarPDF } from "./generarPDF";
@@ -29,7 +31,24 @@ export async function GET(
       });
     }
 
-    const HTML: string = await generarHTML(user);
+    //Obtener los test que a respondido
+    const resultados: IResultados[] = await (
+      Resultados as mongoose.Model<IResultados>
+    )
+      .find({
+        id_user: params.idUsuario,
+      })
+      .populate({
+        path: "id_prueba",
+      })
+      .exec();
+
+    // return NextResponse.json({
+    //   success: false,
+    //   data: resultados,
+    // });
+
+    const HTML: string = await generarHTML(user, resultados);
 
     if (view) {
       //Responde con la pagina html sola
