@@ -173,6 +173,7 @@ export default function UserProfile() {
         <Typography variant="h6" gutterBottom>
           Pruebas Completadas
         </Typography>
+        <a href={`/api/user/perfil-identidad/${user._id}`}>Descargar PDF</a>
         {completedTests.length > 0 ? (
           <List>
             {completedTests.map((test, index) => {
