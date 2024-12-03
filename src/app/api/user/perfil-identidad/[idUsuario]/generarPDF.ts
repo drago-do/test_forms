@@ -84,7 +84,7 @@ async function generarPDF(HTMLBase: string): Promise<Buffer> {
 }
 
 const header = `    <header
-      style="text-align: center; margin-bottom: 20px; width: 100%; display: flex; flex-wrap: nowrap; align-items: center;">
+      style="text-align: center; margin-bottom: 40px; width: 100%; display: flex; flex-wrap: nowrap; align-items: center;">
       <span style="border: 5px orange solid; width: 100%; height: 0px;"></span>
       <svg width="100%" height="53px" viewBox="0 0 1350 571" version="1.1" xmlns="http://www.w3.org/2000/svg">
         <g id="#fe311eff">
