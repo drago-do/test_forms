@@ -6,7 +6,6 @@ import mongodb from "../../../../../lib/mongodb";
 import mongoose from "mongoose";
 import { generarHTML, generarPDF } from "./generarPDF";
 import { type NextRequest } from "next/server";
-import { procesarPruebas } from "./UtilsToPDF";
 
 // Nueva función para obtener todos los usuarios con paginado
 export async function GET(
@@ -32,7 +31,6 @@ export async function GET(
       });
     }
 
-    console.log("fdasdfff");
     //Obtener los test que a respondido
     const resultados: IResultados[] = await (
       Resultados as mongoose.Model<IResultados>
@@ -45,32 +43,6 @@ export async function GET(
         model: Prueba,
       })
       .exec();
-    console.log("fdasdfff");
-
-    // const newRes = filtrarTestsPorTipo(resultados, 1);
-    // console.log(newRes);
-
-    // // const addCatego = newRes.map((res) => {
-    // //   let a = calcularPromediosPorCategoria(res);
-    // //   return a;
-    // // });
-
-    // const addCatego = newRes.map((res) => {
-    //   let a = calcularPromediosEInterpretaciones(res);
-    //   return a;
-    // });
-
-    // const htmlGrafica = generarGraficaDeCategoriasHTML(addCatego);
-
-    const pruebasProcesadas = procesarPruebas(resultados);
-
-    return NextResponse.json(pruebasProcesadas);
-
-    // return new Response(htmlGrafica, {
-    //   headers: {
-    //     "Content-Type": "text/html",
-    //   },
-    // });
 
     const HTML: string = await generarHTML(user, resultados);
 
