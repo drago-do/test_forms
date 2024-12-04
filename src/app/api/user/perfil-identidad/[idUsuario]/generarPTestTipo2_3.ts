@@ -93,4 +93,54 @@ function calcularPromediosPorCategoria(test: any) {
   return categoriasOrdenadas;
 }
 
-export { calcularPromediosPorCategoria };
+function generarGraficaDeCategoriasHTML(resultados) {
+  const barrasHTML = resultados
+    .map((resultado) => {
+      const subcategoriasHTML = Object.entries(resultado.subcategorias)
+        .map(
+          ([subcategoria, valor]) => `
+                <div style="margin-left: 20px; font-size: 14px; color: #555;">
+                    ${subcategoria}: ${valor}
+                </div>
+            `
+        )
+        .join("");
+
+      return `
+            <div style="margin: 20px 0; font-family: Arial, sans-serif;">
+                <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">
+                    ${resultado.nombreCategoria}
+                </div>
+                <div style="background: #f1f1f1; border-radius: 8px; overflow: hidden; height: 30px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                    <div style="
+                        width: ${resultado.porcentaje}%;
+                        background: linear-gradient(90deg, #2196f3, #64b5f6);
+                        color: white;
+                        font-weight: bold;
+                        text-align: right;
+                        padding: 5px 10px;
+                        height: 100%;
+                        line-height: 30px;
+                        border-radius: 8px 0 0 8px;
+                        box-sizing: border-box;
+                    ">
+                        ${resultado.porcentaje}%
+                    </div>
+                </div>
+                <div style="margin-top: 10px;">
+                    ${subcategoriasHTML}
+                </div>
+            </div>
+        `;
+    })
+    .join("");
+
+  return `
+        <div style="width: 80%; margin: 30px auto; font-family: Arial, sans-serif; max-width: 600px;">
+            <h2 style="text-align: center; color: #333; font-size: 24px;">Resultados por Categoría</h2>
+            ${barrasHTML}
+        </div>
+    `;
+}
+
+export { calcularPromediosPorCategoria, generarGraficaDeCategoriasHTML };

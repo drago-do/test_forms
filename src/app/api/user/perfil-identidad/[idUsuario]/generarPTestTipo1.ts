@@ -60,4 +60,39 @@ function calcularPromediosEInterpretaciones(test: any) {
   return resultadosOrdenados;
 }
 
-export { calcularPromediosEInterpretaciones };
+function generarGraficaDeBarrasHTML(resultados) {
+  const barrasHTML = resultados
+    .map(
+      (resultado) => `
+        <div style="margin: 15px 0; font-family: Arial, sans-serif;">
+            <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">${resultado.nombreSeccion}</div>
+            <div style="background: #f1f1f1; border-radius: 8px; overflow: hidden; height: 30px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                <div style="
+                    width: ${resultado.porcentaje}%;
+                    background: linear-gradient(90deg, #4caf50, #81c784);
+                    color: white;
+                    font-weight: bold;
+                    text-align: right;
+                    padding: 5px 10px;
+                    height: 100%;
+                    line-height: 30px;
+                    border-radius: 8px 0 0 8px;
+                    box-sizing: border-box;
+                ">
+                    ${resultado.porcentaje}%
+                </div>
+            </div>
+        </div>
+    `
+    )
+    .join("");
+
+  return `
+        <div style="width: 80%; margin: 30px auto; font-family: Arial, sans-serif; max-width: 600px;">
+            <h2 style="text-align: center; color: #333; font-size: 24px;">Resultados de la Prueba</h2>
+            ${barrasHTML}
+        </div>
+    `;
+}
+
+export { calcularPromediosEInterpretaciones, generarGraficaDeBarrasHTML };
