@@ -42,4 +42,7 @@ function obtenerNombresDeLasPruebasRespondidas(
   return html;
 }
 
+
+
+
 export { inyectarDatosUsuario, inyectarDatosPruebas };

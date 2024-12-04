@@ -6,15 +6,7 @@ import mongodb from "../../../../../lib/mongodb";
 import mongoose from "mongoose";
 import { generarHTML, generarPDF } from "./generarPDF";
 import { type NextRequest } from "next/server";
-import { filtrarTestsPorTipo } from "./UtilsToPDF";
-import {
-  calcularPromediosEInterpretaciones,
-  generarGraficaDeBarrasHTML,
-} from "./generarPTestTipo1";
-import {
-  calcularPromediosPorCategoria,
-  generarGraficaDeCategoriasHTML,
-} from "./generarPTestTipo2_3";
+import { procesarPruebas } from "./UtilsToPDF";
 
 // Nueva función para obtener todos los usuarios con paginado
 export async function GET(
@@ -40,6 +32,7 @@ export async function GET(
       });
     }
 
+    console.log("fdasdfff");
     //Obtener los test que a respondido
     const resultados: IResultados[] = await (
       Resultados as mongoose.Model<IResultados>
@@ -49,33 +42,35 @@ export async function GET(
       })
       .populate({
         path: "id_prueba",
+        model: Prueba,
       })
       .exec();
+    console.log("fdasdfff");
 
-    const newRes = filtrarTestsPorTipo(resultados, 3);
-    console.log(newRes);
+    // const newRes = filtrarTestsPorTipo(resultados, 1);
+    // console.log(newRes);
 
-    // const addProm = calcularPromediosEInterpretaciones(newRes);
-    const addCatego = newRes.map((res) => {
-      let a = calcularPromediosPorCategoria(res);
-      return a;
-    });
+    // // const addCatego = newRes.map((res) => {
+    // //   let a = calcularPromediosPorCategoria(res);
+    // //   return a;
+    // // });
 
     // const addCatego = newRes.map((res) => {
     //   let a = calcularPromediosEInterpretaciones(res);
-
     //   return a;
     // });
 
-    const htmlGrafica = generarGraficaDeCategoriasHTML(addCatego[0]);
+    // const htmlGrafica = generarGraficaDeCategoriasHTML(addCatego);
 
-    // return NextResponse.json(addCatego);
+    const pruebasProcesadas = procesarPruebas(resultados);
 
-    return new Response(htmlGrafica, {
-      headers: {
-        "Content-Type": "text/html",
-      },
-    });
+    return NextResponse.json(pruebasProcesadas);
+
+    // return new Response(htmlGrafica, {
+    //   headers: {
+    //     "Content-Type": "text/html",
+    //   },
+    // });
 
     const HTML: string = await generarHTML(user, resultados);
 

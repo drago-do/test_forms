@@ -72,8 +72,58 @@ function eliminarPreguntasDeTests(resultados: any[]) {
   });
 }
 
+/**
+ * Filtra, calcula resultados y elimina preguntas de un array de pruebas.
+ *
+ * @param tests - Array de pruebas.
+ * @returns Array con pruebas procesadas.
+ */
+function procesarPruebas(tests: any): any {
+  // Aplicar el cálculo de resultados según el tipo de prueba
+  const pruebasProcesadas = tests.map((test: any) => {
+    let resultadosPromedio: any;
+
+    switch (test.id_prueba.tipo) {
+      case 1: // Tipo 1: Calcular promedios e interpretaciones
+        resultadosPromedio = calcularPromediosEInterpretaciones(test);
+        break;
+      case 2: // Tipo 2: Calcular promedios por categoría
+        resultadosPromedio = calcularPromediosPorCategoria(test);
+      case 3: // Tipo 3: Calcular promedios por categoría
+        resultadosPromedio = calcularPromediosPorCategoria(test);
+        break;
+      default:
+        throw new Error(`Tipo de prueba desconocido: ${test.id_prueba.tipo}`);
+    }
+
+    // Agregar los resultados calculados a la propiedad `resultadosPromedio`
+    return {
+      id_prueba: test.id_prueba,
+      id_user: test.id_user,
+      respuestas: test.respuestas,
+      createdAt: test.createdAt,
+      updatedAt: test.updatedAt,
+      resultadosPromedio,
+    };
+  });
+
+  // Eliminar preguntas de las pruebas procesadas
+  pruebasProcesadas.forEach((resultado: any) => {
+    if (resultado.id_prueba && resultado.id_prueba.sections) {
+      resultado.id_prueba.sections.forEach((section: any) => {
+        if (section.questions) {
+          section.questions = undefined;
+        }
+      });
+    }
+  });
+
+  return pruebasProcesadas;
+}
+
 export {
   filtrarTestsPorTipo,
   inyectarResultadosEnTests,
   eliminarPreguntasDeTests,
+  procesarPruebas,
 };
