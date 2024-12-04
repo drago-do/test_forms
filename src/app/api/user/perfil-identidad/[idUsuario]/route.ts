@@ -52,7 +52,8 @@ export async function GET(
       })
       .exec();
 
-    const newRes = filtrarTestsPorTipo(resultados, 2);
+    const newRes = filtrarTestsPorTipo(resultados, 3);
+    console.log(newRes);
 
     // const addProm = calcularPromediosEInterpretaciones(newRes);
     const addCatego = newRes.map((res) => {

@@ -127,14 +127,14 @@ function generarGraficaDeCategoriasHTML(resultados) {
                         ${resultado.porcentaje}%
                     </div>
                 </div>
-                <div style="margin-top: 10px;">
-                    ${subcategoriasHTML}
                 </div>
-            </div>
-        `;
+                `;
     })
     .join("");
-
+  //*Agregar para incluir areas o categorias y cuanto respondio de estas
+  // <div style="margin-top: 10px;">
+  //     ${subcategoriasHTML}
+  // </div>
   return `
         <div style="width: 80%; margin: 30px auto; font-family: Arial, sans-serif; max-width: 600px;">
             <h2 style="text-align: center; color: #333; font-size: 24px;">Resultados por Categoría</h2>

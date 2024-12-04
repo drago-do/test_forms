@@ -18,6 +18,8 @@ type Test = {
  * @returns Lista de pruebas filtradas por el tipo especificado.
  */
 function filtrarTestsPorTipo(data: any, tipoFiltro: number): Test[] {
+  console.log("Filtrando por tipo: " + tipoFiltro);
+
   if (!Array.isArray(data)) {
     throw new Error("El primer argumento debe ser un array.");
   }
