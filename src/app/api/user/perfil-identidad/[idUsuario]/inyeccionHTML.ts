@@ -32,7 +32,7 @@ function inyectarDatosPruebas(
   const pruebasProcesadas = procesarPruebas(resultados);
 
   plantillaHTML = plantillaHTML.replace(
-    "{{6",
+    "{{6}}",
     generarHTMLResultadosPruebas(pruebasProcesadas)
   );
   return plantillaHTML;
@@ -56,10 +56,10 @@ function generarHTMLResultadosPruebas(pruebas: any[]): string {
   return pruebas
     .map((prueba) => {
       const { id_prueba, resultadosPromedio } = prueba;
-      const tipoPrueba = id_prueba.tipo;
-      const titulo = id_prueba.titulo || "Sin Título";
-      const descripcion = id_prueba.descripcion || "Sin Descripción";
-      const instrucciones = id_prueba.instrucciones || "Sin Instrucciones";
+      const tipoPrueba = id_prueba?.tipo;
+      const titulo = id_prueba?.titulo || "Sin Título";
+      const descripcion = id_prueba?.descripcion || "Sin Descripción";
+      const instrucciones = id_prueba?.instrucciones || "Sin Instrucciones";
 
       // Ordenar resultados por porcentaje
       const resultadosOrdenados = [...resultadosPromedio].sort(
@@ -77,7 +77,7 @@ function generarHTMLResultadosPruebas(pruebas: any[]): string {
                         <h3 style="margin: 0; font-weight: bold; font-size: 18px;">${
                           resultado.nombreSeccion || resultado.nombreCategoria
                         }</h3>
-                        <p style="margin: 5px 0;">${resultado.escala}</p>
+                        <p style="margin: 5px 0;">${resultado?.escala || ""}</p>
                         <p style="margin: 5px 0; color: #4caf50; font-weight: bold;">Porcentaje: ${
                           resultado.porcentaje
                         }%</p>
@@ -94,7 +94,7 @@ function generarHTMLResultadosPruebas(pruebas: any[]): string {
                         <h3 style="margin: 0; font-weight: bold; font-size: 18px;">${
                           resultado.nombreSeccion || resultado.nombreCategoria
                         }</h3>
-                        <p style="margin: 5px 0;">${resultado.escala}</p>
+                        <p style="margin: 5px 0;">${resultado?.escala || ""}</p>
                         <p style="margin: 5px 0; color: #f44336; font-weight: bold;">Porcentaje: ${
                           resultado.porcentaje
                         }%</p>

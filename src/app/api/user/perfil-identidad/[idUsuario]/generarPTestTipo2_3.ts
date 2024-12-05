@@ -99,7 +99,7 @@ function generarGraficaDeCategoriasHTML(resultados) {
       const subcategoriasHTML = Object.entries(resultado.subcategorias)
         .map(
           ([subcategoria, valor]) => `
-                <div style="margin-left: 20px; font-size: 14px; color: #555;">
+                <div style="margin-left: 20px; font-size: 10px; color: #555;">
                     ${subcategoria}: ${valor}
                 </div>
             `
@@ -107,20 +107,20 @@ function generarGraficaDeCategoriasHTML(resultados) {
         .join("");
 
       return `
-            <div style="margin: 20px 0; font-family: Arial, sans-serif;">
-                <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">
+            <div style="margin: 10px 0; font-family: Arial, sans-serif;">
+                <div style="font-weight: bold; font-size: 10px; margin-bottom: 5px;">
                     ${resultado.nombreCategoria}
                 </div>
-                <div style="background: #f1f1f1; border-radius: 8px; overflow: hidden; height: 30px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                <div style="background: #f1f1f1; border-radius: 8px; overflow: hidden; height: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
                     <div style="
                         width: ${resultado.porcentaje}%;
                         background: linear-gradient(90deg, #2196f3, #64b5f6);
                         color: white;
                         font-weight: bold;
+                        font-size: 8px;
                         text-align: right;
-                        padding: 5px 10px;
                         height: 100%;
-                        line-height: 30px;
+                        line-height: 8px;
                         border-radius: 8px 0 0 8px;
                         box-sizing: border-box;
                     ">
