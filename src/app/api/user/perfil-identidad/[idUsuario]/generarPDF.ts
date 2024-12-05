@@ -61,10 +61,10 @@ async function generarPDF(HTMLBase: string): Promise<Buffer> {
 
   const pdfOptions: any = {
     format: "letter",
-    margin: { top: "120px", right: "20px", bottom: "80px", left: "20px" },
+    margin: { top: "80px", right: "40px", bottom: "80px", left: "40px" },
     displayHeaderFooter: true,
     footerTemplate: `
-    <div style="font-size:10px; background-color: white; text-align:center; width:100%; margin-bottom:15px; display:flex; justify-content: end;z-index: 50;">
+    <div style="font-size:10px; background-color: white; text-align:center; width:100%; margin-bottom:15px; margin-right: 50px  display:flex; justify-content: end;z-index: 50;">
       <span style="background-color: white;">Página <span class="pageNumber"></span> de <span class="totalPages"></span></span>
     </div>
   `,
