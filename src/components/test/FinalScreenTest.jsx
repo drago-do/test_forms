@@ -78,7 +78,7 @@ export default function Page({
       case "success":
         return (
           <>
-            {showConfetti && (
+            {/* {showConfetti && (
               <ConfettiExplosion
                 force={0.8}
                 duration={3000}
@@ -86,7 +86,7 @@ export default function Page({
                 width={1600}
                 onComplete={() => setShowConfetti(false)} // Detener cuando termine
               />
-            )}
+            )} */}
             <Typography variant="h5">
               Felicidades, concluiste el test
             </Typography>
