@@ -29,6 +29,8 @@ import MaterialIcon from "./../../../components/general/MaterialIcon";
 import FinalScreenTest from "./../../../components/test/FinalScreenTest";
 import FullPageLoader from "./../../../components/general/FullPageLoader";
 
+import { toast } from "sonner";
+
 export default function TestForm({ params }) {
   const { createResult } = useResults();
   const { id } = params;
@@ -51,6 +53,8 @@ export default function TestForm({ params }) {
   }, [answers]);
 
   useEffect(() => {
+    console.log(id);
+
     if (id) {
       const fetchTest = async () => {
         try {
@@ -69,10 +73,18 @@ export default function TestForm({ params }) {
                 })) || []
               );
             }, []) || [];
-          console.log("allQuestions");
-          console.log(allQuestions);
-          setQuestions(shuffle(allQuestions));
+          const shuffledQuestions = shuffle(allQuestions);
+          setQuestions(shuffledQuestions);
 
+          const savedProgress = localStorage.getItem(`testProgress-${id}`);
+          if (savedProgress) {
+            const { savedStep, savedAnswers, savedQuestions } =
+              JSON.parse(savedProgress);
+            setActiveStep(savedStep);
+            setAnswers(savedAnswers);
+            setQuestions(savedQuestions);
+            toast.info("Progreso de test recuperado.");
+          }
           setLoading(false);
         } catch (error) {
           console.error("Error fetching test:", error);
@@ -83,7 +95,25 @@ export default function TestForm({ params }) {
 
       fetchTest();
     }
-  }, [id]);
+  }, []);
+
+  useEffect(() => {
+    // Save progress to localStorage whenever answers, activeStep, or questions change
+
+    if (activeStep > 0 && activeStep < steps.length - 1) {
+      console.log(steps.length);
+      console.log(activeStep);
+      const saveProgress = () => {
+        const progress = {
+          savedStep: activeStep,
+          savedAnswers: answers,
+          savedQuestions: questions,
+        };
+        localStorage.setItem(`testProgress-${id}`, JSON.stringify(progress));
+      };
+      saveProgress();
+    }
+  }, [activeStep, answers, questions, id]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -128,6 +158,8 @@ export default function TestForm({ params }) {
       if (response.success) {
         setResultId(response?.data?._id);
         setFinalScreenState("success");
+        // Clear saved progress on successful submission
+        localStorage.removeItem(`testProgress-${id}`);
       } else {
         setFinalScreenState("error");
         console.error("Error submitting test results:", response.message);

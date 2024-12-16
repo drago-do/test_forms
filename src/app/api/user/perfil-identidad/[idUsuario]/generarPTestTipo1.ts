@@ -69,7 +69,7 @@ function generarGraficaDeBarrasHTML(resultados) {
             <div style="background: #f1f1f1; border-radius: 8px; overflow: hidden; height: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
                 <div style="
                     width: ${resultado.porcentaje}%;
-                    background: linear-gradient(90deg, #4caf50, #81c784);
+                    background: linear-gradient(90deg, #b17200, #ffa500);
                     color: white;
                     font-weight: bold;
                     font-size: 8px;

@@ -78,7 +78,7 @@ function generarHTMLResultadosPruebas(pruebas: any[]): string {
                           resultado.nombreSeccion || resultado.nombreCategoria
                         }</h3>
                         <p style="margin: 5px 0;">${resultado?.escala || ""}</p>
-                        <p style="margin: 5px 0; color: #4caf50; font-weight: bold;">Porcentaje: ${
+                        <p style="margin: 5px 0; color: #008ac9; font-weight: bold;">Porcentaje: ${
                           resultado.porcentaje
                         }%</p>
                     </div>
@@ -95,7 +95,7 @@ function generarHTMLResultadosPruebas(pruebas: any[]): string {
                           resultado.nombreSeccion || resultado.nombreCategoria
                         }</h3>
                         <p style="margin: 5px 0;">${resultado?.escala || ""}</p>
-                        <p style="margin: 5px 0; color: #f44336; font-weight: bold;">Porcentaje: ${
+                        <p style="margin: 5px 0; color: #008ac9; font-weight: bold;">Porcentaje: ${
                           resultado.porcentaje
                         }%</p>
                     </div>
@@ -113,14 +113,14 @@ function generarHTMLResultadosPruebas(pruebas: any[]): string {
                 <div style="margin: 30px 0; font-family: Arial, sans-serif;">
                     <h2 style="text-align: center; color: #333;">${titulo}</h2>
                     <p style="text-align: justify; color: #555; margin-bottom: 20px;">${descripcion}</p>
-                    <p style="text-align: justify; color: #555; margin-bottom: 30px; font-style: italic;">${instrucciones}</p>
-                    
-                    <h3 style="color: #4caf50; border-bottom: 2px solid #4caf50; padding-bottom: 5px;">Mejores Resultados</h3>
+                    <h3 style="color: #008ac9; border-bottom: 2px solid #008ac9; padding-bottom: 5px;">FORTALEZAS</h3>
                     ${mejoresHTML}
-
-                    <h3 style="color: #f44336; border-bottom: 2px solid #f44336; padding-bottom: 5px;">Peores Resultados</h3>
-                    ${peoresHTML}
-
+                   ${
+                     tipoPrueba === 1
+                       ? `<h3 style="color: #008ac9; border-bottom: 2px solid #008ac9; padding-bottom: 5px;">EN DESARROLLO</h3>
+                    ${peoresHTML}`
+                       : ""
+                   }
                     <div style="margin-top: 30px;">
                         ${graficaHTML}
                     </div>
