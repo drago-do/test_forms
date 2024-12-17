@@ -45,6 +45,7 @@ export default function TestForm({ params }) {
   const [testType, setTestType] = useState(1);
   const [resultId, setResultId] = useState(null);
   const [finalScreenState, setFinalScreenState] = useState("loading");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const idUser = isAuthenticated();
 
@@ -98,8 +99,6 @@ export default function TestForm({ params }) {
   }, []);
 
   useEffect(() => {
-    // Save progress to localStorage whenever answers, activeStep, or questions change
-
     if (activeStep > 0 && activeStep < steps.length - 1) {
       console.log(steps.length);
       console.log(activeStep);
@@ -119,7 +118,7 @@ export default function TestForm({ params }) {
     const handleKeyDown = (event) => {
       if (event.code === "Space" && answers[questions[activeStep - 1]?._id]) {
         if (activeStep < questions.length) {
-          if (activeStep === steps?.length - 2) {
+          if (activeStep === steps?.length - 2 && !isSubmitting) {
             handleSubmit();
           } else {
             handleNext();
@@ -132,7 +131,7 @@ export default function TestForm({ params }) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [activeStep, answers, questions]);
+  }, [activeStep, answers, questions, isSubmitting]);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -147,23 +146,22 @@ export default function TestForm({ params }) {
   };
 
   const handleSubmit = async () => {
-    // Submit results to backend
+    if (isSubmitting) return;
+
     try {
+      setIsSubmitting(true);
       setFinalScreenState("loading");
       const user = getLoggedUserInfo();
-
-      // Add artificial delay of 2 seconds
-      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       const response = await createResult({
         id_prueba: test?.documento?._id,
         id_user: user?._id,
         respuestas: answers,
       });
+
       if (response.success) {
         setResultId(response?.data?._id);
         setFinalScreenState("success");
-        // Clear saved progress on successful submission
         localStorage.removeItem(`testProgress-${id}`);
       } else {
         setFinalScreenState("error");
@@ -326,12 +324,17 @@ export default function TestForm({ params }) {
               activeStep === steps.length - 2 ? handleSubmit : handleNext
             }
             disabled={
-              activeStep !== 0 &&
-              activeStep !== steps.length - 1 &&
-              !answers[questions[activeStep - 1]._id]
+              (activeStep !== 0 &&
+                activeStep !== steps.length - 1 &&
+                !answers[questions[activeStep - 1]._id]) ||
+              (activeStep === steps.length - 2 && isSubmitting)
             }
           >
-            {activeStep === steps.length - 2 ? "Terminar" : "Siguiente"}
+            {activeStep === steps.length - 2
+              ? isSubmitting
+                ? "Enviando..."
+                : "Terminar"
+              : "Siguiente"}
           </Button>
         )}
       </Box>
