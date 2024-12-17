@@ -152,7 +152,7 @@ export default function TestForm({ params }) {
       const user = getLoggedUserInfo();
       const response = await createResult({
         id_prueba: test?.documento?._id,
-        id_user: user._id,
+        id_user: user?._id,
         respuestas: answers,
       });
       if (response.success) {
@@ -272,8 +272,8 @@ export default function TestForm({ params }) {
                 {question?.texto}
               </FormLabel>
               <RadioGroup
-                value={answers[question._id] || ""}
-                onChange={(e) => handleAnswer(question._id, e.target.value)}
+                value={answers[question?._id] || ""}
+                onChange={(e) => handleAnswer(question?._id, e.target.value)}
               >
                 {question.opciones.map((option) => (
                   <FormControlLabel

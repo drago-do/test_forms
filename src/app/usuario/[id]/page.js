@@ -43,10 +43,10 @@ export default function UserProfile() {
     // Fetch completed tests using the hook
     const fetchCompletedTests = async () => {
       try {
-        const response = await getUserCompletedTest(userInfo._id);
+        const response = await getUserCompletedTest(userInfo?._id);
         console.log(response);
         if (response.success) {
-          setCompletedTests(response.data);
+          setCompletedTests(response?.data);
         }
       } catch (error) {
         console.error("Error fetching completed tests:", error);

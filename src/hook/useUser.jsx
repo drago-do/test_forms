@@ -4,22 +4,34 @@ const api = process.env.NEXT_PUBLIC_API;
 
 const useUser = () => {
   const isAuthenticated = () => {
-    return !!jsCookie.get("_id");
+    console.log("[isAuthenticated] Checking if user is authenticated");
+    const result = !!jsCookie.get("_id");
+    console.log("[isAuthenticated] Result:", result);
+    return result;
   };
 
   const getUserRole = () => {
+    console.log("[getUserRole] Getting user role");
     if (isAuthenticated()) {
-      return jsCookie.get("role"); // Updated to use 'role' instead of 'puesto'
+      const role = jsCookie.get("role");
+      console.log("[getUserRole] Role found:", role);
+      return role;
     }
+    console.log("[getUserRole] No role found - user not authenticated");
     return null;
   };
 
   const authenticateUser = (email, password) => {
+    console.log(
+      "[authenticateUser] Attempting authentication for email:",
+      email
+    );
     const url = `${api}api/authenticator`;
     return new Promise((resolve, reject) =>
       axios
         .post(url, { email, password })
         .then((response) => {
+          console.log("[authenticateUser] Authentication successful");
           const data = response.data;
           jsCookie.set("firstName", data.firstName);
           jsCookie.set("lastName", data.lastName);
@@ -35,13 +47,14 @@ const useUser = () => {
           resolve(data);
         })
         .catch((err) => {
-          console.log(err);
+          console.log("[authenticateUser] Authentication failed:", err);
           reject(err);
         })
     );
   };
 
   const getLoggedUserInfo = () => {
+    console.log("[getLoggedUserInfo] Getting logged user information");
     const user = {
       firstName: jsCookie.get("firstName"),
       lastName: jsCookie.get("lastName"),
@@ -55,86 +68,123 @@ const useUser = () => {
       group: jsCookie.get("group"),
       _id: jsCookie.get("_id"),
     };
+    console.log("[getLoggedUserInfo] User info:", user);
     return user;
   };
 
   const getSpecificUserFullInfo = (id) => {
+    console.log("[getSpecificUserFullInfo] Getting full info for user:", id);
     const url = `${api}api/user/${id}`;
     return new Promise((resolve, reject) =>
       axios
         .get(url)
         .then((response) => {
+          console.log(
+            "[getSpecificUserFullInfo] User info retrieved:",
+            response.data.user
+          );
           resolve(response.data.user);
         })
         .catch((err) => {
-          console.log(err);
+          console.log(
+            "[getSpecificUserFullInfo] Error getting user info:",
+            err
+          );
           reject(err);
         })
     );
   };
 
   const updateUserInfo = (id, data) => {
+    console.log(
+      "[updateUserInfo] Updating info for user:",
+      id,
+      "with data:",
+      data
+    );
     const url = `${api}api/user/${id}`;
     return new Promise((resolve, reject) =>
       axios
         .put(url, data)
         .then((response) => {
+          console.log(
+            "[updateUserInfo] Update successful:",
+            response.data.data
+          );
           resolve(response.data.data);
         })
         .catch((err) => {
-          console.log(err);
+          console.log("[updateUserInfo] Update failed:", err);
           reject(err);
         })
     );
   };
 
   const getAllUser = (page = 1) => {
+    console.log("[getAllUser] Getting all users for page:", page);
     const url = `${api}api/user?page=${page}`;
     return new Promise((resolve, reject) =>
       axios
         .get(url)
         .then((response) => {
           const { data, total, page, totalPages } = response.data;
+          console.log("[getAllUser] Retrieved users:", {
+            users: data,
+            total,
+            page,
+            totalPages,
+          });
           resolve({ users: data, total, page, totalPages });
         })
         .catch((err) => {
-          console.log(err);
+          console.log("[getAllUser] Error getting users:", err);
           reject(err);
         })
     );
   };
 
   const createNewUser = (data) => {
+    console.log("[createNewUser] Creating new user with data:", data);
     const url = `${api}api/user`;
     return new Promise((resolve, reject) =>
       axios
         .post(url, data)
         .then((response) => {
+          console.log(
+            "[createNewUser] User created successfully:",
+            response.data.data
+          );
           resolve(response.data.data);
         })
         .catch((err) => {
-          console.log(err);
+          console.log("[createNewUser] Error creating user:", err);
           reject(err);
         })
     );
   };
 
   const deleteUser = (id) => {
+    console.log("[deleteUser] Deleting user:", id);
     const url = `${api}api/user/${id}`;
     return new Promise((resolve, reject) => {
       axios
         .delete(url)
         .then((response) => {
+          console.log(
+            "[deleteUser] User deleted successfully:",
+            response.data.data
+          );
           resolve(response.data.data);
         })
         .catch((err) => {
-          console.log(err);
+          console.log("[deleteUser] Error deleting user:", err);
           reject(err);
         });
     });
   };
 
   const logout = () => {
+    console.log("[logout] Logging out user");
     jsCookie.remove("token");
     jsCookie.remove("expireTime");
     jsCookie.remove("role");
@@ -148,6 +198,7 @@ const useUser = () => {
     jsCookie.remove("lastName");
     jsCookie.remove("firstName");
     jsCookie.remove("_id");
+    console.log("[logout] All cookies removed");
   };
 
   return {
