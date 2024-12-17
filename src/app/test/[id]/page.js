@@ -149,7 +149,12 @@ export default function TestForm({ params }) {
   const handleSubmit = async () => {
     // Submit results to backend
     try {
+      setFinalScreenState("loading");
       const user = getLoggedUserInfo();
+
+      // Add artificial delay of 2 seconds
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       const response = await createResult({
         id_prueba: test?.documento?._id,
         id_user: user?._id,
