@@ -269,7 +269,7 @@ export default function TestForm({ params }) {
           <CardContent>
             <FormControl component="fieldset">
               <FormLabel component="legend" className="text-2xl mb-6">
-                {question.texto}
+                {question?.texto}
               </FormLabel>
               <RadioGroup
                 value={answers[question._id] || ""}
@@ -280,7 +280,7 @@ export default function TestForm({ params }) {
                     key={option.id}
                     value={testType === 1 ? option.valor : option.subcategoria}
                     control={<Radio />}
-                    label={option.texto}
+                    label={option?.texto}
                   />
                 ))}
               </RadioGroup>

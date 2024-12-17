@@ -15,7 +15,7 @@ function formatResultsForExcelTypeOne(testDocument, results) {
     "Grado",
     "Grupo",
     "FechaDeAplicativo",
-    ...questions.map((q) => q.texto),
+    ...questions.map((q) => q?.texto),
     ...testDocument.sections.map((section) => `Promedio ${section.name}`),
     ...testDocument.sections.map((section) => `Interpretacion ${section.name}`),
   ];
@@ -116,7 +116,7 @@ function formatResultsForExcelTypeTwo(testDocument, results) {
     "Grado",
     "Grupo",
     "FechaDeAplicativo",
-    ...questions.map((q) => q.texto),
+    ...questions.map((q) => q?.texto),
     ...testDocument.categorias.flatMap((categoria) => [
       `Total:${categoria.nombre}`,
     ]),

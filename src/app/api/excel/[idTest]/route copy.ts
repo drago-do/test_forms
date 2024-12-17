@@ -32,7 +32,7 @@ const organizeDataWithoutPercentages = (preguntas, categorias, resultados) => {
     [null, ...encabezadosSubcategorias],
   ];
   const dataRows = preguntas.map((pregunta) => {
-    const fila = [pregunta.texto];
+    const fila = [pregunta?.texto];
     categorias.forEach((categoria) => {
       categoria.subcategorias.forEach((subcategoria) => {
         const frecuencias = resultados.reduce((acc, resultado) => {
