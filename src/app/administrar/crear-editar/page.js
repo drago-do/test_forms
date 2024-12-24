@@ -36,6 +36,7 @@ function PageContent() {
           methods.setValue("_id", test._id);
           methods.setValue("titulo", test.titulo);
           methods.setValue("descripcion", test.descripcion);
+          methods.setValue("descripcionPDF", test.descripcionPDF);
           methods.setValue("pregunta", test.pregunta);
           methods.setValue("instrucciones", test.instrucciones);
           methods.setValue("tipo", test.tipo);

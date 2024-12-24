@@ -74,6 +74,21 @@ export default function MetadataTest() {
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
+              error={!!errors?.descripcionPDF}
+              helperText={errors?.pregunta?.descripcionPDF}
+              {...register("descripcionPDF", {
+                required:
+                  "Nececitas colocar la descripcion que aparecera en este test",
+              })}
+              label="Descripcion (PDF)"
+              fullWidth
+              multiline
+              required
+              variant="standard"
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
               error={!!errors?.descripcion}
               helperText={errors?.descripcion?.message}
               {...register("descripcion", {

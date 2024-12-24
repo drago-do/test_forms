@@ -58,7 +58,7 @@ function generarHTMLResultadosPruebas(pruebas: any[]): string {
       const { id_prueba, resultadosPromedio } = prueba;
       const tipoPrueba = id_prueba?.tipo;
       const titulo = id_prueba?.titulo || "Sin Título";
-      const descripcion = id_prueba?.descripcion || "Sin Descripción";
+      const descripcion = id_prueba?.descripcionPDF || "Sin Descripción";
       const instrucciones = id_prueba?.instrucciones || "Sin Instrucciones";
 
       // Ordenar resultados por porcentaje

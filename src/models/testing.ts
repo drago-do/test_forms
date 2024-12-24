@@ -129,6 +129,7 @@ const categoriaSchema = new Schema(
 export interface IPrueba extends Document {
   titulo: string;
   pregunta: string;
+  descripcionPDF: string;
   descripcion?: string;
   instrucciones: string;
   tipo: 1 | 2 | 3;
@@ -154,6 +155,11 @@ const pruebaSchema: Schema<IPrueba> = new Schema(
       type: String,
       required: true,
       description: "A que pregunta responde este test",
+    },
+    descripcionPDF: {
+      type: String,
+      required: true,
+      description: "Descripcion del test para el PDF",
     },
     descripcion: {
       type: String,
