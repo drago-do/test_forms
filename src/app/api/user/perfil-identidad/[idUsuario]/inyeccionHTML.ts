@@ -69,39 +69,12 @@ function generarHTMLResultadosPruebas(pruebas: any[]): string {
       const mejores = resultadosOrdenados.slice(0, 3); // Mejores 3
       const peores = resultadosOrdenados.slice(-3); // Peores 3
 
-      // Generar contenido de los mejores resultados
-      const mejoresHTML = mejores
-        .map(
-          (resultado) => `
-                    <div style="margin-bottom: 15px;">
-                        <h3 style="margin: 0; font-weight: bold; font-size: 18px;">${
-                          resultado.nombreSeccion || resultado.nombreCategoria
-                        }</h3>
-                        <p style="margin: 5px 0;">${resultado?.escala || ""}</p>
-                        <p style="margin: 5px 0; color: #008ac9; font-weight: bold;">Porcentaje: ${
-                          resultado.porcentaje
-                        }%</p>
-                    </div>
-                `
-        )
-        .join("");
-
-      // Generar contenido de los peores resultados
-      const peoresHTML = peores
-        .map(
-          (resultado) => `
-                    <div style="margin-bottom: 15px;">
-                        <h3 style="margin: 0; font-weight: bold; font-size: 18px;">${
-                          resultado.nombreSeccion || resultado.nombreCategoria
-                        }</h3>
-                        <p style="margin: 5px 0;">${resultado?.escala || ""}</p>
-                        <p style="margin: 5px 0; color: #008ac9; font-weight: bold;">Porcentaje: ${
-                          resultado.porcentaje
-                        }%</p>
-                    </div>
-                `
-        )
-        .join("");
+      let cuerpoDeTest = ``;
+      if (tipoPrueba === 1) {
+        cuerpoDeTest = CuerpoPrueba1(mejores, peores);
+      } else if (tipoPrueba === 2) {
+        cuerpoDeTest = CuerpoPrueba2(mejores);
+      }
 
       // Generar gráfica según el tipo de prueba
       const graficaHTML =
@@ -113,14 +86,7 @@ function generarHTMLResultadosPruebas(pruebas: any[]): string {
                 <div style="margin: 30px 0; font-family: Arial, sans-serif;">
                     <h2 style="text-align: center; color: #333;">${titulo}</h2>
                     <p style="text-align: justify; color: #555; margin-bottom: 20px;">${descripcion}</p>
-                    <h3 style="color: #008ac9; border-bottom: 2px solid #008ac9; padding-bottom: 5px;">FORTALEZAS</h3>
-                    ${mejoresHTML}
-                   ${
-                     tipoPrueba === 1
-                       ? `<h3 style="color: #008ac9; border-bottom: 2px solid #008ac9; padding-bottom: 5px;">EN DESARROLLO</h3>
-                    ${peoresHTML}`
-                       : ""
-                   }
+                   ${cuerpoDeTest}
                     <div style="margin-top: 30px;">
                         ${graficaHTML}
                     </div>
@@ -128,6 +94,65 @@ function generarHTMLResultadosPruebas(pruebas: any[]): string {
             `;
     })
     .join("");
+}
+
+function CuerpoPrueba1(mejores: any, peores: any) {
+  // Generar contenido de los mejores resultados
+  const mejoresHTML = mejores
+    .map(
+      (resultado) => `
+                    <div style="margin-bottom: 15px;">
+                        <h3 style="margin: 0; font-weight: bold; font-size: 18px;">${
+                          resultado.nombreSeccion || resultado.nombreCategoria
+                        }</h3>
+                        <p style="margin: 5px 0;">${resultado?.escala || ""}</p>
+                        <p style="margin: 5px 0; color: #008ac9; font-weight: bold;">Porcentaje: ${
+                          resultado.porcentaje
+                        }%</p>
+                    </div>
+                `
+    )
+    .join("");
+
+  // Generar contenido de los peores resultados
+  const peoresHTML = peores
+    .map(
+      (resultado) => `
+                    <div style="margin-bottom: 15px;">
+                        <h3 style="margin: 0; font-weight: bold; font-size: 18px;">${
+                          resultado.nombreSeccion || resultado.nombreCategoria
+                        }</h3>
+                        <p style="margin: 5px 0;">${resultado?.escala || ""}</p>
+                        <p style="margin: 5px 0; color: #008ac9; font-weight: bold;">Porcentaje: ${
+                          resultado.porcentaje
+                        }%</p>
+                    </div>
+                `
+    )
+    .join("");
+  return ` <h3 style="color: #008ac9; border-bottom: 2px solid #008ac9; padding-bottom: 5px;">FORTALEZAS</h3>
+                    ${mejoresHTML}
+                <h3 style="color: #008ac9; border-bottom: 2px solid #008ac9; padding-bottom: 5px;">EN DESARROLLO</h3>
+                    ${peoresHTML}`;
+}
+
+function CuerpoPrueba2(mejores: any) {
+  // Generar contenido de los tres mejores resultados
+  const mejoresHTML = mejores
+    .slice(0, 3)
+    .map(
+      (resultado) => `
+                    <div style="margin-bottom: 15px;">
+                        <h3 style="margin: 0; font-weight: bold; font-size: 18px;">${
+                          resultado.nombreSeccion || resultado.nombreCategoria
+                        }</h3>
+                        <p style="margin: 5px 0;">${resultado?.escala || ""}</p>
+                    </div>
+                `
+    )
+    .join("");
+
+  return `${mejoresHTML}`;
 }
 
 export {
