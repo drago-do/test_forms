@@ -31,10 +31,11 @@ function inyectarDatosPruebas(
 
   const pruebasProcesadas = procesarPruebas(resultados);
 
-  plantillaHTML = plantillaHTML.replace(
-    "{{6}}",
-    generarHTMLResultadosPruebas(pruebasProcesadas)
-  );
+  const HTLMPrueba1y2 = generarHTMLResultadosPruebas(pruebasProcesadas);
+  const HTLMPrueba2y3 = generarHTMLResultadosPruebasTipo2y3(pruebasProcesadas);
+  const HTLMpruebas = HTLMPrueba1y2 + HTLMPrueba2y3;
+
+  plantillaHTML = plantillaHTML.replace("{{6}}", HTLMpruebas);
   return plantillaHTML;
 }
 
@@ -151,8 +152,106 @@ function CuerpoPrueba2(mejores: any) {
                 `
     )
     .join("");
-
   return `${mejoresHTML}`;
+}
+
+function generarHTMLResultadosPruebasTipo2y3(pruebas: any[]): string {
+  // Filtrar pruebas de tipo 2 y 3
+  const pruebasTipo2 = pruebas.filter((prueba) => prueba.id_prueba?.tipo === 2);
+  const pruebasTipo3 = pruebas.filter((prueba) => prueba.id_prueba?.tipo === 3);
+  console.log(pruebasTipo3);
+
+  // Generar resumen de resultados para pruebas de tipo 2
+  const resumenTipo2 = pruebasTipo2
+    .map((prueba) => {
+      const { id_prueba, resultadosPromedio } = prueba;
+      const titulo = id_prueba?.titulo || "Sin Título";
+      const descripcion = id_prueba?.descripcionPDF || "Sin Descripción";
+
+      // Ordenar resultados por porcentaje
+      const resultadosOrdenados = [...resultadosPromedio].sort(
+        (a, b) => parseFloat(b.porcentaje) - parseFloat(a.porcentaje)
+      );
+
+      return `<li>✅  ${titulo}</li>`;
+    })
+    .join("");
+
+  const htmlPrimeraParte = `
+    <div style="font-family: Arial, sans-serif; margin: 20px;">
+        <h2 style="color: #333;">ÁREAS ACADEMICAS AFINES</h2>
+        <p style="text-align: justify; color: #555;">
+            En México, existen alrededor de 150 licenciaturas las cuales se dividen en 5 áreas académicas:
+        </p>
+        <ul style="list-style-type: disc; margin-left: 20px; color: #555;">
+            <li>Ciencias Biológicas, químicas y de la salud.</li>
+            <li>Ciencias Físico-matemáticas y de las Ingenierías.</li>
+            <li>Ciencias Sociales</li>
+            <li>Humanidades y de las artes.</li>
+            <li>Ciencias empresariales.</li>
+        </ul>
+        <p style="text-align: justify; color: #555;">
+            De acuerdo a los resultados de las pruebas psicométricas, tienes ${resumenTipo2?.length} áreas académicas afines:
+        </p>
+        <ul style="list-style-type: none; padding: 20px;">
+${resumenTipo2}
+        </ul>
+    </div>
+    `;
+
+  // Generar resultados para pruebas de tipo 3
+  const resultadosTipo3 = pruebasTipo3
+    .map((prueba) => {
+      const { id_prueba, resultadosPromedio } = prueba;
+      const titulo = id_prueba?.titulo || "Sin Título";
+      const porcentajeGeneral =
+        resultadosPromedio.reduce(
+          (acc, curr) => acc + parseFloat(curr.porcentaje),
+          0
+        ) / resultadosPromedio.length || 0;
+
+      // Ordenar resultados por porcentaje y tomar las 3 categorías más altas
+      const categoriasOrdenadas = [...resultadosPromedio]
+        .sort((a, b) => parseFloat(b.porcentaje) - parseFloat(a.porcentaje))
+        .slice(0, 3);
+
+      const resultadosHTML = categoriasOrdenadas
+        .map((resultado) => {
+          const subcategoriasHTML = (resultado.subcategorias || [])
+            .map((subcategoria) => `<li>${subcategoria}</li>`)
+            .join("");
+
+          return `
+            <div style="margin-bottom: 15px;">
+              <h3 style="margin: 0; font-weight: bold; font-size: 18px;">
+                Objeto de estudio: ${resultado.nombreCategoria} (${resultado.porcentaje}%)
+              </h3>
+              <p>Carreras:</p>
+              <ul>${subcategoriasHTML}</ul>
+            </div>
+          `;
+        })
+        .join("");
+
+      return `
+        <div style="margin: 30px 0; font-family: Arial, sans-serif;">
+          <h2 style="text-align: center; color: #333;">Área académica: ${titulo} (${porcentajeGeneral.toFixed(
+        2
+      )}%)</h2>
+          ${resultadosHTML}
+        </div>
+      `;
+    })
+    .join("");
+
+  return `
+    <div>
+      <h1 style="color: #333;">CARRERAS DE ACUERDO AL ANÁLISIS PSICOMÉTRICO</h1>
+      ${htmlPrimeraParte}
+      <h1 style="text-align: center; color: #333;">Resultados de Pruebas Tipo 3</h1>
+      ${resultadosTipo3}
+    </div>
+  `;
 }
 
 export {
