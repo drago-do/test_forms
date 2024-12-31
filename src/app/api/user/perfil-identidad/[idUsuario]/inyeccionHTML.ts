@@ -217,9 +217,13 @@ ${resumenTipo2}
 
       const resultadosHTML = categoriasOrdenadas
         .map((resultado) => {
-          const subcategoriasHTML = (resultado.subcategorias || [])
-            .map((subcategoria) => `<li>${subcategoria}</li>`)
-            .join("");
+          console.log("Aca el error ------------");
+          console.log(resultado);
+          const SubDeResultados = Object.keys(resultado?.subcategorias || {});
+
+          const subcategoriasHTML = SubDeResultados.map(
+            (subcategoria) => `<li>${subcategoria}</li>`
+          ).join("");
 
           return `
             <div style="margin-bottom: 15px;">
@@ -227,7 +231,7 @@ ${resumenTipo2}
                 Objeto de estudio: ${resultado.nombreCategoria} (${resultado.porcentaje}%)
               </h3>
               <p>Carreras:</p>
-              <ul>${subcategoriasHTML}</ul>
+              <ul style="margin-left: 30px;">${subcategoriasHTML}</ul>
             </div>
           `;
         })
@@ -235,7 +239,7 @@ ${resumenTipo2}
 
       return `
         <div style="margin: 30px 0; font-family: Arial, sans-serif;">
-          <h2 style="text-align: center; color: #333;">Área académica: ${titulo} (${porcentajeGeneral.toFixed(
+          <h2 style="text-align: left; color: #333;">Área académica: ${titulo} (${porcentajeGeneral.toFixed(
         2
       )}%)</h2>
           ${resultadosHTML}
