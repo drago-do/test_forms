@@ -201,6 +201,47 @@ const useUser = () => {
     console.log("[logout] All cookies removed");
   };
 
+  const downloadIdentityProfile = (userId) => {
+    console.log(
+      "[downloadIdentityProfile] Initiating download for user:",
+      userId
+    );
+    const url = `${api}api/user/perfil-identidad/${userId}`;
+    let attempts = 0;
+    const maxAttempts = 5;
+
+    const attemptDownload = () => {
+      return new Promise((resolve, reject) => {
+        axios
+          .get(url, { responseType: "blob" })
+          .then((response) => {
+            console.log("[downloadIdentityProfile] Download successful");
+            const file = new Blob([response.data], { type: "application/pdf" });
+            const fileURL = URL.createObjectURL(file);
+            resolve(fileURL);
+          })
+          .catch((err) => {
+            attempts++;
+            console.log(
+              `[downloadIdentityProfile] Attempt ${attempts} failed:`,
+              err
+            );
+            if (attempts < maxAttempts) {
+              console.log("[downloadIdentityProfile] Retrying download...");
+              attemptDownload().then(resolve).catch(reject);
+            } else {
+              console.log(
+                "[downloadIdentityProfile] Max attempts reached. Download failed."
+              );
+              reject(err);
+            }
+          });
+      });
+    };
+
+    return attemptDownload();
+  };
+
   return {
     authenticateUser,
     getLoggedUserInfo,

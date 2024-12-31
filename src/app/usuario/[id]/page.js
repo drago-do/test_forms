@@ -22,7 +22,7 @@ import useTest from "./../../../hook/useTest";
 import FullPageLoader from "./../../../components/general/FullPageLoader";
 import { useRouter } from "next/navigation";
 import UserRoleChange from "./../../../components/admin/UserRoleChange";
-
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
   margin: theme.spacing(2, 0),
@@ -31,7 +31,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 export default function UserProfile() {
   const { push } = useRouter();
   const [loading, setLoading] = useState(true);
-  const { getLoggedUserInfo, logout } = useUser();
+  const { getLoggedUserInfo, logout, downloadIdentityProfile } = useUser();
   const { getUserCompletedTest } = useTest();
   const [user, setUser] = useState(null);
   const [completedTests, setCompletedTests] = useState([]);
@@ -65,6 +65,20 @@ export default function UserProfile() {
 
   const handleRetakeTest = (testId) => {
     push(`/test/${testId}`);
+  };
+
+  const handleDownloadPDF = async () => {
+    try {
+      const fileURL = await downloadIdentityProfile(user._id);
+      const link = document.createElement("a");
+      link.href = fileURL;
+      link.setAttribute("download", "perfil-identidad.pdf");
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+    }
   };
 
   if (!user || loading) {
@@ -170,10 +184,19 @@ export default function UserProfile() {
       </StyledPaper>
 
       <StyledPaper elevation={3} style={{ padding: "20px", marginTop: "20px" }}>
-        <Typography variant="h6" gutterBottom>
-          Pruebas Completadas
-        </Typography>
-        <a href={`/api/user/perfil-identidad/${user._id}`}>Descargar PDF</a>
+        <div className="w-full flex justify-between">
+          <Typography variant="h6" gutterBottom>
+            Pruebas Completadas
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleDownloadPDF}
+            startIcon={<PictureAsPdfIcon />}
+          >
+            Descargar PDF
+          </Button>
+        </div>
         {completedTests.length > 0 ? (
           <List>
             {completedTests.map((test, index) => {

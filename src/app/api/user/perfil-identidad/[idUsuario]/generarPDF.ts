@@ -85,7 +85,7 @@ async function generarPDF(HTMLBase: string): Promise<Buffer> {
 
 const header = `    <header
       style="text-align: center; margin-bottom: 40px; width: 100%; display: flex; flex-wrap: nowrap; align-items: center;">
-      <span style="border: 5px orange solid; width: 100%; height: 0px;"></span>
+      <span style="border: 5px #3b82f6 solid; width: 100%; height: 0px;"></span>
       <svg width="100%" height="53px" viewBox="0 0 1350 571" version="1.1" xmlns="http://www.w3.org/2000/svg">
         <g id="#fe311eff">
           <path fill="#fe311e" opacity="1.00"
@@ -178,7 +178,7 @@ const header = `    <header
             d=" M 1063.24 500.01 C 1068.57 499.99 1073.91 500.00 1079.25 500.00 C 1079.29 509.65 1079.17 519.31 1079.30 528.96 C 1079.41 533.15 1082.67 537.33 1087.08 537.45 C 1092.70 538.15 1097.47 533.11 1097.68 527.71 C 1097.86 518.48 1097.68 509.23 1097.75 500.00 C 1103.08 500.00 1108.42 499.98 1113.77 500.02 C 1113.74 516.67 1113.75 533.33 1113.76 549.99 C 1109.11 550.00 1104.47 549.99 1099.84 550.01 C 1099.54 548.27 1099.24 546.53 1098.97 544.80 C 1090.73 553.31 1074.54 553.65 1067.42 543.58 C 1064.41 539.39 1063.19 534.14 1063.24 529.04 C 1063.25 519.36 1063.26 509.69 1063.24 500.01 Z" />
         </g>
       </svg>
-      <span style="border: 5px orange solid; width: 100%; height: 0px;"></span>
+      <span style="border: 5px #3b82f6 solid; width: 100%; height: 0px;"></span>
     </header>`;
 
 export { generarHTML, generarPDF };
