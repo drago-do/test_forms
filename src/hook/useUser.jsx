@@ -207,31 +207,36 @@ const useUser = () => {
       userId
     );
     const url = `${api}api/user/perfil-identidad/${userId}`;
+    console.log("[downloadIdentityProfile] Constructed URL:", url);
     let attempts = 0;
     const maxAttempts = 5;
 
     const attemptDownload = () => {
+      console.log("[downloadIdentityProfile] Attempting download, attempt number:", attempts + 1);
       return new Promise((resolve, reject) => {
         axios
           .get(url, { responseType: "blob" })
           .then((response) => {
-            console.log("[downloadIdentityProfile] Download successful");
+            console.log("[downloadIdentityProfile] Download successful, response status:", response.status);
             const file = new Blob([response.data], { type: "application/pdf" });
+            console.log("[downloadIdentityProfile] Blob created, size:", file.size);
             const fileURL = URL.createObjectURL(file);
+            console.log("[downloadIdentityProfile] File URL created:", fileURL);
             resolve(fileURL);
           })
           .catch((err) => {
             attempts++;
             console.log(
-              `[downloadIdentityProfile] Attempt ${attempts} failed:`,
+              `[downloadIdentityProfile] Attempt ${attempts} failed with error:`,
               err
             );
             if (attempts < maxAttempts) {
-              console.log("[downloadIdentityProfile] Retrying download...");
+              console.log("[downloadIdentityProfile] Retrying download, attempt number:", attempts + 1);
               attemptDownload().then(resolve).catch(reject);
             } else {
               console.log(
-                "[downloadIdentityProfile] Max attempts reached. Download failed."
+                "[downloadIdentityProfile] Max attempts reached. Download failed with error:",
+                err
               );
               reject(err);
             }
@@ -253,6 +258,7 @@ const useUser = () => {
     deleteUser,
     getUserRole,
     isAuthenticated,
+    downloadIdentityProfile,
   };
 };
 

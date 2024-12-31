@@ -15,6 +15,7 @@ import {
   Paper,
   Chip,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import useUser from "./../../../hook/useUser";
@@ -68,6 +69,7 @@ export default function UserProfile() {
   };
 
   const handleDownloadPDF = async () => {
+    setLoading(true);
     try {
       const fileURL = await downloadIdentityProfile(user._id);
       const link = document.createElement("a");
@@ -76,7 +78,9 @@ export default function UserProfile() {
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.error("Error downloading PDF:", error);
     }
   };
@@ -188,13 +192,14 @@ export default function UserProfile() {
           <Typography variant="h6" gutterBottom>
             Pruebas Completadas
           </Typography>
+
           <Button
             variant="contained"
             color="primary"
             onClick={handleDownloadPDF}
             startIcon={<PictureAsPdfIcon />}
           >
-            Descargar PDF
+            {loading ? <CircularProgress /> : "Descargar PDF"}
           </Button>
         </div>
         {completedTests.length > 0 ? (
