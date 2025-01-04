@@ -20,6 +20,7 @@ import {
 import { styled } from "@mui/material/styles";
 import useUser from "./../../../hook/useUser";
 import useTest from "./../../../hook/useTest";
+import ViewResults from "../../../components/test/ViewResults";
 import FullPageLoader from "./../../../components/general/FullPageLoader";
 import { useRouter } from "next/navigation";
 import UserRoleChange from "./../../../components/admin/UserRoleChange";
@@ -214,7 +215,7 @@ export default function UserProfile() {
                         margin: "10px 0",
                         padding: "15px",
                       }}
-                      className="dark:bg-slate-800 bg-slate-400"
+                      className="dark:bg-slate-800 bg-slate-400 flex flex-col justify-center items-start"
                     >
                       <ListItemText
                         primary={
@@ -239,14 +240,22 @@ export default function UserProfile() {
                           </>
                         }
                       />
+                      <section className="flex justify-around">
+
                       <Button
                         variant="outlined"
                         color="secondary"
+                        className="mx-3"
                         style={{ marginLeft: "auto" }}
                         onClick={() => handleRetakeTest(test?.id_prueba?._id)}
-                      >
+                        >
                         Responder de nuevo
                       </Button>
+                      <ViewResults
+                        testId={test?.id_prueba?._id}
+                        userId={user?._id}
+                        />
+                    </section>
                     </ListItem>
                     {index < completedTests?.length - 1 && (
                       <Divider component="li" />

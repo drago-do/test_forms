@@ -1,11 +1,7 @@
-Requerimientos
-
-
-Anadir el campo de texto descipcion pdf
-
-
-Mostrar las 3 primeras areas academicas (Categorias mas altas )
-
-Para test 3, mostrar areas de interes (3 areas de interes con sus carreras (categoria y subcategoria))
-
-Cambiar a azul el tono de 
+LISTO   Mostrar un boton para ver resultados cuando ya contestaste un test
+LISTO Mostrar boton para ver resultados en pantalla de usuario
+- Reiniciar contrasena usuarios de sistema
+- Mejorar la interfaz de resultados para las interpretaciones largas pantalla emergente para mostrar detalle
+- Cuando editas un test, colocar el nombre hasta arriba para saber cual estoy editando
+- Mostrar todas las subcategorias en resultados de test 3
+- Orden en mostrar preguntas y resultados en PDF, (Del primero al tres)

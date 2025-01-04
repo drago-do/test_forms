@@ -24,6 +24,7 @@ import useTest from "../../../hook/useTest";
 import useUser from "../../../hook/useUser";
 import useResults from "./../../../hook/useResults";
 import PersonIcon from "@mui/icons-material/Person";
+import ViewResults from "./../../../components/test/ViewResults";
 
 import MaterialIcon from "./../../../components/general/MaterialIcon";
 import FinalScreenTest from "./../../../components/test/FinalScreenTest";
@@ -48,6 +49,8 @@ export default function TestForm({ params }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const idUser = isAuthenticated();
+
+  const userInfo = getLoggedUserInfo();
 
   useEffect(() => {
     console.log(answers);
@@ -254,6 +257,11 @@ export default function TestForm({ params }) {
               Instrucciones: {test?.documento?.instrucciones}
             </Typography>
           </CardContent>
+          <ViewResults
+            userId={userInfo?._id}
+            testId={test?.documento?._id}
+            simpleButton={false}
+          />
         </Card>
       );
     } else if (step === steps.length - 1) {
