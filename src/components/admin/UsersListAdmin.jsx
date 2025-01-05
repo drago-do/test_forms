@@ -140,13 +140,18 @@ export default function UsersListAdmin() {
   };
 
   return (
-    <>
+    <section className="my-12">
       <TextField
         label="Buscar Usuarios"
         variant="outlined"
         fullWidth
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            handleSearch();
+          }
+        }}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -222,7 +227,7 @@ export default function UsersListAdmin() {
           />
         </List>
       </InfiniteScroll>
-    </>
+    </section>
   );
 }
 

@@ -23,7 +23,6 @@ import useTest from "./../../../hook/useTest";
 import ViewResults from "../../../components/test/ViewResults";
 import FullPageLoader from "./../../../components/general/FullPageLoader";
 import { useRouter } from "next/navigation";
-import UserRoleChange from "./../../../components/admin/UserRoleChange";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -119,12 +118,6 @@ export default function UserProfile() {
         </CardContent>
       </Card>
 
-      <StyledPaper elevation={3}>
-        <Typography variant="h6" gutterBottom>
-          Usuarios del sistema
-        </Typography>
-        <UserRoleChange />
-      </StyledPaper>
       <StyledPaper elevation={3}>
         <Typography variant="h6" gutterBottom>
           Información personal
@@ -241,21 +234,20 @@ export default function UserProfile() {
                         }
                       />
                       <section className="flex justify-around">
-
-                      <Button
-                        variant="outlined"
-                        color="secondary"
-                        className="mx-3"
-                        style={{ marginLeft: "auto" }}
-                        onClick={() => handleRetakeTest(test?.id_prueba?._id)}
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          className="mx-3"
+                          style={{ marginLeft: "auto" }}
+                          onClick={() => handleRetakeTest(test?.id_prueba?._id)}
                         >
-                        Responder de nuevo
-                      </Button>
-                      <ViewResults
-                        testId={test?.id_prueba?._id}
-                        userId={user?._id}
+                          Responder de nuevo
+                        </Button>
+                        <ViewResults
+                          testId={test?.id_prueba?._id}
+                          userId={user?._id}
                         />
-                    </section>
+                      </section>
                     </ListItem>
                     {index < completedTests?.length - 1 && (
                       <Divider component="li" />
