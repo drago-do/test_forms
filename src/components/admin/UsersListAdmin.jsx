@@ -15,6 +15,7 @@ import {
   DialogTitle,
   Button,
   TextField,
+  CircularProgress,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import useUser from "./../../hook/useUser";
@@ -22,6 +23,7 @@ import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import PersonIcon from "@mui/icons-material/Person";
 import { toast } from "sonner";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function UsersListAdmin() {
   const [usuarios, setUsuarios] = useState([]);
@@ -31,22 +33,34 @@ export default function UsersListAdmin() {
   const [nuevoRol, setNuevoRol] = useState("");
   const [nuevaContrasena, setNuevaContrasena] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const { getAllUser, updateUserInfo } = useUser();
 
   useEffect(() => {
-    const cargarUsuarios = async () => {
-      try {
-        const { users } = await getAllUser();
-        setUsuarios(users);
-      } catch (error) {
-        console.error("Error al cargar usuarios:", error);
-        toast.error("Error al cargar usuarios");
-      }
-    };
-
     cargarUsuarios();
   }, []);
+
+  const cargarUsuarios = async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const { users, totalPages } = await getAllUser(page);
+      setUsuarios((prevUsuarios) => {
+        const existingIds = new Set(prevUsuarios.map((user) => user._id));
+        const newUsers = users.filter((user) => !existingIds.has(user._id));
+        return [...prevUsuarios, ...newUsers];
+      });
+      setHasMore(page < totalPages);
+    } catch (error) {
+      console.error("Error al cargar usuarios:", error);
+      toast.error("Error al cargar usuarios");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleMenuOpen = (event, user) => {
     console.log(user);
@@ -74,8 +88,9 @@ export default function UsersListAdmin() {
     try {
       await updateUserInfo(selectedUser._id, { role: nuevoRol });
       setDialogoAbierto(false);
-      const { users } = await getAllUser(); // Recargar usuarios
-      setUsuarios(users);
+      setPage(1);
+      setUsuarios([]);
+      cargarUsuarios(); // Recargar usuarios
       toast.success("Rol del usuario actualizado con éxito");
     } catch (error) {
       console.error("Error al actualizar el rol del usuario:", error);
@@ -102,47 +117,71 @@ export default function UsersListAdmin() {
 
   return (
     <>
-      <List>
-        {usuarios.map((usuario) => (
-          <ListItem key={usuario._id} divider>
-            <ListItemText
-              primary={`${usuario.firstName} ${usuario.lastName}`}
-              secondary={
-                <RolAndEmail rol={usuario.role} email={usuario.email} />
-              }
-            />
-            <IconButton
-              edge="end"
-              onClick={(event) => handleMenuOpen(event, usuario)}
-            >
-              <MoreVertIcon />
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-            >
-              <MenuItem onClick={handleRoleChange}>Cambiar Rol</MenuItem>
-              <MenuItem onClick={handlePasswordReset}>
-                Reiniciar Contraseña
-              </MenuItem>
-            </Menu>
-          </ListItem>
-        ))}
-        <DialogChangeRole
-          open={dialogoAbierto}
-          onClosed={() => setDialogoAbierto(false)}
-          selectedUser={selectedUser}
-          handleChangeRole={manejarConfirmacionCambioRol}
-        />
-        <DialogResetPassword
-          open={dialogoResetPassword}
-          onClosed={() => setDialogoResetPassword(false)}
-          selectedUser={selectedUser}
-          handleResetPassword={manejarConfirmacionResetPassword}
-          setNuevaContrasena={setNuevaContrasena}
-        />
-      </List>
+      <InfiniteScroll
+        dataLength={usuarios.length}
+        next={() => {
+          if (!loading) {
+            setPage((prevPage) => prevPage + 1);
+          }
+        }}
+        hasMore={hasMore}
+        loader={
+          <section className="flex flex-col items-center w-full">
+            <CircularProgress color="secondary" />
+            <Typography variant="caption">Cargando más usuarios...</Typography>
+          </section>
+        }
+        endMessage={
+          <section className="flex flex-col items-center w-full my-12">
+            <PersonIcon fontSize="large" />
+            <Typography variant="caption">
+              No hay más usuarios para mostrar
+            </Typography>
+          </section>
+        }
+      >
+        <List>
+          {usuarios.map((usuario) => (
+            <ListItem key={usuario._id} divider>
+              <ListItemText
+                primary={`${usuario.firstName} ${usuario.lastName}`}
+                secondary={
+                  <RolAndEmail rol={usuario.role} email={usuario.email} />
+                }
+              />
+              <IconButton
+                edge="end"
+                onClick={(event) => handleMenuOpen(event, usuario)}
+              >
+                <MoreVertIcon />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+              >
+                <MenuItem onClick={handleRoleChange}>Cambiar Rol</MenuItem>
+                <MenuItem onClick={handlePasswordReset}>
+                  Reiniciar Contraseña
+                </MenuItem>
+              </Menu>
+            </ListItem>
+          ))}
+          <DialogChangeRole
+            open={dialogoAbierto}
+            onClosed={() => setDialogoAbierto(false)}
+            selectedUser={selectedUser}
+            handleChangeRole={manejarConfirmacionCambioRol}
+          />
+          <DialogResetPassword
+            open={dialogoResetPassword}
+            onClosed={() => setDialogoResetPassword(false)}
+            selectedUser={selectedUser}
+            handleResetPassword={manejarConfirmacionResetPassword}
+            setNuevaContrasena={setNuevaContrasena}
+          />
+        </List>
+      </InfiniteScroll>
     </>
   );
 }
