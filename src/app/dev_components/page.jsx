@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import FinalScreenTest from "../../components/test/FinalScreenTest";
+import UserListAdmin from "../../components/admin/UsersListAdmin";
 
 export default function page() {
-  return <FinalScreenTest />;
+  return <UserListAdmin />;
 }
