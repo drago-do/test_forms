@@ -212,14 +212,23 @@ const useUser = () => {
     const maxAttempts = 5;
 
     const attemptDownload = () => {
-      console.log("[downloadIdentityProfile] Attempting download, attempt number:", attempts + 1);
+      console.log(
+        "[downloadIdentityProfile] Attempting download, attempt number:",
+        attempts + 1
+      );
       return new Promise((resolve, reject) => {
         axios
           .get(url, { responseType: "blob" })
           .then((response) => {
-            console.log("[downloadIdentityProfile] Download successful, response status:", response.status);
+            console.log(
+              "[downloadIdentityProfile] Download successful, response status:",
+              response.status
+            );
             const file = new Blob([response.data], { type: "application/pdf" });
-            console.log("[downloadIdentityProfile] Blob created, size:", file.size);
+            console.log(
+              "[downloadIdentityProfile] Blob created, size:",
+              file.size
+            );
             const fileURL = URL.createObjectURL(file);
             console.log("[downloadIdentityProfile] File URL created:", fileURL);
             resolve(fileURL);
@@ -231,7 +240,10 @@ const useUser = () => {
               err
             );
             if (attempts < maxAttempts) {
-              console.log("[downloadIdentityProfile] Retrying download, attempt number:", attempts + 1);
+              console.log(
+                "[downloadIdentityProfile] Retrying download, attempt number:",
+                attempts + 1
+              );
               attemptDownload().then(resolve).catch(reject);
             } else {
               console.log(
@@ -247,6 +259,26 @@ const useUser = () => {
     return attemptDownload();
   };
 
+  const searchUsers = (searchParam) => {
+    console.log("[searchUsers] Searching users with param:", searchParam);
+    const url = `${api}api/user/search`;
+    return new Promise((resolve, reject) => {
+      axios
+        .post(url, { searchParam })
+        .then((response) => {
+          console.log(
+            "[searchUsers] Search successful, users found:",
+            response.data.data
+          );
+          resolve(response.data.data);
+        })
+        .catch((err) => {
+          console.log("[searchUsers] Search failed with error:", err);
+          reject(err);
+        });
+    });
+  };
+
   return {
     authenticateUser,
     getLoggedUserInfo,
@@ -259,6 +291,7 @@ const useUser = () => {
     getUserRole,
     isAuthenticated,
     downloadIdentityProfile,
+    searchUsers,
   };
 };
 

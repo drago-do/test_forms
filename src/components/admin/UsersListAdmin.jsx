@@ -16,8 +16,10 @@ import {
   Button,
   TextField,
   CircularProgress,
+  InputAdornment,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import SearchIcon from "@mui/icons-material/Search";
 import useUser from "./../../hook/useUser";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
@@ -36,8 +38,9 @@ export default function UsersListAdmin() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const { getAllUser, updateUserInfo } = useUser();
+  const { getAllUser, updateUserInfo, searchUsers } = useUser();
 
   useEffect(() => {
     cargarUsuarios();
@@ -57,6 +60,27 @@ export default function UsersListAdmin() {
     } catch (error) {
       console.error("Error al cargar usuarios:", error);
       toast.error("Error al cargar usuarios");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      if (!searchTerm.trim()) {
+        setPage(1);
+        setUsuarios([]);
+        cargarUsuarios();
+      } else {
+        const users = await searchUsers(searchTerm);
+        setUsuarios(users);
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error("Error al buscar usuarios:", error);
+      toast.error("Error al buscar usuarios");
     } finally {
       setLoading(false);
     }
@@ -117,6 +141,22 @@ export default function UsersListAdmin() {
 
   return (
     <>
+      <TextField
+        label="Buscar Usuarios"
+        variant="outlined"
+        fullWidth
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton onClick={handleSearch}>
+                <SearchIcon />
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
       <InfiniteScroll
         dataLength={usuarios.length}
         next={() => {
