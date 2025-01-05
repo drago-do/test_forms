@@ -2,6 +2,6 @@ LISTO   Mostrar un boton para ver resultados cuando ya contestaste un test
 LISTO Mostrar boton para ver resultados en pantalla de usuario
 LISTO Reiniciar contrasena usuarios de sistema
 LISTO Mejorar la interfaz de resultados para las interpretaciones largas pantalla emergente para mostrar detalle
-- Cuando editas un test, colocar el nombre hasta arriba para saber cual estoy editando
-- Mostrar todas las subcategorias en resultados de test 3
+LISTO Cuando editas un test, colocar el nombre hasta arriba para saber cual estoy editando
+LISTO Mostrar todas las subcategorias en resultados de test 3
 - Orden en mostrar preguntas y resultados en PDF, (Del primero al tres)

@@ -25,6 +25,7 @@ function PageContent() {
   const params = useSearchParams();
   const idDocument = params.get("id");
   const [loading, setLoading] = useState(true);
+  const [testTitle, setTestTitle] = useState("Crear nuevo Test");
 
   useEffect(() => {
     if (idDocument) {
@@ -41,6 +42,9 @@ function PageContent() {
           methods.setValue("instrucciones", test.instrucciones);
           methods.setValue("tipo", test.tipo);
           methods.setValue("editando", true);
+
+          // Set the test title for the MenuAppBar
+          setTestTitle(test.titulo);
 
           // Flatten the nested sections and questions arrays
           const flattenedSections = test.sections.flat().map((section) => ({
@@ -100,7 +104,7 @@ function PageContent() {
       <MenuAppBar />
       <FormProvider {...methods}>
         <StepForm
-          formTitle={"Crear nuevo Test"}
+          formTitle={testTitle}
           stepComponents={SectionsForStepForm}
           edit={false}
           debug={stepDebug !== false ? true : false}

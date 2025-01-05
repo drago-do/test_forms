@@ -197,6 +197,25 @@ function ResultadosDePruebaTipo2(prueba: any, resultados: any) {
     };
   }
 
+  // Agregar todas las subcategorias desde el documento de prueba
+  const todasSubcategorias = Object.keys(categoriasPromedio).reduce(
+    (acc: any, nombreCategoria: string) => {
+      const categoria = prueba.categorias.find(
+        (cat: any) => cat.nombre === nombreCategoria
+      );
+      if (categoria) {
+        acc[nombreCategoria] = {};
+        categoria.subcategorias.forEach((subcategoria: any) => {
+          if (!acc[nombreCategoria][subcategoria]) {
+            acc[nombreCategoria][subcategoria] = 0;
+          }
+        });
+      }
+      return acc;
+    },
+    {}
+  );
+
   // Ordena las categorías del usuario de mayor a menor promedio
   const categoriasPromedioOrdenadas: any = Object.entries(
     categoriasPromedio as any
@@ -210,9 +229,10 @@ function ResultadosDePruebaTipo2(prueba: any, resultados: any) {
       return acc;
     }, {});
 
-  // Retorna las categorias y el promedio de cada categoria obtenido en un json
+  // Retorna las categorias, subcategorias y el promedio de cada categoria obtenido en un json
   return {
     total: categoriasConteo,
     usuario: categoriasPromedioOrdenadas,
+    subcategorias: todasSubcategorias,
   };
 }

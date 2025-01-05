@@ -256,6 +256,7 @@ const ResultsType2 = ({ results, tipo }) => {
 
   const usuarioResults = results?.usuario || {};
   const totalResults = results?.total || {};
+  const fullCategoriesAndSubCategories = results?.subcategorias || {};
 
   return (
     <>
@@ -276,13 +277,17 @@ const ResultsType2 = ({ results, tipo }) => {
                 <TableCell>{data.promedio}%</TableCell>
                 {tipo === 3 && (
                   <TableCell>
-                    {Object.entries(
-                      totalResults[category]?.subcategorias || {}
-                    ).map(([subcategoria, count], subIndex) => (
-                      <Typography key={subIndex} variant="body2">
-                        {subcategoria}
-                      </Typography>
-                    ))}
+                    <ul style={{ paddingLeft: "20px", listStyleType: "disc" }}>
+                      {Object.entries(
+                        fullCategoriesAndSubCategories[category] || {}
+                      ).map(([subcategoria, count], subIndex) => (
+                        <li key={subIndex}>
+                          <Typography variant="body2">
+                            {subcategoria}
+                          </Typography>
+                        </li>
+                      ))}
+                    </ul>
                   </TableCell>
                 )}
                 <TableCell>
