@@ -12,6 +12,11 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -133,138 +138,215 @@ export default function Page({
 
 const ResultsTable = ({ results }) => {
   const [showLinks, setShowLinks] = useState({});
+  const [openDialog, setOpenDialog] = useState(false);
+  const [dialogContent, setDialogContent] = useState("");
 
   const handleShowLinks = (index) => {
     setShowLinks((prev) => ({ ...prev, [index]: true }));
   };
 
+  const handleOpenDialog = (content) => {
+    setDialogContent(content);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
   return (
-    <TableContainer component={Paper} className="my-5">
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell style={{ width: "25%" }}>Sección</TableCell>
-            <TableCell style={{ width: "25%" }}>Porcentaje</TableCell>
-            <TableCell style={{ width: "25%" }}>Interpretación</TableCell>
-            <TableCell style={{ width: "25%" }}>Enlaces</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {results.map((result, index) => (
-            <TableRow key={index}>
-              <TableCell>{result.nombreSeccion}</TableCell>
-              <TableCell>{result.porcentaje}%</TableCell>
-              <TableCell>{result.escala}</TableCell>
-              <TableCell>
-                {showLinks[index] ? (
-                  result.enlaces.map((enlace, enlaceIndex) => (
-                    <Chip
-                      key={enlaceIndex}
-                      className="my-2"
-                      label={enlace}
-                      component="a"
-                      href={enlace}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      clickable
-                    />
-                  ))
-                ) : (
-                  <Button
-                    variant="contained"
-                    onClick={() => handleShowLinks(index)}
-                  >
-                    Mostrar Enlaces
-                  </Button>
-                )}
-              </TableCell>
+    <>
+      <TableContainer component={Paper} className="my-5">
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell style={{ width: "25%" }}>Sección</TableCell>
+              <TableCell style={{ width: "25%" }}>Porcentaje</TableCell>
+              <TableCell style={{ width: "25%" }}>Interpretación</TableCell>
+              <TableCell style={{ width: "25%" }}>Enlaces</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-};
-const ResultsType2 = ({ results, tipo }) => {
-  const [showLinks, setShowLinks] = useState({});
-
-  const handleShowLinks = (index) => {
-    setShowLinks((prev) => ({ ...prev, [index]: true }));
-  };
-
-  const usuarioResults = results?.usuario || {};
-
-  const totalResults = results?.total || {};
-
-  return (
-    <TableContainer component={Paper} className="my-5">
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>ÁREA ACADEMICA</TableCell>
-            <TableCell>PORCENTAJE</TableCell>
-            {tipo === 3 && <TableCell>CARRERAS</TableCell>}
-            <TableCell>ENLACES</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {Object.entries(usuarioResults).map(([category, data], index) => (
-            <TableRow key={index}>
-              <TableCell>{category}</TableCell>
-              <TableCell>{data.promedio}%</TableCell>
-              {tipo === 3 && (
+          </TableHead>
+          <TableBody>
+            {results.map((result, index) => (
+              <TableRow key={index}>
+                <TableCell>{result.nombreSeccion}</TableCell>
+                <TableCell>{result.porcentaje}%</TableCell>
                 <TableCell>
-                  {Object.entries(
-                    totalResults[category]?.subcategorias || {}
-                  ).map(([subcategoria, count], subIndex) => (
-                    <Typography key={subIndex} variant="body2">
-                      {subcategoria}
-                    </Typography>
-                  ))}
+                  {result.escala.split(" ").slice(0, 3).join(" ")}...
+                  <span
+                    style={{
+                      marginLeft: "3px",
+                      color: "skyblue",
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                    }}
+                    onClick={() => handleOpenDialog(result.escala)}
+                  >
+                    Ver más
+                  </span>
                 </TableCell>
-              )}
-              <TableCell>
-                {showLinks[index] ? (
-                  data.enlaces.map((enlace, enlaceIndex) => {
-                    const getShortLabel = (url) => {
-                      try {
-                        const { hostname, pathname } = new URL(url);
-                        const shortPath =
-                          pathname.length > 20
-                            ? pathname.substring(0, 5) + "..."
-                            : pathname;
-                        return `${hostname}${shortPath}`;
-                      } catch (error) {
-                        return url;
-                      }
-                    };
-
-                    return (
+                <TableCell>
+                  {showLinks[index] ? (
+                    result.enlaces.map((enlace, enlaceIndex) => (
                       <Chip
                         key={enlaceIndex}
                         className="my-2"
-                        label={getShortLabel(enlace)}
+                        label={enlace}
                         component="a"
-                        href={`${enlace}`}
+                        href={enlace}
                         target="_blank"
                         rel="noopener noreferrer"
                         clickable
                       />
-                    );
-                  })
-                ) : (
-                  <Button
-                    variant="contained"
-                    onClick={() => handleShowLinks(index)}
-                  >
-                    Mostrar Enlaces
-                  </Button>
-                )}
-              </TableCell>
+                    ))
+                  ) : (
+                    <Button
+                      variant="contained"
+                      onClick={() => handleShowLinks(index)}
+                    >
+                      Mostrar Enlaces
+                    </Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        scroll="paper"
+        aria-labelledby="scroll-dialog-title"
+        aria-describedby="scroll-dialog-description"
+      >
+        <DialogTitle id="scroll-dialog-title">
+          Interpretación Completa
+        </DialogTitle>
+        <DialogContent dividers>
+          <DialogContentText id="scroll-dialog-description" tabIndex={-1}>
+            {dialogContent}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+};
+
+const ResultsType2 = ({ results, tipo }) => {
+  const [showLinks, setShowLinks] = useState({});
+  const [openDialog, setOpenDialog] = useState(false);
+  const [dialogContent, setDialogContent] = useState("");
+
+  const handleShowLinks = (index) => {
+    setShowLinks((prev) => ({ ...prev, [index]: true }));
+  };
+
+  const handleOpenDialog = (content) => {
+    setDialogContent(content);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const usuarioResults = results?.usuario || {};
+  const totalResults = results?.total || {};
+
+  return (
+    <>
+      <TableContainer component={Paper} className="my-5">
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>ÁREA ACADEMICA</TableCell>
+              <TableCell>PORCENTAJE</TableCell>
+              {tipo === 3 && <TableCell>CARRERAS</TableCell>}
+              <TableCell>ENLACES</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {Object.entries(usuarioResults).map(([category, data], index) => (
+              <TableRow key={index}>
+                <TableCell>{category}</TableCell>
+                <TableCell>{data.promedio}%</TableCell>
+                {tipo === 3 && (
+                  <TableCell>
+                    {Object.entries(
+                      totalResults[category]?.subcategorias || {}
+                    ).map(([subcategoria, count], subIndex) => (
+                      <Typography key={subIndex} variant="body2">
+                        {subcategoria}
+                      </Typography>
+                    ))}
+                  </TableCell>
+                )}
+                <TableCell>
+                  {showLinks[index] ? (
+                    data.enlaces.map((enlace, enlaceIndex) => {
+                      const getShortLabel = (url) => {
+                        try {
+                          const { hostname, pathname } = new URL(url);
+                          const shortPath =
+                            pathname.length > 20
+                              ? pathname.substring(0, 5) + "..."
+                              : pathname;
+                          return `${hostname}${shortPath}`;
+                        } catch (error) {
+                          return url;
+                        }
+                      };
+
+                      return (
+                        <Chip
+                          key={enlaceIndex}
+                          className="my-2"
+                          label={getShortLabel(enlace)}
+                          component="a"
+                          href={`${enlace}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          clickable
+                        />
+                      );
+                    })
+                  ) : (
+                    <Button
+                      variant="contained"
+                      onClick={() => handleShowLinks(index)}
+                    >
+                      Mostrar Enlaces
+                    </Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        scroll="paper"
+        aria-labelledby="scroll-dialog-title"
+        aria-describedby="scroll-dialog-description"
+      >
+        <DialogTitle id="scroll-dialog-title">
+          Interpretación Completa
+        </DialogTitle>
+        <DialogContent dividers>
+          <DialogContentText id="scroll-dialog-description" tabIndex={-1}>
+            {dialogContent}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
