@@ -217,9 +217,19 @@ ${resumenTipo2}
 
       const resultadosHTML = categoriasOrdenadas
         .map((resultado) => {
-          console.log("Aca el error ------------");
-          console.log(resultado);
-          const SubDeResultados = Object.keys(resultado?.subcategorias || {});
+          const SubDeResultados = Object.keys(
+            pruebasTipo3.reduce((acc, prueba) => {
+              const categoria = prueba.id_prueba?.categorias.find(
+                (cat) => cat.nombre === resultado.nombreCategoria
+              );
+              if (categoria) {
+                categoria.subcategorias.forEach((subcategoria) => {
+                  acc[subcategoria] = true;
+                });
+              }
+              return acc;
+            }, {})
+          );
 
           const subcategoriasHTML = SubDeResultados.map(
             (subcategoria) => `<li>${subcategoria}</li>`
