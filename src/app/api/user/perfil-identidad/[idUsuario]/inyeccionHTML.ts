@@ -46,7 +46,8 @@ function obtenerNombresDeLasPruebasRespondidas(
 
   resultados.forEach((resultado: any) => {
     const pregunta = resultado.id_prueba?.pregunta || "Pregunta no definida";
-    html += `<li style="margin-bottom: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">${pregunta}</li>`;
+    const tipoPrueba = resultado?.id_prueba?.tipo || "";
+    html += `<li style="margin-bottom: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">${pregunta} (${tipoPrueba})</li>`;
   });
 
   html += "</ul>";
@@ -74,7 +75,11 @@ function generarHTMLResultadosPruebas(pruebas: any[]): string {
       if (tipoPrueba === 1) {
         cuerpoDeTest = CuerpoPrueba1(mejores, peores);
       } else if (tipoPrueba === 2) {
-        cuerpoDeTest = CuerpoPrueba2(mejores);
+        cuerpoDeTest = "<p></p>";
+        //Ocultos los 3 mejores resultados
+        //cuerpoDeTest = CuerpoPrueba2(mejores);
+      } else if (tipoPrueba === 3) {
+        return;
       }
 
       // Generar gráfica según el tipo de prueba
@@ -173,7 +178,7 @@ function generarHTMLResultadosPruebasTipo2y3(pruebas: any[]): string {
         (a, b) => parseFloat(b.porcentaje) - parseFloat(a.porcentaje)
       );
 
-      return `<li>✅  ${titulo}</li>`;
+      return `<li>✔️  ${titulo}</li>`;
     })
     .join("");
 

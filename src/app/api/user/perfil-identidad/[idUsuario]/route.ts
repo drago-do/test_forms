@@ -31,7 +31,7 @@ export async function GET(
       });
     }
 
-    // Obtener los test que ha respondido y ordenarlos por tipo de menor a mayor
+    // Obtener los test que ha respondido
     const resultados: IResultados[] = await (
       Resultados as mongoose.Model<IResultados>
     )
@@ -42,8 +42,14 @@ export async function GET(
         path: "id_prueba",
         model: Prueba,
       })
-      .sort({ "id_prueba.tipo": 1 }) // Ordenar por tipo de prueba de menor a mayor
       .exec();
+
+    // Ordenar los resultados por tipo de prueba de menor a mayor
+    resultados.sort((a, b) => {
+      const tipoA = (a.id_prueba as any)?.tipo || 0;
+      const tipoB = (b.id_prueba as any)?.tipo || 0;
+      return tipoA - tipoB;
+    });
 
     const HTML: string = await generarHTML(user, resultados);
 
