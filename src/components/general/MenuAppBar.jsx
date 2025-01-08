@@ -132,7 +132,7 @@ export default function MenuAppBar({ title = "Cuestionarios" }) {
                   pathname !== "/administrar" && (
                     <>
                       <MenuItem onClick={() => handleRedirect("/administrar")}>
-                        Adminstrar
+                        Administrar
                       </MenuItem>
                       <MenuItem
                         onClick={() => handleRedirect("/administrar-usuarios")}

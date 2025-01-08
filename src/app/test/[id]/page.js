@@ -247,13 +247,13 @@ export default function TestForm({ params }) {
       return (
         <Card>
           <CardContent>
-            <Typography variant="h3" gutterBottom>
+            <Typography variant="h4" gutterBottom>
               {test?.documento?.titulo}
             </Typography>
-            <Typography variant="subtitle2" paragraph>
+            <Typography variant="body1" paragraph>
               {test?.documento?.descripcion}
             </Typography>
-            <Typography variant="body1">
+            <Typography variant="subtitle2">
               Instrucciones: {test?.documento?.instrucciones}
             </Typography>
           </CardContent>
@@ -277,34 +277,38 @@ export default function TestForm({ params }) {
     } else {
       const question = questions[step - 1];
       return (
-        <Card>
-          <CardContent>
-            <FormControl component="fieldset">
-              <FormLabel component="legend" className="text-2xl mb-6">
-                {question?.texto}
-              </FormLabel>
-              <RadioGroup
-                value={answers[question?._id] || ""}
-                onChange={(e) => handleAnswer(question?._id, e.target.value)}
-              >
-                {question.opciones.map((option) => (
-                  <FormControlLabel
-                    key={option.id}
-                    value={testType === 1 ? option.valor : option.subcategoria}
-                    control={<Radio />}
-                    label={option?.texto}
-                  />
-                ))}
-              </RadioGroup>
-            </FormControl>
-          </CardContent>
-        </Card>
+        <Container maxWidth="sm">
+          <Card>
+            <CardContent>
+              <FormControl component="fieldset">
+                <FormLabel component="legend" className="text-2xl mb-6">
+                  {question?.texto}
+                </FormLabel>
+                <RadioGroup
+                  value={answers[question?._id] || ""}
+                  onChange={(e) => handleAnswer(question?._id, e.target.value)}
+                >
+                  {question.opciones.map((option) => (
+                    <FormControlLabel
+                      key={option.id}
+                      value={
+                        testType === 1 ? option.valor : option.subcategoria
+                      }
+                      control={<Radio />}
+                      label={option?.texto}
+                    />
+                  ))}
+                </RadioGroup>
+              </FormControl>
+            </CardContent>
+          </Card>
+        </Container>
       );
     }
   };
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="lg" className="pb-16">
       <Box sx={{ mt: 2, mb: 1 }}>{renderStepContent(activeStep)}</Box>
       <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
         {/* <Button
@@ -320,10 +324,14 @@ export default function TestForm({ params }) {
           <>
             <Button
               onClick={() => (window.location.href = "/usuario/" + idUser)}
+              color="secondary"
             >
               <PersonIcon /> Mi perfil
             </Button>
-            <Button onClick={() => (window.location.href = "/")}>
+            <Button
+              onClick={() => (window.location.href = "/")}
+              color="secondary"
+            >
               <MaterialIcon iconName="home" /> Inicio
             </Button>
           </>
@@ -338,6 +346,7 @@ export default function TestForm({ params }) {
                 !answers[questions[activeStep - 1]._id]) ||
               (activeStep === steps.length - 2 && isSubmitting)
             }
+            color="secondary"
           >
             {activeStep === steps.length - 2
               ? isSubmitting

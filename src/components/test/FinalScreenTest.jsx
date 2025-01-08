@@ -268,7 +268,7 @@ const ResultsType2 = ({ results, tipo }) => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>ÁREA ACADEMICA</TableCell>
+              <TableCell>TEMA DE INTERÉS</TableCell>
               <TableCell>PORCENTAJE</TableCell>
               {tipo === 3 && <TableCell>CARRERAS</TableCell>}
               <TableCell>ENLACES</TableCell>
