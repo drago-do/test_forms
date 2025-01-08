@@ -8,9 +8,8 @@ LISTO Orden en mostrar preguntas y resultados en PDF, (Del primero al tres)
 
 ---------- 5 de enero ---------
 
-- Ocultar texto (mejores 3 ) de test tipo 2 en pdf, dejar solo graficas
-- Ocultar texto y grafica de mejores en test tipo 3
+LISTO Ocultar texto (mejores 3 ) de test tipo 2 en pdf, dejar solo graficas
+LISTO Ocultar texto y grafica de mejores en test tipo 3
+
 - Mostrar grafica de test tipo dos en el resumen de test tipo tres debajo del contenido estatico
   LISTO Revirsar excel test 3 generacion
-
-NBXSPINLRZZ

@@ -21,6 +21,7 @@ export default function ViewResults({ testId, userId, simpleButton = true }) {
   const [testCompleted, setTestCompleted] = React.useState(false);
   const [testType, setTestType] = React.useState(0);
   const [testID, setTestID] = React.useState(0);
+  const [testName, setTestName] = React.useState("");
   const { getUserCompletedTest } = useTest();
 
   React.useEffect(() => {
@@ -35,6 +36,7 @@ export default function ViewResults({ testId, userId, simpleButton = true }) {
           console.log(completedTest);
           setTestID(completedTest?._id);
           setTestType(completedTest?.id_prueba?.tipo);
+          setTestName(completedTest?.id_prueba?.titulo);
           setTestCompleted(completedTest ? true : false);
         }
       } catch (error) {
@@ -118,7 +120,12 @@ export default function ViewResults({ testId, userId, simpleButton = true }) {
             </Typography>
           </Toolbar>
         </AppBar>
-        <FinalScreenTest state="success" idResults={testID} tipo={testType} />
+        <FinalScreenTest
+          state="success"
+          idResults={testID}
+          tipo={testType}
+          nombreTest={testName}
+        />
       </Dialog>
     </React.Fragment>
   );

@@ -271,6 +271,7 @@ export default function TestForm({ params }) {
           idResults={resultId}
           info={error || ""}
           tipo={parseInt(testType)}
+          nombreTest={test?.documento?.titulo}
         />
       );
     } else {

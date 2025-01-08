@@ -30,6 +30,7 @@ export default function Page({
   idResults = "673cc65c37dc6c7e01592e15",
   info = "Error ",
   tipo = 2,
+  nombreTest = "",
 }) {
   const [showConfetti, setShowConfetti] = useState(false);
   const { getResultById } = useResults();
@@ -53,6 +54,8 @@ export default function Page({
 
         if (response.success) {
           setResults(response.data);
+          console.log(response.data);
+
           showLoading(false);
         }
       }
@@ -94,6 +97,7 @@ export default function Page({
             )}
             <Typography variant="h5">
               Felicidades, concluiste el test
+              {nombreTest != "" ? `: ${nombreTest}` : ""}
             </Typography>
             <section className="w-full flex justify-center my-12">
               {successImage}
