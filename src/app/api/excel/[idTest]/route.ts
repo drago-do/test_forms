@@ -97,7 +97,7 @@ export async function GET(
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         },
       });
-    } else if (testType === 2) {
+    } else if (testType === 2 || testType === 3) {
       const { headers, data } = formatResultsForExcelTypeTwo(
         PruebaDocument,
         ResultadosArrayDocument
