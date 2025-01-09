@@ -243,7 +243,7 @@ ${resumenTipo2}
           return `
             <div style="margin-bottom: 15px;">
               <h3 style="margin: 0; font-weight: bold; font-size: 18px;">
-                Objeto de estudio: ${resultado.nombreCategoria} (${resultado.porcentaje}%)
+                Tema de interes: ${resultado.nombreCategoria} (${resultado.porcentaje}%)
               </h3>
               <p>Carreras:</p>
               <ul style="margin-left: 30px;">${subcategoriasHTML}</ul>
@@ -254,19 +254,20 @@ ${resumenTipo2}
 
       return `
         <div style="margin: 30px 0; font-family: Arial, sans-serif;">
-          <h2 style="text-align: left; color: #333;">Área académica: ${titulo} (${porcentajeGeneral.toFixed(
+          <h2 style="text-align: left; color: #00ccffff;">Área académica: ${titulo} (${porcentajeGeneral.toFixed(
         2
       )}%)</h2>
           ${resultadosHTML}
+        <span style="display: block; height: 1px; background-color: #00ccffff; margin: 20px 0;"></span>
         </div>
       `;
     })
     .join("");
 
+  // ${htmlPrimeraParte}
   return `
     <div>
-      <h1 style="color: #333;">CARRERAS DE ACUERDO AL ANÁLISIS PSICOMÉTRICO</h1>
-      ${htmlPrimeraParte}
+      <h1 style="color: #333; text-align:center; " >CARRERAS DE ACUERDO AL ANÁLISIS PSICOMÉTRICO</h1>
       <h1 style="text-align: center; color: #333;">Resultados de Pruebas Tipo 3</h1>
       ${resultadosTipo3}
     </div>

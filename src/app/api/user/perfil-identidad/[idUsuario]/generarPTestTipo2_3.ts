@@ -137,7 +137,7 @@ function generarGraficaDeCategoriasHTML(resultados) {
   // </div>
   return `
         <div style="width: 80%; margin: 30px auto; font-family: Arial, sans-serif; max-width: 600px;">
-            <h2 style="text-align: center; color: #333; font-size: 24px;">Resultados por Categoría</h2>
+            <h2 style="text-align: center; color: #333; font-size: 24px;">Resultados de la prueba</h2>
             ${barrasHTML}
         </div>
     `;
