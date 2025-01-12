@@ -307,7 +307,8 @@ export default function ExamCategories() {
 import useTest from "../../hook/useTest";
 import { toast } from "sonner";
 
-const URLLocal = `${window.location.origin}/`;
+const URLLocal =
+  typeof window !== "undefined" ? `${window.location.origin}/` : "";
 
 function CategoryLinkInput({ categoryLinks, setCategoryLinks }) {
   const [tests, setTests] = useState([]);

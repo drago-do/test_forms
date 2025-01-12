@@ -12,7 +12,8 @@ import { useFormContext, useFieldArray } from "react-hook-form";
 import useTest from "../../hook/useTest";
 import { toast } from "sonner";
 
-const URLLocal = `${window.location.origin}/`;
+const URLLocal =
+  typeof window !== "undefined" ? `${window.location.origin}/` : "";
 
 export default function LinkInput({ sectionIndex }) {
   const { control, getValues } = useFormContext();

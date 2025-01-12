@@ -1,5 +1,5 @@
 import axios from "axios";
-const api = `${window.location.origin}/`;
+const api = typeof window !== "undefined" ? `${window.location.origin}/` : "";
 
 const useTest = () => {
   const getAllTests = async (page = 1, limit = 30) => {

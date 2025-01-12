@@ -1,5 +1,5 @@
 import axios from "axios";
-const api = `${window.location.origin}/`;
+const api = typeof window !== "undefined" ? `${window.location.origin}/` : "";
 import { toast } from "sonner";
 
 const useResults = () => {
