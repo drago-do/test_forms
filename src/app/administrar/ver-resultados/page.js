@@ -156,7 +156,7 @@ function TestResults() {
 
   const exportToExcel = () => {
     const link = document.createElement("a");
-    link.href = `${process.env.NEXT_PUBLIC_API}/api/excel/${test?._id}`;
+    link.href = `${`${window.location.origin}/`}/api/excel/${test?._id}`;
     link.target = "_blank";
     document.body.appendChild(link);
     link.click();
@@ -165,7 +165,7 @@ function TestResults() {
   };
 
   const copyTestCode = () => {
-    const testLink = `${process.env.NEXT_PUBLIC_API}/test/${test._id}`;
+    const testLink = `${`${window.location.origin}/`}/test/${test._id}`;
     navigator.clipboard
       .writeText(testLink)
       .then(() => {

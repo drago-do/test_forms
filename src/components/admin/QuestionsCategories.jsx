@@ -307,7 +307,7 @@ export default function ExamCategories() {
 import useTest from "../../hook/useTest";
 import { toast } from "sonner";
 
-const URLLocal = process.env.NEXT_PUBLIC_API;
+const URLLocal = `${window.location.origin}/`;
 
 function CategoryLinkInput({ categoryLinks, setCategoryLinks }) {
   const [tests, setTests] = useState([]);

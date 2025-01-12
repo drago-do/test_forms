@@ -12,7 +12,7 @@ import { useFormContext, useFieldArray } from "react-hook-form";
 import useTest from "../../hook/useTest";
 import { toast } from "sonner";
 
-const URLLocal = process.env.NEXT_PUBLIC_API;
+const URLLocal = `${window.location.origin}/`;
 
 export default function LinkInput({ sectionIndex }) {
   const { control, getValues } = useFormContext();

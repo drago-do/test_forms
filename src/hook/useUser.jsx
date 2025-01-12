@@ -1,6 +1,6 @@
 import jsCookie from "js-cookie";
 import axios from "axios";
-const api = process.env.NEXT_PUBLIC_API;
+const api = `${window.location.origin}/`;
 
 const useUser = () => {
   const isAuthenticated = () => {
@@ -27,6 +27,9 @@ const useUser = () => {
       email
     );
     const url = `${api}api/authenticator`;
+    console.log("url");
+    console.log(url);
+
     return new Promise((resolve, reject) =>
       axios
         .post(url, { email, password })

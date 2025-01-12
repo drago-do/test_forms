@@ -1,5 +1,5 @@
 import axios from "axios";
-const api = process.env.NEXT_PUBLIC_API;
+const api = `${window.location.origin}/`;
 import { toast } from "sonner";
 
 const useResults = () => {
