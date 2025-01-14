@@ -15,7 +15,7 @@
     "@sparticuz/chromium": "^131.0.0",
     "@sparticuz/chromium-min": "^131.0.0",
     "@types/puppeteer-core": "^7.0.4",
-    "@vercel/speed-insights": "^1.0.12",
+    "@vercel/speed-insights": "^1.1.0",
     "axios": "^1.7.5",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",

@@ -32,7 +32,8 @@ export default function Footer() {
             }}
           >
             <Typography variant="body2" sx={{ my: isMobile ? 2 : 0 }}>
-              © 2024 Will Be™ Todos los derechos reservados.
+              © {new Date().getFullYear()} Will Be™ Todos los derechos
+              reservados.
             </Typography>
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Link
