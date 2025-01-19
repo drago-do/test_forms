@@ -8,17 +8,28 @@ import { Container } from "@mui/material";
 import Footer from "./../components/general/Footer";
 import useUser from "./../hook/useUser";
 import TitlePage from "./../components/general/TitlePage";
+import { ThemeProvider } from "@mui/material/styles";
+import { darkTheme, lightTheme } from "./MuiTheme";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const { getUserRole } = useUser();
-  const [auth, setAuth] = React.useState(false);
+  const [auth, setAuth] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setAuth(!!getUserRole());
   }, [getUserRole]);
 
+  useEffect(() => {
+    const prefersDarkMode = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+    setIsDarkMode(prefersDarkMode);
+  }, []);
+
   return (
-    <>
+    <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
       <MenuAppBar title="Will be" />
       <TitlePage />
       <Container maxWidth="lg">
@@ -38,6 +49,6 @@ export default function Home() {
         </main>
       </Container>
       <Footer />
-    </>
+    </ThemeProvider>
   );
 }
