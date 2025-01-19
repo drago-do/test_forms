@@ -16,15 +16,14 @@ export default function Carrousel({ renderElements, vertical = false }) {
   const swiperRef = useRef(null);
   const [isUserInteracting, setIsUserInteracting] = useState(false);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (swiperRef.current && !isUserInteracting) {
-        swiperRef.current.swiper.slideNext();
-      }
-    }, 5000); // Change slide every 5 seconds
-
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, [isUserInteracting]);
+  // useEffect(() => {
+  //   // const interval = setInterval(() => {
+  //   //   if (swiperRef.current && !isUserInteracting) {
+  //   //     swiperRef.current.swiper.slideNext();
+  //   //   }
+  //   // }, 5000); // Change slide every 5 seconds
+  //   // return () => clearInterval(interval); // Cleanup on unmount
+  // }, [isUserInteracting]);
 
   const handleUserInteraction = () => {
     setIsUserInteracting(true);

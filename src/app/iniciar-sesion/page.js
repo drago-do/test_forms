@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Container from "@mui/material/Container";
 import IconApp from "./../../components/general/IconApp";
 import {
@@ -14,6 +14,8 @@ import { useForm } from "react-hook-form";
 import useUser from "./../../hook/useUser"; // Import the useUser hook
 import FullPageLoader from "./../../components/general/FullPageLoader";
 import { useRouter } from "next/navigation";
+import { ThemeProvider } from "@mui/material/styles";
+import { darkTheme, lightTheme } from "./../MuiTheme";
 
 export default function Page() {
   const { push } = useRouter();
@@ -26,6 +28,14 @@ export default function Page() {
   const { authenticateUser } = useUser(); // Destructure authenticateUser from useUser
   const [loader, setLoader] = useState(false);
   const [errorPassword, setErrorPassword] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const prefersDarkMode = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+    setIsDarkMode(prefersDarkMode);
+  }, []);
 
   const onSubmit = async (data) => {
     setErrorPassword(false);
@@ -45,74 +55,78 @@ export default function Page() {
   };
 
   return (
-    <Container
-      maxWidth="lg"
-      className="flex flex-col flex-nowrap items-center h-svh justify-center"
-    >
-      <FullPageLoader open={loader} />
-      <IconApp />
-      <Typography
-        variant="h4"
-        component="h1"
-        gutterBottom
-        className="font-bold"
+    <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
+      <Container
+        maxWidth="lg"
+        className="flex flex-col flex-nowrap items-center h-svh justify-center"
       >
-        Inicio de sesión
-      </Typography>
-      <Container maxWidth="sm">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {" "}
-          {/* Add form submission handler */}
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <TextField
-                error={!!errors?.email}
-                helperText={errors?.email?.message}
-                {...register("email", {
-                  required: "Campo requerido",
-                })}
-                label="Correo electronico"
-                fullWidth
-                required
-                variant="standard"
-              />
+        <FullPageLoader open={loader} />
+        <IconApp />
+        <Typography
+          variant="h4"
+          component="h1"
+          gutterBottom
+          className="font-bold"
+        >
+          Inicio de sesión
+        </Typography>
+        <Container maxWidth="sm">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            {" "}
+            {/* Add form submission handler */}
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <TextField
+                  error={!!errors?.email}
+                  helperText={errors?.email?.message}
+                  {...register("email", {
+                    required: "Campo requerido",
+                  })}
+                  label="Correo electronico"
+                  fullWidth
+                  required
+                  variant="standard"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  error={!!errors?.password}
+                  helperText={errors?.password?.message}
+                  {...register("password", {
+                    required: "Campo requerido",
+                  })}
+                  label="Contraseña"
+                  fullWidth
+                  type="password"
+                  required
+                  variant="standard"
+                />
+              </Grid>
+              <Collapse in={errorPassword} className="w-full m-8">
+                <Alert severity="error">
+                  Usuario o contraseña incorrectos.
+                </Alert>
+              </Collapse>
+              <Grid item xs={12} className="flex flex-col items-center">
+                <Button type="submit" variant="contained" color="primary">
+                  {" "}
+                  {/* Change to submit button */}
+                  Ingresar
+                </Button>
+                <Button
+                  variant="text"
+                  color="primary"
+                  className="mt-12"
+                  onClick={() => push("/registrate")}
+                >
+                  Crear cuenta
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                error={!!errors?.password}
-                helperText={errors?.password?.message}
-                {...register("password", {
-                  required: "Campo requerido",
-                })}
-                label="Contraseña"
-                fullWidth
-                type="password"
-                required
-                variant="standard"
-              />
-            </Grid>
-            <Collapse in={errorPassword} className="w-full m-8">
-              <Alert severity="error">Usuario o contraseña incorrectos.</Alert>
-            </Collapse>
-            <Grid item xs={12} className="flex flex-col items-center">
-              <Button type="submit" variant="contained" color="primary">
-                {" "}
-                {/* Change to submit button */}
-                Ingresar
-              </Button>
-              <Button
-                variant="text"
-                color="primary"
-                className="mt-12"
-                onClick={() => push("/registrate")}
-              >
-                Crear cuenta
-              </Button>
-            </Grid>
-          </Grid>
-        </form>{" "}
-        {/* Close the form */}
+          </form>{" "}
+          {/* Close the form */}
+        </Container>
       </Container>
-    </Container>
+    </ThemeProvider>
   );
 }
