@@ -45,11 +45,11 @@ export async function GET(request: Request) {
   try {
     await mongodb();
     const documentos: IPrueba[] = await (Prueba as mongoose.Model<IPrueba>)
-      .find()
+      .find({ eliminado: false }) // Filtrar las pruebas que no han sido eliminadas
       .skip(skip)
       .limit(limit)
       .exec();
-    const totalDocumentos = await Prueba.countDocuments(); // Contar el total de documentos
+    const totalDocumentos = await Prueba.countDocuments({ eliminado: false }); // Contar solo los documentos no eliminados
 
     return NextResponse.json({
       success: true,

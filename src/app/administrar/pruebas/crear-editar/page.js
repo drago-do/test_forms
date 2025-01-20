@@ -1,14 +1,14 @@
 "use client";
 import React, { useState, useEffect, Suspense } from "react";
-import StepForm from "./../../../components/general/StepForm";
-import FullPageLoader from "./../../../components/general/FullPageLoader";
+import StepForm from "../../../../components/general/StepForm";
+import FullPageLoader from "../../../../components/general/FullPageLoader";
 
 import { FormProvider, useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
-import MetadataTest from "./../../../components/admin/MetadataTest";
-import TestCreatorContainer from "./../../../components/admin/TestCreatorContainer";
-import MenuAppBar from "./../../../components/general/MenuAppBar";
-import useTest from "./../../../hook/useTest";
+import MetadataTest from "../../../../components/admin/MetadataTest";
+import TestCreatorContainer from "../../../../components/admin/TestCreatorContainer";
+import MenuAppBar from "../../../../components/general/MenuAppBar";
+import useTest from "../../../../hook/useTest";
 import { useSearchParams } from "next/navigation";
 import { Toaster } from "sonner";
 

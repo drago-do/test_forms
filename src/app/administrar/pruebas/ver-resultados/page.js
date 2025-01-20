@@ -34,12 +34,12 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import PasswordIcon from "@mui/icons-material/Password";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
-import useResults from "../../../hook/useResults";
-import useTest from "../../../hook/useTest";
+import useResults from "../../../../hook/useResults";
+import useTest from "../../../../hook/useTest";
 import { useSearchParams } from "next/navigation";
-import FullPageLoader from "./../../../components/general/FullPageLoader";
+import FullPageLoader from "../../../../components/general/FullPageLoader";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import MenuAppBar from "../../../components/general/MenuAppBar";
+import MenuAppBar from "../../../../components/general/MenuAppBar";
 
 function TestResults() {
   const params = useSearchParams();

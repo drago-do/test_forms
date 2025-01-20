@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-import UserListAdmin from "../../components/admin/UsersListAdmin";
+import UserListAdmin from "../../../components/admin/UsersListAdmin";
 import { Container } from "@mui/material";
-import MenuAppBar from "./../../components/general/MenuAppBar";
+import MenuAppBar from "../../../components/general/MenuAppBar";
 
 export default function page() {
   return (

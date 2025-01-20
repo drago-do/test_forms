@@ -102,7 +102,7 @@ export async function PUT(
 
 // Metodo DELETE
 
-// Eliminar un documento por su ID
+// Eliminar un documento por su ID de forma lógica
 export async function DELETE(
   request: Request,
   { params }: { params: { idMongo: string } }
@@ -113,15 +113,19 @@ export async function DELETE(
 
     const { idMongo } = params;
 
-    // Intentar eliminar el documento por su ID
-    const documentoEliminado: IPrueba = await (
+    // Intentar encontrar y actualizar el campo 'eliminado' del documento por su ID
+    const documentoActualizado: IPrueba = await (
       Prueba as mongoose.Model<IPrueba>
     )
-      .findByIdAndDelete(idMongo)
+      .findByIdAndUpdate(
+        idMongo,
+        { eliminado: true }, // Marcar el documento como eliminado
+        { new: true } // Devolver el documento actualizado
+      )
       .exec();
 
     // Si no encuentra el documento, devolver error
-    if (!documentoEliminado) {
+    if (!documentoActualizado) {
       return NextResponse.json({
         success: false,
         error: "Not Found",
@@ -129,11 +133,11 @@ export async function DELETE(
       });
     }
 
-    // Devolver confirmación de eliminación
+    // Devolver confirmación de eliminación lógica
     return NextResponse.json({
       success: true,
-      message: "Document deleted successfully",
-      documento: documentoEliminado,
+      message: "Document logically deleted successfully",
+      documento: documentoActualizado,
     });
   } catch (error: any) {
     console.log(error);

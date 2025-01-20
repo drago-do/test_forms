@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import MenuAppBar from "../../components/general/MenuAppBar";
+import useUser from "../../../hook/useUser";
 import { ThemeProvider } from "@mui/material/styles";
-import { darkTheme, lightTheme } from "../MuiTheme";
+import { darkTheme, lightTheme } from "../../MuiTheme";
 
-export default function PublicLayout({ children }) {
+export default function Layout({ children }) {
+  const { getUserRole } = useUser();
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -14,12 +15,13 @@ export default function PublicLayout({ children }) {
     setIsDarkMode(prefersDarkMode);
   }, []);
 
+  if (typeof window !== "undefined" && getUserRole() !== "Admin") {
+    window.location.href = "/";
+  }
+
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
-      <main>
-        <MenuAppBar title="Explora Tu Futuro" />
-        {children}
-      </main>
+      <main>{children}</main>
     </ThemeProvider>
   );
 }

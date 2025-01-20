@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import useUser from "./../../hook/useUser";
+import useUser from "../../hook/useUser";
 import { ThemeProvider } from "@mui/material/styles";
-import { darkTheme, lightTheme } from "./../MuiTheme";
+import { darkTheme, lightTheme } from "../MuiTheme";
 
 export default function Layout({ children }) {
   const { getUserRole } = useUser();

@@ -1,9 +1,9 @@
 "use client";
 
-import { NivelEducativo, type ICarrera } from "./../../types/carrera";
-import VideoInput from "./../../components/explora-tu-futuro/VideoInput";
-import RichTextEditor from "./../../components/general/RichTextEditor";
-import FullPageLoader from "./../../components/general/FullPageLoader";
+import { NivelEducativo, type ICarrera } from "../../../../types/carrera";
+import VideoInput from "../../../../components/explora-tu-futuro/VideoInput";
+import RichTextEditor from "../../../../components/general/RichTextEditor";
+import FullPageLoader from "../../../../components/general/FullPageLoader";
 
 import { useState, useEffect, Suspense } from "react";
 import { FormProvider, useForm, Controller } from "react-hook-form";
@@ -30,7 +30,7 @@ import {
   BusinessCenter,
   Star,
 } from "@mui/icons-material";
-import useCarreras from "./../../hook/useCarreras";
+import useCarreras from "../../../../hook/useCarreras";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 

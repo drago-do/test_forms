@@ -130,16 +130,9 @@ export default function MenuAppBar({ title = "Cuestionarios" }) {
                 {userInfo &&
                   userInfo.role === "Admin" &&
                   pathname !== "/administrar" && (
-                    <>
-                      <MenuItem onClick={() => handleRedirect("/administrar")}>
-                        Administrar
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => handleRedirect("/administrar-usuarios")}
-                      >
-                        Usuarios
-                      </MenuItem>
-                    </>
+                    <MenuItem onClick={() => handleRedirect("/administrar")}>
+                      Administrar
+                    </MenuItem>
                   )}
                 <MenuItem onClick={handleLogOut}>Cerrar sesión</MenuItem>
               </Menu>

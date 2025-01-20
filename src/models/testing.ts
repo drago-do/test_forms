@@ -141,6 +141,7 @@ export interface IPrueba extends Document {
   sections: (typeof seccionSchema)[];
   creado_por: mongoose.Types.ObjectId;
   fecha_creacion: Date;
+  eliminado: Boolean;
 }
 
 // Esquema para la prueba
@@ -199,6 +200,11 @@ const pruebaSchema: Schema<IPrueba> = new Schema(
       type: Date,
       default: Date.now,
       description: "Fecha de creación de la prueba",
+    },
+    eliminado: {
+      type: Boolean,
+      default: false,
+      description: "Indica si la prueba ha sido eliminada lógicamente",
     },
   },
   {

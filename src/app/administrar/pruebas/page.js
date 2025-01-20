@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Container from "@mui/material/Container";
-import MenuAppBar from "./../../components/general/MenuAppBar";
+import MenuAppBar from "../../../components/general/MenuAppBar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import MaterialIcon from "./../../components/general/MaterialIcon";
+import MaterialIcon from "../../../components/general/MaterialIcon";
 import {
   List,
   ListItemIcon,
@@ -24,9 +24,9 @@ import Paper from "@mui/material/Paper";
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import SearchIcon from "@mui/icons-material/Search";
-import FullPageLoader from "./../../components/general/FullPageLoader";
+import FullPageLoader from "../../../components/general/FullPageLoader";
 import InfiniteScroll from "react-infinite-scroll-component";
-import useTest from "./../../hook/useTest";
+import useTest from "../../../hook/useTest";
 import { toast } from "sonner";
 import axios from "axios";
 
@@ -86,7 +86,7 @@ export default function Page() {
           color="primary"
           fullWidth
           className="flex items-center"
-          onClick={() => handleURLClick("/administrar/crear-editar")}
+          onClick={() => handleURLClick("/administrar/pruebas/crear-editar")}
         >
           <MaterialIcon iconName="add_notes" />
           Crear nuevo test
@@ -289,7 +289,9 @@ const ItemTest = ({
             "aria-labelledby": "basic-button",
           }}
         >
-          <MenuItem onClick={() => push(`/administrar/crear-editar?id=${_id}`)}>
+          <MenuItem
+            onClick={() => push(`/administrar/pruebas/crear-editar?id=${_id}`)}
+          >
             Editar
           </MenuItem>
           <MenuItem onClick={handleDeleteDialog}>Eliminar</MenuItem>
