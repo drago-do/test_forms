@@ -21,6 +21,7 @@ export async function POST(request: Request) {
         engine: "google_images",
         q: query,
         api_key: apiKey,
+        num: 20, // Limit to 20 images
       },
       headers: {
         "Access-Control-Allow-Origin": "*",
@@ -28,9 +29,29 @@ export async function POST(request: Request) {
     });
 
     const data = response.data;
+    const images = data.images_results || [];
+
+    // Validate image URLs
+    const validImages = await Promise.all(
+      images.map(async (image) => {
+        try {
+          const headResponse = await axios.head(image.original);
+          if (headResponse.status === 200) {
+            return image;
+          }
+        } catch (error) {
+          console.error(
+            `Image URL validation failed for ${image.original}:`,
+            error
+          );
+        }
+        return null;
+      })
+    ).then((results) => results.filter((image) => image !== null));
+
     return NextResponse.json({
       success: true,
-      data: data.images_results || [],
+      data: validImages,
     });
   } catch (error: any) {
     return NextResponse.json({

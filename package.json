@@ -30,6 +30,7 @@
     "react-confetti-explosion": "^2.1.2",
     "react-dom": "^18",
     "react-jss": "^10.10.0",
+    "react-simply-carousel": "^9.1.8",
     "react-use": "^17.5.1",
     "recharts": "^2.12.7",
     "swiper": "^11.1.12",
