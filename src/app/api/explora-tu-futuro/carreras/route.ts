@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1", 10);
-  const limit = parseInt(searchParams.get("limit") || "20", 20);
+  const limit = parseInt(searchParams.get("limit") || "20", 10); // Corrected the radix for limit
   const skip = (page - 1) * limit;
 
   try {
@@ -38,11 +38,17 @@ export async function GET(request: Request) {
       .skip(skip)
       .limit(limit)
       .exec();
+
+    // Filter out undefined objects
+    const filteredCarreras = carreras.filter(
+      (carrera) => carrera !== undefined
+    );
+
     const totalCarreras = await Carrera.countDocuments();
 
     return NextResponse.json({
       success: true,
-      data: carreras,
+      data: filteredCarreras,
       total: totalCarreras,
       page,
       totalPages: Math.ceil(totalCarreras / limit),

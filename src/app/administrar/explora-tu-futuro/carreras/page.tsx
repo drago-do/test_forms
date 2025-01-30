@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -9,7 +9,7 @@ import useCarreras from "../../../../hook/useCarreras";
 import { useRouter } from "next/navigation";
 import CarreraItem from "../../../../components/explora-tu-futuro/CarreraItem";
 import SearchTextBox from "../../../../components/explora-tu-futuro/SearchTextBox";
-import { List } from "@mui/material";
+import { List, Alert } from "@mui/material";
 
 export default function Page() {
   const { push } = useRouter();
@@ -17,19 +17,15 @@ export default function Page() {
   const [carreras, setCarreras] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState(null);
   const { getAllCarreras } = useCarreras();
 
-  useEffect(() => {
-    fetchCarreras();
-  }, []);
-
-  const fetchCarreras = async () => {
+  const fetchCarreras = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await getAllCarreras(page, 40);
-      if (data) {
-        console.log(data);
-
+      if (data && data?.carreras) {
         setCarreras((prevCarreras) => {
           const newCarreras = data.carreras.filter(
             (newCarrera) =>
@@ -41,13 +37,20 @@ export default function Page() {
         if (page >= data.totalPages) {
           setHasMore(false);
         }
+      } else {
+        setError("No se pudo obtener la respuesta del servidor.");
       }
     } catch (error) {
       console.error("Failed to fetch carreras:", error);
+      setError("Error al obtener las carreras. Por favor, inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, getAllCarreras]);
+
+  useEffect(() => {
+    fetchCarreras();
+  }, []);
 
   const handleURLClick = (url) => {
     setLoading(true);
@@ -75,6 +78,11 @@ export default function Page() {
           Crear nueva carrera
         </Button>
         <SearchTextBox />
+        {error && (
+          <Alert severity="error" sx={{ my: 2 }}>
+            {error}
+          </Alert>
+        )}
         <InfiniteScroll
           dataLength={carreras.length}
           next={fetchCarreras}
@@ -93,15 +101,16 @@ export default function Page() {
           }
         >
           <List>
-            {carreras.map((carrera) => (
-              <CarreraItem
-                key={carrera._id}
-                _id={carrera._id}
-                nombre={carrera.nombre}
-                descripcion={carrera.descripcion}
-                nivelEducativo={carrera.nivelEducativo}
-              />
-            ))}
+            {carreras &&
+              carreras.map((carrera) => (
+                <CarreraItem
+                  key={carrera._id}
+                  _id={carrera._id}
+                  nombre={carrera.nombre}
+                  descripcion={carrera.descripcion}
+                  nivelEducativo={carrera.nivelEducativo}
+                />
+              ))}
           </List>
         </InfiniteScroll>
       </Container>

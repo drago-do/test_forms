@@ -176,6 +176,9 @@ function CarreraForm() {
                                 fullWidth
                                 error={!!errors.nivelEducativo}
                                 helperText={errors.nivelEducativo?.message}
+                                SelectProps={{
+                                  value: field.value || Object.values(NivelEducativo)[0],
+                                }}
                               >
                                 {Object.values(NivelEducativo).map((nivel) => (
                                   <MenuItem key={nivel} value={nivel}>
