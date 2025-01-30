@@ -18,7 +18,31 @@ export default function Page() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
-  const { getAllCarreras } = useCarreras();
+  const { getAllCarreras, searchCarreras } = useCarreras();
+
+  const handleSearch = async (searchQuery) => {
+    if (!searchQuery) {
+      fetchCarreras();
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await searchCarreras(searchQuery, page, 40);
+      if (data && data?.carreras) {
+        setCarreras(data.carreras);
+        setPage(2);
+        setHasMore(page < data.totalPages);
+      } else {
+        setError("No se pudo obtener la respuesta del servidor.");
+      }
+    } catch (error) {
+      console.error("Failed to search carreras:", error);
+      setError("Error al buscar las carreras. Por favor, inténtalo de nuevo.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchCarreras = useCallback(async () => {
     setLoading(true);
@@ -77,7 +101,7 @@ export default function Page() {
         >
           Crear nueva carrera
         </Button>
-        <SearchTextBox />
+        <SearchTextBox onSearch={handleSearch} />
         {error && (
           <Alert severity="error" sx={{ my: 2 }}>
             {error}

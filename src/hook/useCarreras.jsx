@@ -116,12 +116,43 @@ const useCarreras = () => {
     });
   };
 
+  const searchCarreras = (searchParam, page = 1, limit = 10) => {
+    console.log(
+      "[searchCarreras] Searching carreras with searchParam:",
+      searchParam,
+      "for page:",
+      page,
+      "with limit:",
+      limit
+    );
+    const url = `${api}api/explora-tu-futuro/carreras/search`;
+    return new Promise((resolve, reject) => {
+      axios
+        .post(url, { searchParam, page, limit })
+        .then((response) => {
+          const { data, total, page, totalPages } = response.data;
+          console.log("[searchCarreras] Retrieved carreras:", {
+            carreras: data,
+            total,
+            page,
+            totalPages,
+          });
+          resolve({ carreras: data, total, page, totalPages });
+        })
+        .catch((err) => {
+          console.log("[searchCarreras] Error searching carreras:", err);
+          reject(err);
+        });
+    });
+  };
+
   return {
     getCarreraById,
     createCarrera,
     updateCarrera,
     deleteCarrera,
     getAllCarreras,
+    searchCarreras,
   };
 };
 
