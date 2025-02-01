@@ -18,59 +18,51 @@ export default function Page() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const { getAllCarreras, searchCarreras } = useCarreras();
 
-  const handleSearch = async (searchQuery) => {
-    if (!searchQuery) {
-      fetchCarreras();
-      return;
-    }
+  const handleSearch = async (query) => {
     setLoading(true);
     setError(null);
-    try {
-      const data = await searchCarreras(searchQuery, page, 40);
-      if (data && data?.carreras) {
-        setCarreras(data.carreras);
-        setPage(2);
-        setHasMore(page < data.totalPages);
-      } else {
-        setError("No se pudo obtener la respuesta del servidor.");
-      }
-    } catch (error) {
-      console.error("Failed to search carreras:", error);
-      setError("Error al buscar las carreras. Por favor, inténtalo de nuevo.");
-    } finally {
-      setLoading(false);
-    }
+    setSearchQuery(query);
+    setPage(1); // Reset page to 1 for new search
+    setCarreras([]); // Clear current carreras to reload from the start
+    fetchCarreras(query, 1); // Fetch with new search query
   };
 
-  const fetchCarreras = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getAllCarreras(page, 40);
-      if (data && data?.carreras) {
-        setCarreras((prevCarreras) => {
-          const newCarreras = data.carreras.filter(
-            (newCarrera) =>
-              !prevCarreras.some((carrera) => carrera._id === newCarrera._id)
-          );
-          return [...prevCarreras, ...newCarreras];
-        });
-        setPage((prevPage) => prevPage + 1);
-        if (page >= data.totalPages) {
-          setHasMore(false);
+  const fetchCarreras = useCallback(
+    async (query = searchQuery, currentPage = page) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = query
+          ? await searchCarreras(query, currentPage, 40)
+          : await getAllCarreras(currentPage, 40);
+
+        if (data && data?.carreras) {
+          setCarreras((prevCarreras) => {
+            const newCarreras = data.carreras.filter(
+              (newCarrera) =>
+                !prevCarreras.some((carrera) => carrera._id === newCarrera._id)
+            );
+            return [...prevCarreras, ...newCarreras];
+          });
+          setPage(currentPage + 1);
+          setHasMore(currentPage < data.totalPages);
+        } else {
+          setError("No se pudo obtener la respuesta del servidor.");
         }
-      } else {
-        setError("No se pudo obtener la respuesta del servidor.");
+      } catch (error) {
+        console.error("Failed to fetch carreras:", error);
+        setError(
+          "Error al obtener las carreras. Por favor, inténtalo de nuevo."
+        );
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to fetch carreras:", error);
-      setError("Error al obtener las carreras. Por favor, inténtalo de nuevo.");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, getAllCarreras]);
+    },
+    [searchQuery, page, getAllCarreras, searchCarreras]
+  );
 
   useEffect(() => {
     fetchCarreras();
@@ -101,7 +93,9 @@ export default function Page() {
         >
           Crear nueva carrera
         </Button>
-        <SearchTextBox onSearch={handleSearch} />
+        <section className="my-3">
+          <SearchTextBox onSearch={handleSearch} />
+        </section>
         {error && (
           <Alert severity="error" sx={{ my: 2 }}>
             {error}
@@ -109,7 +103,7 @@ export default function Page() {
         )}
         <InfiniteScroll
           dataLength={carreras.length}
-          next={fetchCarreras}
+          next={() => fetchCarreras(searchQuery, page)}
           hasMore={hasMore}
           loader={<h4>Loading...</h4>}
           endMessage={

@@ -13,6 +13,12 @@ const SearchTextBox: React.FC<SearchTextBoxProps> = ({ onSearch }) => {
     onSearch(searchQuery);
   };
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   return (
     <TextField
       fullWidth
@@ -20,6 +26,7 @@ const SearchTextBox: React.FC<SearchTextBoxProps> = ({ onSearch }) => {
       placeholder="Buscar..."
       value={searchQuery}
       onChange={(e) => setSearchQuery(e.target.value)}
+      onKeyDown={handleKeyPress}
       InputProps={{
         endAdornment: (
           <InputAdornment position="end">

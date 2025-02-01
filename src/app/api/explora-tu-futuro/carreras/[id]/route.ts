@@ -11,7 +11,7 @@ export async function GET(
   try {
     await mongodb();
     const carrera = await (Carrera as mongoose.Model<ICarrera>)
-      .findById(params.id)
+      .findOne({ _id: params.id, isDeleted: false })
       .exec();
 
     if (!carrera) {
@@ -44,7 +44,7 @@ export async function PUT(
     await mongodb();
     const updatedData = await request.json();
     const updatedCarrera = await (Carrera as mongoose.Model<ICarrera>)
-      .findByIdAndUpdate(params.id, updatedData, {
+      .findOneAndUpdate({ _id: params.id, isDeleted: false }, updatedData, {
         new: true,
         runValidators: true,
       })
@@ -81,7 +81,7 @@ export async function DELETE(
 
     await mongodb();
     const deletedCarrera = await (Carrera as mongoose.Model<ICarrera>)
-      .findByIdAndDelete(params.id)
+      .findOneAndUpdate({ _id: params.id }, { isDeleted: true }, { new: true })
       .exec();
 
     if (!deletedCarrera) {

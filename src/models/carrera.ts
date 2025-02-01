@@ -24,6 +24,7 @@ export interface ICarrera extends Document {
   };
   createdAt: Date;
   updatedAt: Date;
+  isDeleted: boolean; // Campo para eliminación lógica
 }
 
 // Esquema de Mongoose
@@ -52,8 +53,9 @@ const CarreraSchema = new Schema<ICarrera>(
       dondePuedoTrabajar: { type: String, default: "" },
       competenciasAlTerminar: { type: String, default: "" },
     },
+    isDeleted: { type: Boolean, default: false },
   },
-  { timestamps: true } // Agrega createdAt y updatedAt automáticamente
+  { timestamps: true }
 );
 
 // Verificar si el modelo ya está definido antes de compilarlo

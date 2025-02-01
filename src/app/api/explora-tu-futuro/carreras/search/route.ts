@@ -9,7 +9,6 @@ export async function POST(request: Request) {
     const { searchParam, page = 1, limit = 10 } = await request.json();
     console.log("[POST] Input:", { searchParam, page, limit });
     const skip = (page - 1) * limit;
-//TODO mejorar la busqueda
     let query = {};
     if (searchParam) {
       query = {
@@ -26,11 +25,14 @@ export async function POST(request: Request) {
       .limit(limit)
       .exec();
 
+    // Filter out logically deleted records after the query
+    const filteredCarreras = carreras.filter((carrera) => !carrera.isDeleted);
+
     const totalCarreras = await Carrera.countDocuments(query);
 
     const response = {
       success: true,
-      data: carreras,
+      data: filteredCarreras,
       total: totalCarreras,
       page,
       totalPages: Math.ceil(totalCarreras / limit),

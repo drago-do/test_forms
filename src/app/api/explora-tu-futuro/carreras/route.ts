@@ -34,7 +34,7 @@ export async function GET(request: Request) {
   try {
     await mongodb();
     const carreras: ICarrera[] = await (Carrera as mongoose.Model<ICarrera>)
-      .find()
+      .find({ isDeleted: false }) // Ensure only non-deleted records are considered
       .skip(skip)
       .limit(limit)
       .exec();
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
       (carrera) => carrera !== undefined
     );
 
-    const totalCarreras = await Carrera.countDocuments();
+    const totalCarreras = await Carrera.countDocuments({ isDeleted: false });
 
     return NextResponse.json({
       success: true,
