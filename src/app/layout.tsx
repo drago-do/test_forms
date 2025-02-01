@@ -12,6 +12,7 @@ import { Toaster } from "sonner";
 import { Metadata } from "next";
 import "material-symbols";
 import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/react";
 
 const materialSymbols = localFont({
   variable: "--font-family-symbols",
@@ -66,6 +67,7 @@ export default function RootLayout({
           {children}
           <SpeedInsights />
         </StyledEngineProvider>
+        <Analytics />
       </body>
     </html>
   );
