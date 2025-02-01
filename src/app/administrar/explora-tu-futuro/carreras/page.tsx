@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import CarreraItem from "../../../../components/explora-tu-futuro/CarreraItem";
 import SearchTextBox from "../../../../components/explora-tu-futuro/SearchTextBox";
 import { List, Alert } from "@mui/material";
+import MenuAppBar from "../../../../components/general/MenuAppBar";
 
 export default function Page() {
   const { push } = useRouter();
@@ -75,6 +76,7 @@ export default function Page() {
 
   return (
     <>
+      <MenuAppBar title="Explora Tu Futuro" />
       <FullPageLoader open={loading} />
       <Container maxWidth="md">
         <Typography variant="h2" className="mt-16 mb-3">
