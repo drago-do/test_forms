@@ -1,4 +1,4 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model, models, Types } from "mongoose";
 
 const EscuelaSchema = new Schema(
   {
@@ -29,7 +29,7 @@ const EscuelaSchema = new Schema(
 
     programas: [
       {
-        referenciaAEntrada: [{ type: Types.ObjectId, ref: "Carrera" }], // Lista de carreras (referencias a otro modelo)
+        referenciaAEntrada: { type: Types.ObjectId, ref: "Carrera" }, // Lista de carreras (referencias a otro modelo)
         nombre: { type: String, required: true }, // Nombre del programa educativo
         nivelEstudios: { type: String, required: true }, // Nivel de estudios (Licenciatura, Posgrado, etc.)
         areaEstudios: { type: String, required: true }, // Área académica
@@ -66,4 +66,4 @@ const EscuelaSchema = new Schema(
   { timestamps: true } // Agrega createdAt y updatedAt automáticamente
 );
 
-export const Escuela = model("Escuela", EscuelaSchema);
+export const Escuela = models.Escuela || model("Escuela", EscuelaSchema);

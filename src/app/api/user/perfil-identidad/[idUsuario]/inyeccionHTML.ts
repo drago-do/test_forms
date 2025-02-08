@@ -254,9 +254,7 @@ ${resumenTipo2}
 
       return `
         <div style="margin: 30px 0; font-family: Arial, sans-serif;">
-          <h2 style="text-align: left; color: #00ccffff;">Área académica: ${titulo} (${porcentajeGeneral.toFixed(
-        2
-      )}%)</h2>
+          <h2 style="text-align: left; color: #00ccffff;">Área académica: ${titulo}</h2>
           ${resultadosHTML}
         <span style="display: block; height: 1px; background-color: #00ccffff; margin: 20px 0;"></span>
         </div>

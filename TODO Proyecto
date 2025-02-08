@@ -13,3 +13,9 @@ LISTO Ocultar texto y grafica de mejores en test tipo 3
 
 - Mostrar grafica de test tipo dos en el resumen de test tipo tres debajo del contenido estatico
   LISTO Revirsar excel test 3 generacion
+
+---------- 5 febrero-------------
+-Modificar el textfield de links para los test 3 (añadir carreras a la lista de enlaces seleccionables)
+-Seguir con la pantalla de vista de carreras
+-Agregar eliminado de espacios y cambiar a minusculas en correo
+-Anadir segundo campo a email
