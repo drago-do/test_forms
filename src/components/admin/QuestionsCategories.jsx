@@ -303,8 +303,8 @@ export default function ExamCategories() {
     </div>
   );
 }
-
 import useTest from "../../hook/useTest";
+import useCarreras from "../../hook/useCarreras";
 import { toast } from "sonner";
 
 const URLLocal =
@@ -312,19 +312,25 @@ const URLLocal =
 
 function CategoryLinkInput({ categoryLinks, setCategoryLinks }) {
   const [tests, setTests] = useState([]);
+  const [carreras, setCarreras] = useState([]);
   const [newLink, setNewLink] = useState("");
   const { getAllTests } = useTest();
+  const { getAllCarreras } = useCarreras();
 
   useEffect(() => {
-    const fetchTests = async () => {
+    const fetchData = async () => {
       try {
-        const testList = await getAllTests();
-        setTests(testList.data);
+        const [testsRes, carrerasRes] = await Promise.all([
+          getAllTests(),
+          getAllCarreras(),
+        ]);
+        setTests(testsRes.data);
+        setCarreras(carrerasRes.carreras);
       } catch (error) {
-        toast.error("Error fetching tests");
+        toast.error("Error cargando recursos");
       }
     };
-    fetchTests();
+    fetchData();
   }, []);
 
   const handleDeleteLink = (indexLink) => {
@@ -336,11 +342,11 @@ function CategoryLinkInput({ categoryLinks, setCategoryLinks }) {
   const formatLink = (link) => {
     try {
       const url = new URL(link);
-      const domain = url.hostname;
-      const path = url.pathname;
-      const truncatedPath =
-        path.length > 10 ? `${path.slice(0, 3)}...${path.slice(-7)}` : path;
-      return domain + truncatedPath;
+      return (
+        url.hostname +
+        url.pathname.slice(0, 20) +
+        (url.pathname.length > 20 ? "..." : "")
+      );
     } catch (error) {
       return link;
     }
@@ -355,9 +361,14 @@ function CategoryLinkInput({ categoryLinks, setCategoryLinks }) {
       setCategoryLinks((prevLinks) => [...prevLinks, formattedLink]);
       setNewLink("");
     } catch (error) {
-      toast.error("El enlace no tiene una estructura válida.");
+      toast.error("Enlace inválido");
     }
   };
+
+  const combinedOptions = [
+    ...tests.map((test) => ({ type: "test", data: test })),
+    ...carreras.map((carrera) => ({ type: "carrera", data: carrera })),
+  ];
 
   return (
     <Grid item xs={12} className="mt-4">
@@ -365,35 +376,37 @@ function CategoryLinkInput({ categoryLinks, setCategoryLinks }) {
         <Autocomplete
           freeSolo
           fullWidth
-          options={tests}
-          getOptionLabel={(option) => option?.titulo || option}
+          options={combinedOptions}
+          getOptionLabel={(option) => {
+            console.log(option);
+            if (typeof option === "string") return option;
+            return option.type === "test"
+              ? `[Test] ${option.data.titulo}`
+              : `[Carrera] ${option.data.nombre}`;
+          }}
           onInputChange={(event, newInputValue) => setNewLink(newInputValue)}
           onChange={(event, newValue) => {
             if (typeof newValue === "string") {
               setNewLink(newValue);
-            } else if (newValue?._id) {
-              const testLink = `${URLLocal}test/${newValue._id}`;
-              handleAddLink(testLink);
+            } else if (newValue?.type === "test") {
+              handleAddLink(`${URLLocal}test/${newValue.data._id}`);
+            } else if (newValue?.type === "carrera") {
+              handleAddLink(
+                `${URLLocal}explora-tu-futuro/carreras/${newValue.data._id}`
+              );
             }
           }}
           renderOption={(props, option) => (
-            <li {...props} key={option?._id || option}>
-              {option?.titulo || option}
+            <li {...props} key={option.data._id}>
+              {option.type === "test"
+                ? `[Test] ${option.data.titulo}`
+                : `[Carrera] ${option.data.nombre}`}
             </li>
           )}
-          renderTags={(tagValue, getTagProps) =>
-            tagValue.map((option, index) => (
-              <Chip
-                {...getTagProps({ index })}
-                key={option?._id || option}
-                label={option?.titulo || formatLink(option)}
-              />
-            ))
-          }
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Agregar enlace de test o externo"
+              label="Agregar enlace de test, carrera o externo"
               variant="standard"
             />
           )}
@@ -412,13 +425,26 @@ function CategoryLinkInput({ categoryLinks, setCategoryLinks }) {
       <Grid item xs={12} className="mt-4">
         {categoryLinks.length > 0 ? (
           categoryLinks.map((link, index) => {
-            const test = tests.find(
-              (test) => `${URLLocal}test/${test._id}` === link
-            );
+            const testMatch = link.match(/test\/([a-f\d]{24})$/);
+            const carreraMatch = link.match(/carreras\/([a-f\d]{24})$/);
+
+            const test = testMatch
+              ? tests.find((t) => t._id === testMatch[1])
+              : null;
+            const carrera = carreraMatch
+              ? carreras.find((c) => c._id === carreraMatch[1])
+              : null;
+
             return (
               <Chip
                 key={index}
-                label={test ? test.titulo : link}
+                label={
+                  test
+                    ? `[Test] ${test.titulo}`
+                    : carrera
+                    ? `[Carrera] ${carrera.nombre}`
+                    : formatLink(link)
+                }
                 onDelete={() => handleDeleteLink(index)}
                 className="mr-2 mb-2"
               />
