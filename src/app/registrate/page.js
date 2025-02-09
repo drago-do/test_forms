@@ -44,6 +44,8 @@ export default function Page() {
     try {
       // Add a timer of 1.5 seconds before making the request
       await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Remove spaces and convert email to lowercase
+      data.email = data.email.replace(/\s+/g, "").toLowerCase();
       await createNewUser(data);
       toast.success("Registro exitoso! Redirigiendo a inicio de sesión..."); // Notify user of successful registration
       setTimeout(() => {

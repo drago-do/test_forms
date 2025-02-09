@@ -49,3 +49,6 @@ changes.diff
 sw.*
 workbox-*
 swe-worker-*
+
+#bk
+src/utils/bk/

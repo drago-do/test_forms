@@ -41,6 +41,8 @@ export default function Page() {
     setErrorPassword(false);
     setLoader(true);
     try {
+      // Remove spaces and convert email to lowercase
+      data.email = data.email.replace(/\s+/g, "").toLowerCase();
       // Add a timer of 1.5 seconds before making the request
       await new Promise((resolve) => setTimeout(resolve, 1500));
       await authenticateUser(data.email, data.password);
