@@ -36,6 +36,7 @@ export default function Page({
   const { getResultById } = useResults();
   const [loading, showLoading] = useState(true);
   const [results, setResults] = useState([]);
+  const { push } = useRouter();
 
   // Manejar efecto solo cuando el estado es "success"
   useEffect(() => {
@@ -261,6 +262,7 @@ const ResultsType2 = ({ results, tipo }) => {
   const usuarioResults = results?.usuario || {};
   const totalResults = results?.total || {};
   const fullCategoriesAndSubCategories = results?.subcategorias || {};
+  const subcategoriasData = results?.subcategoriasData || {};
 
   return (
     <>
@@ -284,13 +286,32 @@ const ResultsType2 = ({ results, tipo }) => {
                     <ul style={{ paddingLeft: "20px", listStyleType: "disc" }}>
                       {Object.entries(
                         fullCategoriesAndSubCategories[category] || {}
-                      ).map(([subcategoria, count], subIndex) => (
-                        <li key={subIndex}>
-                          <Typography variant="body2">
-                            {subcategoria}
-                          </Typography>
-                        </li>
-                      ))}
+                      ).map(([subcategoria, count], subIndex) => {
+                        const carreraId =
+                          subcategoriasData[category]?.subcategoriasData?.[
+                            subcategoria
+                          ]?.carreraId;
+                        return (
+                          <li key={subIndex}>
+                            {carreraId ? (
+                              <a
+                                href={`/explora-tu-futuro/carreras/${carreraId}`}
+                                style={{
+                                  color: "blue",
+                                  textDecoration: "underline",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                {subcategoria}
+                              </a>
+                            ) : (
+                              <span style={{ color: "gray" }}>
+                                {subcategoria}
+                              </span>
+                            )}
+                          </li>
+                        );
+                      })}
                     </ul>
                   </TableCell>
                 )}

@@ -17,29 +17,119 @@ import {
   Collapse,
   Chip,
   Paper,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import LinkIcon from "@mui/icons-material/Link";
+import LinkOffIcon from "@mui/icons-material/LinkOff";
 import LinkInput from "./LinksTesting";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import useCarreras from "../../hook/useCarreras";
+import { toast } from "sonner";
+import useTest from "../../hook/useTest";
+
+function CareerLinkModal({
+  open,
+  onClose,
+  subcategory,
+  onSave,
+  initialCareer,
+}) {
+  const [selectedCareer, setSelectedCareer] = useState(initialCareer || null);
+  const { getAllCarreras } = useCarreras();
+  const [carreras, setCarreras] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCarreras = async () => {
+      try {
+        const response = await getAllCarreras();
+        if (response.carreras) {
+          setCarreras(response.carreras);
+        }
+        setLoading(false);
+      } catch (error) {
+        toast.error("Error al cargar las carreras");
+        setLoading(false);
+      }
+    };
+    fetchCarreras();
+  }, []);
+
+  const handleSave = () => {
+    onSave(selectedCareer);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Vincular Carrera a {subcategory}</DialogTitle>
+      <DialogContent>
+        <Autocomplete
+          value={selectedCareer}
+          onChange={(event, newValue) => setSelectedCareer(newValue)}
+          options={carreras}
+          getOptionLabel={(option) => option.nombre || ""}
+          loading={loading}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Seleccionar Carrera"
+              variant="outlined"
+              margin="normal"
+              fullWidth
+            />
+          )}
+        />
+      </DialogContent>
+      <DialogActions>
+        {selectedCareer && (
+          <Button
+            onClick={() => {
+              setSelectedCareer(null);
+              onSave(null);
+              onClose();
+            }}
+            color="error"
+          >
+            Desvincular
+          </Button>
+        )}
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button onClick={handleSave} variant="contained" color="primary">
+          Guardar
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
 
 function CategoryDialog({ open, onClose, initialData }) {
   const [categoryName, setCategoryName] = useState("");
   const [subcategories, setSubcategories] = useState([]);
+  const [subcategoriesData, setSubcategoriesData] = useState(new Map());
   const [newSubcategory, setNewSubcategory] = useState("");
-  const [links, setLinks] = useState([]); // Add state for links
+  const [links, setLinks] = useState([]);
+  const [careerModalOpen, setCareerModalOpen] = useState(false);
+  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
 
   useEffect(() => {
     if (initialData) {
       setCategoryName(initialData.nombre || "");
       setSubcategories(initialData.subcategorias || []);
-      setLinks(initialData.link || []); // Initialize links
+      setLinks(initialData.link || []);
+      setSubcategoriesData(
+        new Map(Object.entries(initialData.subcategoriasData || {}))
+      );
     } else {
       setCategoryName("");
       setSubcategories([]);
-      setLinks([]); // Reset links
+      setLinks([]);
+      setSubcategoriesData(new Map());
     }
   }, [initialData]);
 
@@ -51,101 +141,149 @@ function CategoryDialog({ open, onClose, initialData }) {
   };
 
   const handleRemoveSubcategory = (index) => {
-    setSubcategories(subcategories.filter((_, i) => i !== index));
+    const subcategory = subcategories[index];
+    const newSubcategories = subcategories.filter((_, i) => i !== index);
+    setSubcategories(newSubcategories);
+
+    // Remove data for the deleted subcategory
+    const newSubcategoriesData = new Map(subcategoriesData);
+    newSubcategoriesData.delete(subcategory);
+    setSubcategoriesData(newSubcategoriesData);
+  };
+
+  const handleCareerLink = (subcategory) => {
+    setSelectedSubcategory(subcategory);
+    setCareerModalOpen(true);
+  };
+
+  const handleCareerSave = (career) => {
+    const newSubcategoriesData = new Map(subcategoriesData);
+    if (career) {
+      newSubcategoriesData.set(selectedSubcategory, { carreraId: career._id });
+    } else {
+      newSubcategoriesData.delete(selectedSubcategory);
+    }
+    setSubcategoriesData(newSubcategoriesData);
   };
 
   const handleSubmit = () => {
     if (categoryName.trim()) {
-      console.log("ABEEEER");
-
-      console.log({
-        nombre: categoryName.trim(),
-        subcategorias: subcategories,
-        link: links, // Include links in the category data
-      });
-
       onClose({
         nombre: categoryName.trim(),
         subcategorias: subcategories,
-        link: links, // Include links in the category data
+        subcategoriasData: Object.fromEntries(subcategoriesData),
+        link: links,
       });
     }
     setCategoryName("");
     setSubcategories([]);
-    setLinks([]); // Reset links
+    setLinks([]);
+    setSubcategoriesData(new Map());
   };
 
   return (
-    <Dialog onClose={() => onClose()} open={open} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        {initialData ? "Editar" : "Definir"} Categoría y Subcategorías
-      </DialogTitle>
-      <DialogContent>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <TextField
-              label="Nombre de la Categoría"
-              fullWidth
-              required
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-              margin="normal"
-              color="secondary"
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="subtitle1">Subcategorías</Typography>
-            <List className="flex justify-start flex-wrap">
-              {subcategories.map((subcategory, index) => (
-                <Chip
-                  key={index}
-                  label={subcategory}
-                  onDelete={() => handleRemoveSubcategory(index)}
-                  variant="outlined"
-                  className="m-2"
-                  color="secondary"
-                />
-              ))}
-            </List>
-            <Grid container spacing={1}>
-              <Grid item xs>
-                <TextField
-                  fullWidth
-                  label="Nueva Subcategoría"
-                  value={newSubcategory}
-                  onChange={(e) => setNewSubcategory(e.target.value)}
-                  margin="dense"
-                  color="secondary"
-                />
-              </Grid>
-
-              <Grid item>
-                <Button
-                  onClick={handleAddSubcategory}
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  sx={{ mt: 1 }}
-                >
-                  Agregar
-                </Button>
+    <>
+      <Dialog onClose={() => onClose()} open={open} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          {initialData ? "Editar" : "Definir"} Categoría y Subcategorías
+        </DialogTitle>
+        <DialogContent>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <TextField
+                label="Nombre de la Categoría"
+                fullWidth
+                required
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                margin="normal"
+                color="secondary"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="subtitle1">Subcategorías</Typography>
+              <List className="flex justify-start flex-wrap">
+                {subcategories.map((subcategory, index) => (
+                  <div key={index} className="flex items-center m-2">
+                    <Chip
+                      label={subcategory}
+                      onDelete={() => handleRemoveSubcategory(index)}
+                      variant="outlined"
+                      color="secondary"
+                      icon={
+                        subcategoriesData.has(subcategory) ? (
+                          <LinkIcon />
+                        ) : undefined
+                      }
+                    />
+                    <IconButton
+                      size="small"
+                      onClick={() => handleCareerLink(subcategory)}
+                      color={
+                        subcategoriesData.has(subcategory)
+                          ? "primary"
+                          : "default"
+                      }
+                    >
+                      {subcategoriesData.has(subcategory) ? (
+                        <LinkIcon />
+                      ) : (
+                        <LinkOffIcon />
+                      )}
+                    </IconButton>
+                  </div>
+                ))}
+              </List>
+              <Grid container spacing={1}>
+                <Grid item xs>
+                  <TextField
+                    fullWidth
+                    label="Nueva Subcategoría"
+                    value={newSubcategory}
+                    onChange={(e) => setNewSubcategory(e.target.value)}
+                    margin="dense"
+                    color="secondary"
+                  />
+                </Grid>
+                <Grid item>
+                  <Button
+                    onClick={handleAddSubcategory}
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    sx={{ mt: 1 }}
+                  >
+                    Agregar
+                  </Button>
+                </Grid>
               </Grid>
             </Grid>
+            <Grid item xs={12}>
+              <CategoryLinkInput
+                categoryLinks={links}
+                setCategoryLinks={setLinks}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={12}>
-            <CategoryLinkInput
-              categoryLinks={links}
-              setCategoryLinks={setLinks} // Pass down the state and setter for links
-            />
-          </Grid>
-        </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => onClose()}>Cancelar</Button>
-        <Button onClick={handleSubmit} variant="contained" color="primary">
-          Guardar
-        </Button>
-      </DialogActions>
-    </Dialog>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => onClose()}>Cancelar</Button>
+          <Button onClick={handleSubmit} variant="contained" color="primary">
+            Guardar
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <CareerLinkModal
+        open={careerModalOpen}
+        onClose={() => setCareerModalOpen(false)}
+        subcategory={selectedSubcategory}
+        onSave={handleCareerSave}
+        initialCareer={
+          selectedSubcategory
+            ? subcategoriesData.get(selectedSubcategory)?.carreraId
+            : null
+        }
+      />
+    </>
   );
 }
 
@@ -303,9 +441,6 @@ export default function ExamCategories() {
     </div>
   );
 }
-import useTest from "../../hook/useTest";
-import useCarreras from "../../hook/useCarreras";
-import { toast } from "sonner";
 
 const URLLocal =
   typeof window !== "undefined" ? `${window.location.origin}/` : "";

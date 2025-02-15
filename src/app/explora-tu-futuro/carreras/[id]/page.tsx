@@ -209,6 +209,14 @@ export default function CareerDetails() {
             <Grid item xs={12}>
               <StyledPaper>
                 <Grid container>
+                  <Grid item xs={12} className="m-3">
+                    <Typography variant="h6" gutterBottom>
+                      ¿Cómo ayuda al mundo?
+                    </Typography>
+                    <Typography paragraph>
+                      {careerData.textosInformativos.comoAyudaAlMundo}
+                    </Typography>
+                  </Grid>
                   {/* Left side - Video */}
                   <Grid item xs={12} md={6}>
                     <VideoWrapper>
@@ -237,12 +245,6 @@ export default function CareerDetails() {
                     </Box>
 
                     <TabPanel value={tabValue} index={0}>
-                      <Typography variant="h6" gutterBottom>
-                        ¿Cómo ayuda al mundo?
-                      </Typography>
-                      <Typography paragraph>
-                        {careerData.textosInformativos.comoAyudaAlMundo}
-                      </Typography>
                       <Typography variant="h6" gutterBottom>
                         Intereses y habilidades necesarias
                       </Typography>

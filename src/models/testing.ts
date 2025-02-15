@@ -117,6 +117,17 @@ const categoriaSchema = new Schema(
       type: [String],
       description: "Subcategorías de la categoría",
     },
+    subcategoriasData: {
+      type: Map,
+      of: new Schema(
+        {
+          carreraId: { type: mongoose.Schema.Types.ObjectId, ref: "Carrera" },
+        },
+        { _id: false }
+      ),
+      default: new Map(),
+      description: "Datos adicionales para cada subcategoría",
+    },
     link: {
       type: [String],
       description: "Enlaces a cuestionarios o contenido relevante",

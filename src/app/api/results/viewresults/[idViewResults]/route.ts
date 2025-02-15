@@ -133,6 +133,7 @@ function ResultadosDePruebaTipo2(prueba: any, resultados: any) {
                 subcategorias: {},
                 total: 0,
                 enlaces: categoria.link || [],
+                subcategoriasData: categoria.subcategoriasData || new Map(),
               };
             }
             if (
@@ -163,6 +164,7 @@ function ResultadosDePruebaTipo2(prueba: any, resultados: any) {
             subcategorias: {},
             total: 0,
             enlaces: categoria.link || [],
+            subcategoriasData: categoria.subcategoriasData || new Map(),
           };
         }
         if (
@@ -229,10 +231,17 @@ function ResultadosDePruebaTipo2(prueba: any, resultados: any) {
       return acc;
     }, {});
 
+  // Log the categoriasUsuario to verify subcategoriasData
+  console.log(
+    "Categorias Usuario:",
+    JSON.stringify(categoriasUsuario, null, 2)
+  );
+
   // Retorna las categorias, subcategorias y el promedio de cada categoria obtenido en un json
   return {
     total: categoriasConteo,
     usuario: categoriasPromedioOrdenadas,
     subcategorias: todasSubcategorias,
+    subcategoriasData: categoriasUsuario, // Ensure subcategoriasData is included
   };
 }
