@@ -1,7 +1,11 @@
 "use client";
-
 import { useState, useEffect, Suspense } from "react";
-import { FormProvider, useForm, Controller } from "react-hook-form";
+import {
+  FormProvider,
+  useForm,
+  Controller,
+  useFieldArray,
+} from "react-hook-form";
 import {
   Button,
   TextField,
@@ -34,11 +38,22 @@ import FullPageLoader from "../../../../../components/general/FullPageLoader";
 import SearchImage from "../../../../../components/general/SearchImage";
 import MenuAppBar from "../../../../../components/general/MenuAppBar";
 import { IEscuela } from "../../../../../types/escuela";
+import Autocomplete from "@mui/material/Autocomplete";
+import { Carrera } from "../../../../../models/carrera";
+import { Types } from "mongoose";
+import BasicInfoStep from "./components/BasicInfoStep";
+import ContactStep from "./components/ContactStep";
+import ProgramsStep from "./components/ProgramsStep";
+import MultimediaStep from "./components/MultimediaStep";
+import AdditionalInfoStep from "./components/AdditionalInfoStep";
+import PantallaFinal from "./components/FinalScreen";
 
 const steps = [
   { label: "Información Básica", icon: <School /> },
+  { label: "Contacto", icon: <Description /> },
+  { label: "Programas", icon: <Work /> },
   { label: "Multimedia", icon: <YouTube /> },
-  { label: "Textos Informativos", icon: <Description /> },
+  { label: "Información Adicional", icon: <EmojiObjects /> },
 ];
 
 function EscuelaForm() {
@@ -48,6 +63,10 @@ function EscuelaForm() {
     handleSubmit,
     formState: { errors },
   } = methods;
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "programas",
+  });
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,6 +77,7 @@ function EscuelaForm() {
   const { createEscuela, updateEscuela, getEscuelaById } = useEscuelas();
   const params = useSearchParams();
   const idEscuela = params.get("id");
+  const [carreras, setCarreras] = useState([]);
 
   useEffect(() => {
     if (idEscuela) {
@@ -73,7 +93,16 @@ function EscuelaForm() {
     } else {
       setLoading(false);
     }
-  }, [idEscuela]);
+  }, [idEscuela, getEscuelaById, methods]);
+
+  useEffect(() => {
+    // Fetch available Carreras
+    Carrera.find()
+      .then(setCarreras)
+      .catch((error) => {
+        console.error("Error fetching carreras:", error);
+      });
+  }, []);
 
   const onSubmit = async (data: IEscuela) => {
     setIsSubmitting(true);
@@ -136,7 +165,7 @@ function EscuelaForm() {
               <Step key={step.label}>
                 <StepLabel
                   optional={
-                    index === 2 ? (
+                    index === steps.length - 1 ? (
                       <Typography variant="caption">Último paso</Typography>
                     ) : null
                   }
@@ -148,207 +177,20 @@ function EscuelaForm() {
                   <form onSubmit={handleSubmit(onSubmit)}>
                     <Box sx={{ mb: 2 }}>
                       {index === 0 && (
-                        <Grid container spacing={2}>
-                          <Grid item xs={12} sm={6}>
-                            <Controller
-                              name="nombreInstitucion"
-                              control={control}
-                              rules={{ required: "Este campo es requerido" }}
-                              render={({ field }) => (
-                                <TextField
-                                  {...field}
-                                  label="Nombre de la Institución"
-                                  fullWidth
-                                  error={!!errors.nombreInstitucion}
-                                  helperText={errors.nombreInstitucion?.message}
-                                />
-                              )}
-                            />
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <Controller
-                              name="razonSocial"
-                              control={control}
-                              rules={{ required: "Este campo es requerido" }}
-                              render={({ field }) => (
-                                <TextField
-                                  {...field}
-                                  label="Razón Social"
-                                  fullWidth
-                                  error={!!errors.razonSocial}
-                                  helperText={errors.razonSocial?.message}
-                                />
-                              )}
-                            />
-                          </Grid>
-                          <Grid item xs={12}>
-                            <Controller
-                              name="mejoraInstitucional"
-                              control={control}
-                              render={({ field }) => (
-                                <TextField
-                                  {...field}
-                                  label="Mejora Institucional"
-                                  fullWidth
-                                  error={!!errors.mejoraInstitucional}
-                                  helperText={
-                                    errors.mejoraInstitucional?.message
-                                  }
-                                />
-                              )}
-                            />
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <Controller
-                              name="campus.nombre"
-                              control={control}
-                              rules={{ required: "Este campo es requerido" }}
-                              render={({ field }) => (
-                                <TextField
-                                  {...field}
-                                  label="Nombre del Campus"
-                                  fullWidth
-                                  error={!!errors.campus?.nombre}
-                                  helperText={errors.campus?.nombre?.message}
-                                />
-                              )}
-                            />
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <Controller
-                              name="campus.estado"
-                              control={control}
-                              rules={{ required: "Este campo es requerido" }}
-                              render={({ field }) => (
-                                <TextField
-                                  {...field}
-                                  label="Estado"
-                                  fullWidth
-                                  error={!!errors.campus?.estado}
-                                  helperText={errors.campus?.estado?.message}
-                                />
-                              )}
-                            />
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <Controller
-                              name="campus.municipio"
-                              control={control}
-                              rules={{ required: "Este campo es requerido" }}
-                              render={({ field }) => (
-                                <TextField
-                                  {...field}
-                                  label="Municipio"
-                                  fullWidth
-                                  error={!!errors.campus?.municipio}
-                                  helperText={errors.campus?.municipio?.message}
-                                />
-                              )}
-                            />
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <Controller
-                              name="campus.domicilio"
-                              control={control}
-                              rules={{ required: "Este campo es requerido" }}
-                              render={({ field }) => (
-                                <TextField
-                                  {...field}
-                                  label="Domicilio"
-                                  fullWidth
-                                  error={!!errors.campus?.domicilio}
-                                  helperText={errors.campus?.domicilio?.message}
-                                />
-                              )}
-                            />
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <Controller
-                              name="campus.codigoPostal"
-                              control={control}
-                              rules={{ required: "Este campo es requerido" }}
-                              render={({ field }) => (
-                                <TextField
-                                  {...field}
-                                  label="Código Postal"
-                                  fullWidth
-                                  error={!!errors.campus?.codigoPostal}
-                                  helperText={
-                                    errors.campus?.codigoPostal?.message
-                                  }
-                                />
-                              )}
-                            />
-                          </Grid>
-                        </Grid>
+                        <BasicInfoStep control={control} errors={errors} />
                       )}
-                      {index === 1 && (
-                        <Grid container spacing={2}>
-                          <Grid item xs={12}>
-                            <SearchImage name="multimedia.logo" />
-                          </Grid>
-                          <Grid item xs={12}>
-                            <Controller
-                              name="multimedia.videos"
-                              control={control}
-                              defaultValue={[]}
-                              rules={{ maxLength: 3 }}
-                              render={({ field }) => (
-                                <VideoInput
-                                  value={field.value}
-                                  onChange={field.onChange}
-                                  maxVideos={3}
-                                />
-                              )}
-                            />
-                          </Grid>
-                        </Grid>
-                      )}
+                      {index === 1 && <ContactStep control={control} />}
                       {index === 2 && (
-                        <Grid container spacing={2}>
-                          <Grid item xs={12}>
-                            <Controller
-                              name="informacionAdicional.porqueEstudiarConNosotros"
-                              control={control}
-                              render={({ field }) => (
-                                <RichTextEditor
-                                  {...field}
-                                  label="¿Por qué estudiar con nosotros?"
-                                  icon={<EmojiObjects />}
-                                />
-                              )}
-                            />
-                          </Grid>
-                          <Grid item xs={12}>
-                            <Controller
-                              name="informacionAdicional.experiencias"
-                              control={control}
-                              render={({ field }) => (
-                                <RichTextEditor
-                                  {...field}
-                                  label="Experiencias"
-                                  icon={<Star />}
-                                  value={field.value.join(" ")} // Convert string array to a single string
-                                />
-                              )}
-                            />
-                          </Grid>
-                          <Grid item xs={12}>
-                            <Controller
-                              name="informacionAdicional.testimonios"
-                              control={control}
-                              render={({ field }) => (
-                                <RichTextEditor
-                                  {...field}
-                                  label="Testimonios"
-                                  icon={<Build />}
-                                  value={field.value.join(" ")} // Convert string array to a single string
-                                />
-                              )}
-                            />
-                          </Grid>
-                        </Grid>
+                        <ProgramsStep
+                          control={control}
+                          fields={fields}
+                          append={append}
+                          remove={remove}
+                          carreras={carreras}
+                        />
                       )}
+                      {index === 3 && <MultimediaStep control={control} />}
+                      {index === 4 && <AdditionalInfoStep control={control} />}
                     </Box>
                     <Box sx={{ mb: 2 }}>
                       <div>
@@ -408,43 +250,3 @@ export default function Page() {
     </Suspense>
   );
 }
-
-const PantallaFinal = ({ estado, agregarOtra }) => {
-  return (
-    <Paper elevation={3} sx={{ p: 4, maxWidth: 600, mx: "auto", mt: 4 }}>
-      <Typography variant="h5" align="center" gutterBottom>
-        {estado === "success"
-          ? "¡Operación exitosa!"
-          : "Hubo un problema al procesar tu solicitud"}
-      </Typography>
-      <section className="flex justify-center w-full">
-        <Image
-          src={estado === "success" ? "/escuela.png" : "/error.png"}
-          alt="Escuela creada icon"
-          width={200}
-          height={200}
-          style={{
-            filter: "drop-shadow(5px 5px 5px rgba(102, 102, 102, 0.9))",
-          }}
-        />
-      </section>
-      <Typography variant="body1" align="center" sx={{ mb: 3 }}>
-        {estado === "success"
-          ? "La escuela ha sido procesada correctamente."
-          : "Por favor, intenta nuevamente o contacta al soporte técnico."}
-      </Typography>
-      <Box display="flex" justifyContent="center" gap={2}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => window.history.back()}
-        >
-          Regresar
-        </Button>
-        <Button variant="outlined" color="secondary" onClick={agregarOtra}>
-          Crear Nueva Escuela
-        </Button>
-      </Box>
-    </Paper>
-  );
-};
