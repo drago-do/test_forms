@@ -31,9 +31,8 @@ export default function ViewResults({ testId, userId, simpleButton = true }) {
 
         if (response.success) {
           const completedTest = response.data.find(
-            (test) => test.id_prueba._id === testId
+            (test) => test.id_prueba?._id === testId
           );
-          console.log(completedTest);
           setTestID(completedTest?._id);
           setTestType(completedTest?.id_prueba?.tipo);
           setTestName(completedTest?.id_prueba?.titulo);
